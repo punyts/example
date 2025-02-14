@@ -1,0 +1,31 @@
+{
+    "name": "@punyts/example",
+    "version": "0.0.0",
+    "publishConfig": {
+      "access": "public"
+    },
+    "type": "module",
+    "description": "An example application to showcase punyts",
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "dependencies": {
+        "@punyts/core": "workspace:*",
+        "@punyts/expression": "workspace:*",
+        "@punyts/state": "workspace:*",
+        "@punyts/stateui": "workspace:*"
+    },
+    "scripts": {
+      "test": "jest",
+      "build": "tsc"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "MIT",
+    "devDependencies": {
+      "@types/jest": "^29.5.14",
+      "jest": "^29.7.0",
+      "ts-jest": "^29.2.5",
+      "typescript": "^5.7.3"
+    }
+  }
