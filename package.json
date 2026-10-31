@@ -1,31 +1,37 @@
 {
     "name": "@punyts/example",
-    "version": "0.0.0",
-    "publishConfig": {
-      "access": "public"
-    },
+    "version": "0.1.0",
+    "private": true,
     "type": "module",
-    "description": "An example application to showcase punyts",
-    "main": "dist/index.js",
-    "module": "dist/index.js",
-    "types": "dist/index.d.ts",
-    "dependencies": {
-        "@punyts/core": "workspace:*",
-        "@punyts/expression": "workspace:*",
-        "@punyts/state": "workspace:*",
-        "@punyts/stateui": "workspace:*"
-    },
+    "description": "Northwind Ops: a showcase application for the StateUI builder libraries, written as one declarative app document",
     "scripts": {
-      "test": "jest",
-      "build": "tsc"
+        "dev": "vite",
+        "build": "tsc --noEmit -p tsconfig.json && vite build",
+        "preview": "vite preview",
+        "typecheck": "tsc --noEmit -p tsconfig.json",
+        "validate": "node scripts/validate.ts",
+        "icons": "node scripts/extract-icons.ts",
+        "test": "vitest run"
     },
-    "keywords": [],
+    "keywords": [
+        "stateui",
+        "punyts",
+        "example"
+    ],
     "author": "",
     "license": "MIT",
+    "dependencies": {
+        "@punyts/core": "^1.0.0",
+        "@punyts/state": "^1.2.0",
+        "@punyts/stateui": "^0.2.0",
+        "@punyts/stateui-app": "^0.1.0",
+        "@punyts/stateui-components": "^0.1.0"
+    },
     "devDependencies": {
-      "@types/jest": "^29.5.14",
-      "jest": "^29.7.0",
-      "ts-jest": "^29.2.5",
-      "typescript": "^5.7.3"
+        "@vitest/browser-playwright": "^4.1.10",
+        "playwright": "^1.61.1",
+        "typescript": "^5.9.3",
+        "vite": "^8.1.5",
+        "vitest": "^4.1.10"
     }
-  }
+}

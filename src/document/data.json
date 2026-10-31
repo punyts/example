@@ -1,0 +1,52 @@
+{
+    "view": {
+        "section": "dashboard",
+        "hidden": { "dashboard": false, "orders": true, "customers": true, "settings": true }
+    },
+    "ui": { "ordersLoading": false, "forecastLoading": true },
+    "requests": { "toast": "", "jumpTo": "" },
+    "selectedOrder": "",
+    "detail": {
+        "id": "",
+        "label": "",
+        "customer": "",
+        "email": "",
+        "product": "",
+        "sku": "",
+        "quantity": 0,
+        "unitPrice": 0,
+        "total": 0,
+        "status": "",
+        "statusTone": "neutral",
+        "channel": "",
+        "priority": "",
+        "created": "",
+        "shipped": "",
+        "progress": 0
+    },
+    "draft": {
+        "customer": "",
+        "email": "",
+        "product": "",
+        "quantity": "",
+        "channel": "",
+        "delivery": "",
+        "express": false,
+        "confirmed": false,
+        "notes": ""
+    },
+    "stats": {
+        "revenue": 0,
+        "revenueDelta": 0,
+        "orders": 0,
+        "customers": 0,
+        "pending": 0,
+        "express": 0,
+        "cancelled": 0,
+        "fulfilled": 0,
+        "forecast": 0,
+        "top": { "name": "", "city": "", "orders": 0, "spend": 0 }
+    },
+    "customers": {},
+    "orders": []
+}

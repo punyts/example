@@ -1,0 +1,609 @@
+{
+    "header": {
+        "children": {
+            "brand": {
+                "children": {
+                    "env": {
+                        "_text": "Demodaten"
+                    }
+                }
+            },
+            "tools": {
+                "children": {
+                    "help": {
+                        "_text": "Alles auf dieser Seite ist ein einziges JSON-App-Dokument",
+                        "trigger": {
+                            "_title": "Hilfe"
+                        }
+                    },
+                    "theme": {
+                        "_title": "Dunkler Modus"
+                    },
+                    "account": {
+                        "_label": "Konto",
+                        "trigger": {
+                            "_title": "Konto"
+                        },
+                        "children": {
+                            "profile": {
+                                "_label": "Angemeldet als Dana",
+                                "_description": "Leitung Betrieb"
+                            },
+                            "light": {
+                                "_label": "Heller Modus"
+                            },
+                            "signOut": {
+                                "_label": "Abmelden"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "nav": {
+        "_label": "Bereiche",
+        "children": {
+            "dashboard": {
+                "_label": "Übersicht"
+            },
+            "orders": {
+                "_label": "Bestellungen"
+            },
+            "customers": {
+                "_label": "Kunden"
+            },
+            "settings": {
+                "_label": "Einstellungen"
+            }
+        }
+    },
+    "footer": {
+        "children": {
+            "note": {
+                "_text": "Northwind Ops ist ein StateUI-Schaufenster. Die Daten sind generiert."
+            },
+            "about": {
+                "_text": "Über diese Demo"
+            }
+        }
+    },
+    "toasts": {
+        "_label": "Benachrichtigungen",
+        "messages": {
+            "orderCreated": {
+                "_title": "Bestellung angelegt",
+                "_text": "Die neue Bestellung steht am Ende der Liste."
+            },
+            "orderCancelled": {
+                "_title": "Bestellung storniert",
+                "_text": "Der Kunde wird benachrichtigt."
+            },
+            "orderShipped": {
+                "_title": "Bestellung versandt",
+                "_text": "Der Status ist jetzt „versandt“."
+            },
+            "refreshed": {
+                "_title": "Bestellungen aktualisiert",
+                "_text": "Die Liste ist aktuell."
+            },
+            "help": {
+                "_title": "So funktioniert es",
+                "_text": "Schaltflächen schreiben in den Store; Komponenten folgen den Daten."
+            },
+            "signedOut": {
+                "_title": "Abgemeldet",
+                "_text": "Nicht wirklich: Dies ist eine Demo."
+            },
+            "agent": {
+                "_title": "Nachricht vom Agenten",
+                "_text": "Diese Meldung wurde durch einen Schreibzugriff auf den Store angefordert."
+            }
+        }
+    },
+    "children": {
+        "dashboard": {
+            "_title": "Übersicht",
+            "_description": "Kennzahlen, berechnet aus den generierten Bestellungen",
+            "children": {
+                "welcome": {
+                    "_title": "Willkommen bei Northwind Ops",
+                    "_text": "Probieren Sie die Agentenkonsole rechts: Ihre Schaltflächen schreiben nur in den Store.",
+                    "actions": {
+                        "_title": "Bestellungen öffnen"
+                    }
+                },
+                "grid": {
+                    "children": {
+                        "revenue": {
+                            "_title": "Umsatz",
+                            "_subtitle": "Alle Bestellungen ohne Stornierungen",
+                            "children": {
+                                "stat": {
+                                    "_label": "Gesamt"
+                                }
+                            }
+                        },
+                        "orders": {
+                            "_title": "Bestellungen",
+                            "_subtitle": "In main.ts generiert",
+                            "children": {
+                                "stat": {
+                                    "_label": "Gesamter Zeitraum"
+                                }
+                            }
+                        },
+                        "customers": {
+                            "_title": "Kunden",
+                            "_subtitle": "Mit mindestens einer Bestellung",
+                            "children": {
+                                "stat": {
+                                    "_label": "Aktiv"
+                                }
+                            }
+                        },
+                        "fulfilment": {
+                            "_title": "Abwicklung",
+                            "children": {
+                                "bar": {
+                                    "_label": "Versandt oder zugestellt"
+                                },
+                                "badges": {
+                                    "children": {
+                                        "pendingLabel": {
+                                            "_text": "Offen"
+                                        },
+                                        "pending": {
+                                            "_text": "Offen"
+                                        },
+                                        "cancelledLabel": {
+                                            "_text": "Storniert"
+                                        },
+                                        "cancelled": {
+                                            "_text": "Storniert"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "attention": {
+                            "_title": "Braucht Aufmerksamkeit",
+                            "children": {
+                                "express": {
+                                    "_title": "Wartende Expressbestellungen",
+                                    "_text": "Offene Expressbestellungen sollten das Lager heute verlassen."
+                                },
+                                "count": {
+                                    "_label": "Express und offen"
+                                }
+                            }
+                        },
+                        "top": {
+                            "_title": "Top-Kunde",
+                            "children": {
+                                "facts": {
+                                    "items": {
+                                        "city": {
+                                            "_term": "Stadt"
+                                        },
+                                        "orders": {
+                                            "_term": "Bestellungen"
+                                        },
+                                        "spend": {
+                                            "_term": "Ausgaben"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "escalations": {
+                            "_title": "Eskalationen",
+                            "children": {
+                                "none": {
+                                    "_title": "Keine Eskalationen",
+                                    "_text": "Heute braucht nichts eine Führungskraft."
+                                }
+                            }
+                        },
+                        "forecast": {
+                            "_title": "Prognose",
+                            "_subtitle": "Nächste 30 Tage",
+                            "children": {
+                                "stat": {
+                                    "_label": "Erwarteter Umsatz"
+                                }
+                            }
+                        },
+                        "activity": {
+                            "_title": "Aktivitäten",
+                            "_subtitle": "Verbindung zum Lager wird aufgebaut",
+                            "children": {
+                                "spinner": {
+                                    "_label": "Aktivitäten werden geladen"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "orders": {
+            "_title": "Bestellungen",
+            "_description": "10.000 generierte Bestellungen, gezeichnet mit wenigen wiederverwendeten Zeilen",
+            "children": {
+                "tools": {
+                    "children": {
+                        "jump": {
+                            "_label": "Zu Bestellung springen",
+                            "_placeholder": "Bestellnummer, dann Enter (z. B. 9000)"
+                        },
+                        "actions": {
+                            "children": {
+                                "top": {
+                                    "_title": "Zurück zur ersten Bestellung"
+                                },
+                                "refresh": {
+                                    "_title": "Aktualisieren"
+                                },
+                                "create": {
+                                    "_title": "Neue Bestellung"
+                                }
+                            }
+                        }
+                    }
+                },
+                "list": {
+                    "empty": {
+                        "_title": "Noch keine Bestellungen",
+                        "_text": "Generierte Bestellungen erscheinen hier."
+                    },
+                    "row": {
+                        "children": {
+                            "open": {
+                                "_title": "Öffnen"
+                            },
+                            "more": {
+                                "_label": "Bestellaktionen",
+                                "trigger": {
+                                    "_title": "Weitere Aktionen"
+                                },
+                                "children": {
+                                    "ship": {
+                                        "_label": "Als versandt markieren"
+                                    },
+                                    "cancel": {
+                                        "_label": "Bestellung stornieren"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "detail": {
+                    "_title": "Bestelldetails",
+                    "body": {
+                        "children": {
+                            "summary": {
+                                "placement": {
+                                    "_tab": "Zusammenfassung"
+                                },
+                                "children": {
+                                    "facts": {
+                                        "items": {
+                                            "total": {
+                                                "_term": "Gesamt"
+                                            },
+                                            "email": {
+                                                "_term": "E-Mail"
+                                            },
+                                            "channel": {
+                                                "_term": "Kanal"
+                                            },
+                                            "priority": {
+                                                "_term": "Priorität"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "items": {
+                                "placement": {
+                                    "_tab": "Positionen"
+                                },
+                                "items": {
+                                    "product": {
+                                        "_term": "Produkt"
+                                    },
+                                    "quantity": {
+                                        "_term": "Menge"
+                                    },
+                                    "unitPrice": {
+                                        "_term": "Stückpreis"
+                                    },
+                                    "total": {
+                                        "_term": "Gesamt"
+                                    }
+                                }
+                            },
+                            "history": {
+                                "placement": {
+                                    "_tab": "Verlauf"
+                                },
+                                "children": {
+                                    "progress": {
+                                        "_label": "Abwicklung"
+                                    },
+                                    "dates": {
+                                        "items": {
+                                            "created": {
+                                                "_term": "Angelegt"
+                                            },
+                                            "shipped": {
+                                                "_term": "Versandt"
+                                            }
+                                        }
+                                    },
+                                    "rule": {
+                                        "_label": "Hinweis"
+                                    },
+                                    "note": {
+                                        "_text": "Datumsangaben werden wie gespeichert angezeigt, in UTC."
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "footer": {
+                        "children": {
+                            "more": {
+                                "_label": "Bestellaktionen",
+                                "trigger": {
+                                    "_title": "Weitere Aktionen"
+                                },
+                                "children": {
+                                    "ship": {
+                                        "_label": "Als versandt markieren",
+                                        "_description": "Setzt den Status und den Abwicklungsfortschritt"
+                                    },
+                                    "copy": {
+                                        "_label": "Kunden anschreiben"
+                                    },
+                                    "cancel": {
+                                        "_label": "Bestellung stornieren"
+                                    }
+                                }
+                            },
+                            "cancel": {
+                                "_title": "Bestellung stornieren"
+                            },
+                            "close": {
+                                "_title": "Schließen"
+                            }
+                        }
+                    }
+                },
+                "newOrder": {
+                    "_title": "Neue Bestellung",
+                    "body": {
+                        "children": {
+                            "customer": {
+                                "_label": "Kunde",
+                                "_placeholder": "Vollständiger Name"
+                            },
+                            "email": {
+                                "_label": "E-Mail",
+                                "_placeholder": "name@beispiel.de"
+                            },
+                            "product": {
+                                "_label": "Produkt",
+                                "options": {
+                                    "chai": {
+                                        "_label": "Chai-Tee"
+                                    },
+                                    "chang": {
+                                        "_label": "Chang-Bier"
+                                    },
+                                    "syrup": {
+                                        "_label": "Anissirup"
+                                    },
+                                    "cajun": {
+                                        "_label": "Cajun-Gewürz"
+                                    },
+                                    "gumbo": {
+                                        "_label": "Gumbo-Mischung"
+                                    },
+                                    "marmalade": {
+                                        "_label": "Orangenmarmelade"
+                                    },
+                                    "coffee": {
+                                        "_label": "Ipoh-Kaffee"
+                                    }
+                                }
+                            },
+                            "quantity": {
+                                "_label": "Menge",
+                                "_help": "Ganze Zahl von 1 bis 99"
+                            },
+                            "channel": {
+                                "_label": "Kanal",
+                                "options": {
+                                    "web": {
+                                        "_label": "Webshop"
+                                    },
+                                    "phone": {
+                                        "_label": "Telefon"
+                                    },
+                                    "marketplace": {
+                                        "_label": "Marktplatz"
+                                    }
+                                }
+                            },
+                            "delivery": {
+                                "_label": "Lieferdatum"
+                            },
+                            "express": {
+                                "_label": "Expressversand",
+                                "_help": "Verlässt das Lager am selben Tag"
+                            },
+                            "confirmed": {
+                                "_label": "Der Kunde hat die Bestellung bestätigt"
+                            },
+                            "notes": {
+                                "_label": "Notizen",
+                                "_placeholder": "Lieferhinweise"
+                            }
+                        }
+                    },
+                    "footer": {
+                        "children": {
+                            "reset": {
+                                "_title": "Zurücksetzen"
+                            },
+                            "save": {
+                                "_title": "Bestellung anlegen"
+                            }
+                        }
+                    }
+                },
+                "cancelDialog": {
+                    "_title": "Diese Bestellung stornieren?",
+                    "body": {
+                        "_text": "Die Bestellung wird als storniert markiert und der Kunde benachrichtigt. Das lässt sich nicht rückgängig machen."
+                    },
+                    "footer": {
+                        "children": {
+                            "cancel": {
+                                "_title": "Bestellung behalten"
+                            },
+                            "confirm": {
+                                "_title": "Bestellung stornieren"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "customers": {
+            "_title": "Kunden",
+            "_description": "Eine Kunden-Map mit Schlüsseln, vor dem Mounten in die Daten des Dokuments geschrieben",
+            "children": {
+                "about": {
+                    "_title": "Über Northwind",
+                    "_subtitle": "Feinkost seit 1997",
+                    "media": {
+                        "_alt": "Logo von Northwind Ops"
+                    },
+                    "children": {
+                        "text": {
+                            "_text": "Jede Kundenzeile ist ein Vorlagenknoten; $row-Links verbinden jeden wiederverwendeten Platz mit seinem Datensatz."
+                        },
+                        "orders": {
+                            "_text": "Zu den Bestellungen"
+                        }
+                    }
+                }
+            }
+        },
+        "settings": {
+            "_title": "Einstellungen",
+            "_description": "Sprache, Theme-Overlays, Dichte und Token-Überschreibungen, alles als Schreibzugriffe auf den Store",
+            "children": {
+                "language": {
+                    "_title": "Sprache",
+                    "_subtitle": "Schreibt $.locale; main.ts wendet das Overlay an"
+                },
+                "mode": {
+                    "_title": "Theme-Modus",
+                    "_subtitle": "Schreibt $.theme.active.mode",
+                    "children": {
+                        "choices": {
+                            "children": {
+                                "light": {
+                                    "_title": "Hell"
+                                },
+                                "dark": {
+                                    "_title": "Dunkel"
+                                },
+                                "contrast": {
+                                    "_title": "Hoher Kontrast"
+                                }
+                            }
+                        },
+                        "motion": {
+                            "children": {
+                                "full": {
+                                    "_title": "Volle Bewegung"
+                                },
+                                "reduced": {
+                                    "_title": "Reduzierte Bewegung"
+                                }
+                            }
+                        }
+                    }
+                },
+                "density": {
+                    "_title": "Dichte",
+                    "_subtitle": "Schreibt die Dichte in jedes Bereichspanel",
+                    "children": {
+                        "choices": {
+                            "children": {
+                                "compact": {
+                                    "_title": "Kompakt"
+                                },
+                                "comfortable": {
+                                    "_title": "Bequem"
+                                },
+                                "spacious": {
+                                    "_title": "Großzügig"
+                                }
+                            }
+                        }
+                    }
+                },
+                "accent": {
+                    "_title": "Akzentfarbe",
+                    "_subtitle": "Schreibt $.theme.tokens.color.accent.base (ein Moduswechsel stellt sie wieder her)",
+                    "children": {
+                        "choices": {
+                            "children": {
+                                "blue": {
+                                    "_title": "Blau"
+                                },
+                                "teal": {
+                                    "_title": "Petrol"
+                                },
+                                "violet": {
+                                    "_title": "Violett"
+                                }
+                            }
+                        }
+                    }
+                },
+                "override": {
+                    "_title": "Theme-Überschreibung am Knoten",
+                    "_subtitle": "Diese Karte hat ihr eigenes Theme: Erfolgsakzent, eckige Schaltflächen",
+                    "children": {
+                        "sample": {
+                            "_title": "Akzent-Schaltfläche"
+                        },
+                        "bar": {
+                            "_label": "Akzent-Fortschritt"
+                        }
+                    }
+                },
+                "plain": {
+                    "_title": "Ohne Überschreibung",
+                    "_subtitle": "Dieselben Knoten, mit den Tokens der App",
+                    "children": {
+                        "sample": {
+                            "_title": "Akzent-Schaltfläche"
+                        },
+                        "bar": {
+                            "_label": "Akzent-Fortschritt"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

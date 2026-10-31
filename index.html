@@ -1,10 +1,56 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <title>PunyTs Example</title>
-    </head>
-    <body>
-        <script type="module" src="./dist/index.js"></script>
-    </body>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Northwind Ops</title>
+    <style>
+        html, body { margin: 0; min-height: 100%; }
+        body { display: grid; grid-template-columns: minmax(0, 1fr) 380px; min-height: 100vh; }
+        #app { min-width: 0; }
+        #console {
+            position: sticky; top: 0; height: 100vh; box-sizing: border-box; overflow: auto;
+            background: #0f1117; color: #d7dae0; padding: 16px; display: grid; gap: 12px; align-content: start;
+            font: 13px/1.45 system-ui, sans-serif;
+        }
+        #console h2 { margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: #8b93a7; }
+        #console p { margin: 0; color: #8b93a7; }
+        #console .actions { display: flex; flex-wrap: wrap; gap: 6px; }
+        #console button {
+            font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid #2c3140;
+            background: #1a1e29; color: inherit; cursor: pointer;
+        }
+        #console button:hover { background: #242a38; }
+        #console button:focus-visible { outline: 2px solid #7aa2ff; outline-offset: 2px; }
+        #console pre {
+            margin: 0; padding: 10px; border-radius: 6px; background: #161a23;
+            white-space: pre-wrap; word-break: break-word; font: 12px/1.4 ui-monospace, monospace;
+        }
+        #agent-log { color: #9fe0b5; }
+        @media (max-width: 900px) {
+            body { grid-template-columns: 1fr; }
+            #console { position: static; height: auto; }
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+    <aside id="console" aria-label="Agent console">
+        <h2>Agent console</h2>
+        <p>Outside the StateUI host. Every button only writes to the store, as an agent or MCP tool would; the app reacts to the data.</p>
+        <div class="actions">
+            <button type="button" data-action="add-order">Add an order</button>
+            <button type="button" data-action="ship-order">Mark one shipped</button>
+            <button type="button" data-action="german">Switch to German</button>
+            <button type="button" data-action="english">Switch to English</button>
+            <button type="button" data-action="dark">Toggle dark mode</button>
+            <button type="button" data-action="toast">Show a toast</button>
+            <button type="button" data-action="jump">Jump to order #9000</button>
+        </div>
+        <pre id="agent-log">Click an action.</pre>
+        <h2>Store (excerpt)</h2>
+        <pre id="store-json"></pre>
+    </aside>
+    <script type="module" src="./src/main.ts"></script>
+</body>
 </html>

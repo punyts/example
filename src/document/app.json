@@ -1,0 +1,1736 @@
+{
+    "component": "page",
+    "_title": "Northwind Ops",
+    "navPosition": "start",
+    "maxWidth": "none",
+    "layout": {
+        "type": "column",
+        "gap": "md"
+    },
+    "header": {
+        "component": "toolbar",
+        "align": "between",
+        "children": {
+            "brand": {
+                "component": "toolbar",
+                "children": {
+                    "logo": {
+                        "component": "icon",
+                        "name": "building-store",
+                        "size": "lg",
+                        "tone": "accent"
+                    },
+                    "title": {
+                        "component": "text",
+                        "_text": "Northwind Ops",
+                        "textRole": "title",
+                        "element": "h1"
+                    },
+                    "env": {
+                        "component": "badge",
+                        "_text": "Demo data",
+                        "tone": "info",
+                        "icon": "info-circle"
+                    }
+                }
+            },
+            "tools": {
+                "component": "toolbar",
+                "children": {
+                    "help": {
+                        "component": "tooltip",
+                        "side": "bottom",
+                        "_text": "Everything on this page is one JSON app document",
+                        "trigger": {
+                            "component": "button",
+                            "variant": "ghost",
+                            "icon": "help",
+                            "iconPosition": "only",
+                            "_title": "Help",
+                            "on": {
+                                "press": {
+                                    "command": "show",
+                                    "target": "$.app.toasts",
+                                    "value": "help"
+                                }
+                            }
+                        }
+                    },
+                    "theme": {
+                        "component": "button",
+                        "variant": "ghost",
+                        "icon": "moon",
+                        "iconPosition": "only",
+                        "_title": "Dark mode",
+                        "on": {
+                            "press": {
+                                "command": "set",
+                                "target": "$.theme.active.mode",
+                                "value": "dark"
+                            }
+                        }
+                    },
+                    "account": {
+                        "component": "menu",
+                        "anchor": "bottomEnd",
+                        "_label": "Account",
+                        "trigger": {
+                            "component": "button",
+                            "variant": "soft",
+                            "icon": "user",
+                            "iconPosition": "only",
+                            "_title": "Account"
+                        },
+                        "children": {
+                            "profile": {
+                                "component": "menuItem",
+                                "icon": "user",
+                                "_label": "Signed in as Dana",
+                                "_description": "Operations lead",
+                                "disabled": true
+                            },
+                            "german": {
+                                "component": "menuItem",
+                                "icon": "language",
+                                "_label": "Deutsch",
+                                "on": {
+                                    "press": {
+                                        "command": "set",
+                                        "target": "$.locale",
+                                        "value": "de"
+                                    }
+                                }
+                            },
+                            "english": {
+                                "component": "menuItem",
+                                "icon": "language",
+                                "_label": "English",
+                                "on": {
+                                    "press": {
+                                        "command": "set",
+                                        "target": "$.locale",
+                                        "value": "en"
+                                    }
+                                }
+                            },
+                            "light": {
+                                "component": "menuItem",
+                                "icon": "sun",
+                                "_label": "Light mode",
+                                "on": {
+                                    "press": {
+                                        "command": "set",
+                                        "target": "$.theme.active.mode",
+                                        "value": "light"
+                                    }
+                                }
+                            },
+                            "signOut": {
+                                "component": "menuItem",
+                                "icon": "x",
+                                "_label": "Sign out",
+                                "shortcut": "Ctrl+Q",
+                                "on": {
+                                    "press": {
+                                        "command": "show",
+                                        "target": "$.app.toasts",
+                                        "value": "signedOut"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "nav": {
+        "component": "nav",
+        "_label": "Sections",
+        "<-active": "$.data.view.section",
+        "children": {
+            "dashboard": {
+                "component": "menuItem",
+                "icon": "layout-dashboard",
+                "_label": "Dashboard",
+                "on": {
+                    "press": [
+                        {
+                            "command": "set",
+                            "target": "$.data.view.hidden.dashboard",
+                            "value": false
+                        },
+                        {
+                            "command": "set",
+                            "target": "$.data.view.hidden.orders",
+                            "value": true
+                        },
+                        {
+                            "command": "set",
+                            "target": "$.data.view.hidden.customers",
+                            "value": true
+                        },
+                        {
+                            "command": "set",
+                            "target": "$.data.view.hidden.settings",
+                            "value": true
+                        }
+                    ]
+                }
+            },
+            "orders": {
+                "component": "menuItem",
+                "icon": "receipt",
+                "_label": "Orders",
+                "on": {
+                    "press": [
+                        {
+                            "command": "set",
+                            "target": "$.data.view.hidden.dashboard",
+                            "value": true
+                        },
+                        {
+                            "command": "set",
+                            "target": "$.data.view.hidden.orders",
+                            "value": false
+                        },
+                        {
+                            "command": "set",
+                            "target": "$.data.view.hidden.customers",
+                            "value": true
+                        },
+                        {
+                            "command": "set",
+                            "target": "$.data.view.hidden.settings",
+                            "value": true
+                        }
+                    ]
+                }
+            },
+            "customers": {
+                "component": "menuItem",
+                "icon": "users",
+                "_label": "Customers",
+                "on": {
+                    "press": [
+                        {
+                            "command": "set",
+                            "target": "$.data.view.hidden.dashboard",
+                            "value": true
+                        },
+                        {
+                            "command": "set",
+                            "target": "$.data.view.hidden.orders",
+                            "value": true
+                        },
+                        {
+                            "command": "set",
+                            "target": "$.data.view.hidden.customers",
+                            "value": false
+                        },
+                        {
+                            "command": "set",
+                            "target": "$.data.view.hidden.settings",
+                            "value": true
+                        }
+                    ]
+                }
+            },
+            "settings": {
+                "component": "menuItem",
+                "icon": "settings",
+                "_label": "Settings",
+                "on": {
+                    "press": [
+                        {
+                            "command": "set",
+                            "target": "$.data.view.hidden.dashboard",
+                            "value": true
+                        },
+                        {
+                            "command": "set",
+                            "target": "$.data.view.hidden.orders",
+                            "value": true
+                        },
+                        {
+                            "command": "set",
+                            "target": "$.data.view.hidden.customers",
+                            "value": true
+                        },
+                        {
+                            "command": "set",
+                            "target": "$.data.view.hidden.settings",
+                            "value": false
+                        }
+                    ]
+                }
+            }
+        }
+    },
+    "footer": {
+        "component": "toolbar",
+        "align": "between",
+        "children": {
+            "note": {
+                "component": "text",
+                "_text": "Northwind Ops is a StateUI showcase. The data is generated.",
+                "textRole": "caption"
+            },
+            "about": {
+                "component": "link",
+                "_text": "About this demo",
+                "href": "#customers",
+                "on": {
+                    "press": [
+                        {
+                            "command": "set",
+                            "target": "$.data.view.section",
+                            "value": "customers"
+                        },
+                        {
+                            "command": "set",
+                            "target": "$.data.view.hidden.dashboard",
+                            "value": true
+                        },
+                        {
+                            "command": "set",
+                            "target": "$.data.view.hidden.orders",
+                            "value": true
+                        },
+                        {
+                            "command": "set",
+                            "target": "$.data.view.hidden.customers",
+                            "value": false
+                        },
+                        {
+                            "command": "set",
+                            "target": "$.data.view.hidden.settings",
+                            "value": true
+                        }
+                    ]
+                }
+            }
+        }
+    },
+    "toasts": {
+        "component": "toastRegion",
+        "position": "bottomEnd",
+        "max": 3,
+        "_label": "Notifications",
+        "messages": {
+            "orderCreated": {
+                "tone": "success",
+                "_title": "Order created",
+                "_text": "The new order is at the end of the list."
+            },
+            "orderCancelled": {
+                "tone": "warning",
+                "_title": "Order cancelled",
+                "_text": "The customer will be notified."
+            },
+            "orderShipped": {
+                "tone": "success",
+                "_title": "Order shipped",
+                "_text": "The status is now shipped."
+            },
+            "refreshed": {
+                "tone": "info",
+                "_title": "Orders refreshed",
+                "_text": "The list is up to date."
+            },
+            "help": {
+                "tone": "info",
+                "_title": "How it works",
+                "_text": "Buttons write to the store; components follow the data."
+            },
+            "signedOut": {
+                "tone": "neutral",
+                "_title": "Signed out",
+                "_text": "Not really: this is a demo."
+            },
+            "agent": {
+                "tone": "accent",
+                "_title": "Message from the agent",
+                "_text": "This toast was requested by writing to the store."
+            }
+        }
+    },
+    "children": {
+        "dashboard": {
+            "component": "panel",
+            "_title": "Dashboard",
+            "_description": "Key figures, computed from the generated orders",
+            "<-hidden": "$.data.view.hidden.dashboard",
+            "layout": {
+                "type": "column",
+                "gap": "md"
+            },
+            "children": {
+                "welcome": {
+                    "component": "alert",
+                    "tone": "info",
+                    "dismissible": true,
+                    "_title": "Welcome to Northwind Ops",
+                    "_text": "Try the agent console on the right: its buttons only write to the store.",
+                    "actions": {
+                        "component": "button",
+                        "variant": "soft",
+                        "size": "sm",
+                        "_title": "Open orders",
+                        "on": {
+                            "press": [
+                                {
+                                    "command": "set",
+                                    "target": "$.data.view.section",
+                                    "value": "orders"
+                                },
+                                {
+                                    "command": "set",
+                                    "target": "$.data.view.hidden.dashboard",
+                                    "value": true
+                                },
+                                {
+                                    "command": "set",
+                                    "target": "$.data.view.hidden.orders",
+                                    "value": false
+                                }
+                            ]
+                        }
+                    }
+                },
+                "grid": {
+                    "component": "dashboardGrid",
+                    "layout": {
+                        "type": "grid",
+                        "cols": 3,
+                        "gap": "md",
+                        "collapseBelow": "md"
+                    },
+                    "children": {
+                        "revenue": {
+                            "_title": "Revenue",
+                            "_subtitle": "All orders, without cancellations",
+                            "children": {
+                                "stat": {
+                                    "format": "currency",
+                                    "currency": "EUR",
+                                    "_label": "Total",
+                                    "trend": "up",
+                                    "tone": "success",
+                                    "<-value": "$.data.stats.revenue",
+                                    "<-delta": "$.data.stats.revenueDelta"
+                                }
+                            }
+                        },
+                        "orders": {
+                            "_title": "Orders",
+                            "_subtitle": "Generated in main.ts",
+                            "children": {
+                                "stat": {
+                                    "_label": "All time",
+                                    "<-value": "$.data.stats.orders"
+                                }
+                            }
+                        },
+                        "customers": {
+                            "_title": "Customers",
+                            "_subtitle": "With at least one order",
+                            "children": {
+                                "stat": {
+                                    "_label": "Active",
+                                    "<-value": "$.data.stats.customers"
+                                }
+                            }
+                        },
+                        "fulfilment": {
+                            "component": "card",
+                            "_title": "Fulfilment",
+                            "layout": {
+                                "type": "column",
+                                "gap": "sm"
+                            },
+                            "children": {
+                                "bar": {
+                                    "component": "progress",
+                                    "_label": "Shipped or delivered",
+                                    "tone": "success",
+                                    "<-value": "$.data.stats.fulfilled"
+                                },
+                                "badges": {
+                                    "component": "toolbar",
+                                    "wrap": true,
+                                    "children": {
+                                        "pendingLabel": {
+                                            "component": "text",
+                                            "_text": "Pending",
+                                            "textRole": "caption"
+                                        },
+                                        "pending": {
+                                            "component": "badge",
+                                            "tone": "warning",
+                                            "max": 99999,
+                                            "_text": "Pending",
+                                            "<-count": "$.data.stats.pending"
+                                        },
+                                        "cancelledLabel": {
+                                            "component": "text",
+                                            "_text": "Cancelled",
+                                            "textRole": "caption"
+                                        },
+                                        "cancelled": {
+                                            "component": "badge",
+                                            "tone": "danger",
+                                            "max": 99999,
+                                            "_text": "Cancelled",
+                                            "<-count": "$.data.stats.cancelled"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "attention": {
+                            "component": "card",
+                            "_title": "Needs attention",
+                            "children": {
+                                "express": {
+                                    "component": "alert",
+                                    "tone": "warning",
+                                    "_title": "Express orders waiting",
+                                    "_text": "Pending express orders should leave the warehouse today."
+                                },
+                                "count": {
+                                    "component": "stat",
+                                    "_label": "Express and pending",
+                                    "tone": "warning",
+                                    "size": "sm",
+                                    "<-value": "$.data.stats.express"
+                                }
+                            },
+                            "layout": {
+                                "type": "column",
+                                "gap": "sm"
+                            }
+                        },
+                        "top": {
+                            "component": "card",
+                            "_title": "Top customer",
+                            "layout": {
+                                "type": "row",
+                                "gap": "md",
+                                "align": "start"
+                            },
+                            "children": {
+                                "avatar": {
+                                    "component": "avatar",
+                                    "size": "lg",
+                                    "<-_name": "$.data.stats.top.name"
+                                },
+                                "facts": {
+                                    "component": "descriptionList",
+                                    "density": "compact",
+                                    "termWidth": 8,
+                                    "<-record": "$.data.stats.top",
+                                    "placement": {
+                                        "grow": 1
+                                    },
+                                    "items": {
+                                        "name": {
+                                            "_term": "Name",
+                                            "field": "name"
+                                        },
+                                        "city": {
+                                            "_term": "City",
+                                            "field": "city"
+                                        },
+                                        "orders": {
+                                            "_term": "Orders",
+                                            "field": "orders",
+                                            "format": "number"
+                                        },
+                                        "spend": {
+                                            "_term": "Spend",
+                                            "field": "spend",
+                                            "format": "currency",
+                                            "currency": "EUR"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "escalations": {
+                            "component": "card",
+                            "_title": "Escalations",
+                            "children": {
+                                "none": {
+                                    "component": "emptyState",
+                                    "icon": "circle-check",
+                                    "_title": "No escalations",
+                                    "_text": "Nothing needs a manager today."
+                                }
+                            }
+                        },
+                        "forecast": {
+                            "component": "card",
+                            "_title": "Forecast",
+                            "_subtitle": "Next 30 days",
+                            "<-loading": "$.data.ui.forecastLoading",
+                            "children": {
+                                "stat": {
+                                    "component": "stat",
+                                    "format": "currency",
+                                    "currency": "EUR",
+                                    "_label": "Expected revenue",
+                                    "<-value": "$.data.stats.forecast",
+                                    "<-loading": "$.data.ui.forecastLoading"
+                                }
+                            }
+                        },
+                        "activity": {
+                            "component": "card",
+                            "_title": "Activity feed",
+                            "_subtitle": "Connecting to the warehouse",
+                            "layout": {
+                                "type": "row",
+                                "gap": "sm",
+                                "align": "center"
+                            },
+                            "children": {
+                                "spinner": {
+                                    "component": "spinner",
+                                    "size": "sm",
+                                    "_label": "Loading activity"
+                                },
+                                "lines": {
+                                    "component": "skeleton",
+                                    "shape": "text",
+                                    "lines": 3,
+                                    "placement": {
+                                        "grow": 1
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "orders": {
+            "component": "panel",
+            "_title": "Orders",
+            "_description": "10,000 generated orders, drawn through a small pool of recycled rows",
+            "<-hidden": "$.data.view.hidden.orders",
+            "layout": {
+                "type": "column",
+                "gap": "sm"
+            },
+            "children": {
+                "tools": {
+                    "component": "toolbar",
+                    "align": "between",
+                    "wrap": true,
+                    "children": {
+                        "jump": {
+                            "component": "searchBox",
+                            "_label": "Jump to order",
+                            "_placeholder": "Order number, then Enter (try 9000)",
+                            "on": {
+                                "search": {
+                                    "command": "emit",
+                                    "target": "orders.jump"
+                                }
+                            }
+                        },
+                        "actions": {
+                            "component": "toolbar",
+                            "children": {
+                                "top": {
+                                    "component": "button",
+                                    "variant": "ghost",
+                                    "icon": "chevron-up",
+                                    "iconPosition": "only",
+                                    "_title": "Back to the first order",
+                                    "on": {
+                                        "press": {
+                                            "command": "scrollTo",
+                                            "target": "$.app.children.orders.children.list",
+                                            "value": "1"
+                                        }
+                                    }
+                                },
+                                "refresh": {
+                                    "component": "button",
+                                    "variant": "soft",
+                                    "icon": "refresh",
+                                    "_title": "Refresh",
+                                    "on": {
+                                        "press": [
+                                            {
+                                                "command": "set",
+                                                "target": "$.data.ui.ordersLoading",
+                                                "value": true
+                                            },
+                                            {
+                                                "command": "emit",
+                                                "target": "orders.refresh"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "create": {
+                                    "component": "button",
+                                    "icon": "plus",
+                                    "_title": "New order",
+                                    "on": {
+                                        "press": {
+                                            "command": "open",
+                                            "target": "$.app.children.orders.children.newOrder"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "list": {
+                    "component": "recordList",
+                    "role": "listbox",
+                    "rowHeight": "lg",
+                    "overscan": 6,
+                    "<-records": "$.data.orders",
+                    "<-selected": "$.data.selectedOrder",
+                    "<-loading": "$.data.ui.ordersLoading",
+                    "empty": {
+                        "component": "emptyState",
+                        "icon": "receipt",
+                        "_title": "No orders yet",
+                        "_text": "Generated orders appear here."
+                    },
+                    "row": {
+                        "component": "card",
+                        "elevation": "flat",
+                        "padding": "none",
+                        "density": "compact",
+                        "layout": {
+                            "type": "row",
+                            "gap": "md",
+                            "align": "center"
+                        },
+                        "children": {
+                            "number": {
+                                "component": "text",
+                                "textRole": "label",
+                                "<-_text": "$row.label",
+                                "truncate": 1
+                            },
+                            "customer": {
+                                "component": "text",
+                                "truncate": 1,
+                                "placement": {
+                                    "grow": 1
+                                },
+                                "<-_text": "$row.customer"
+                            },
+                            "product": {
+                                "component": "text",
+                                "textRole": "caption",
+                                "truncate": 1,
+                                "placement": {
+                                    "grow": 1
+                                },
+                                "<-_text": "$row.product"
+                            },
+                            "status": {
+                                "component": "badge",
+                                "<-_text": "$row.status",
+                                "<-tone": "$row.statusTone"
+                            },
+                            "total": {
+                                "component": "text",
+                                "textRole": "code",
+                                "<-_text": "$row.totalText",
+                                "truncate": 1
+                            },
+                            "open": {
+                                "component": "button",
+                                "variant": "ghost",
+                                "size": "sm",
+                                "icon": "chevron-right",
+                                "iconPosition": "end",
+                                "_title": "Open",
+                                "on": {
+                                    "press": [
+                                        {
+                                            "command": "set",
+                                            "target": "$.data.selectedOrder",
+                                            "value": "$row.id"
+                                        },
+                                        {
+                                            "command": "emit",
+                                            "target": "order.open",
+                                            "value": "$row.id"
+                                        },
+                                        {
+                                            "command": "open",
+                                            "target": "$.app.children.orders.children.detail"
+                                        }
+                                    ]
+                                }
+                            },
+                            "more": {
+                                "component": "menu",
+                                "anchor": "bottomEnd",
+                                "_label": "Order actions",
+                                "trigger": {
+                                    "component": "button",
+                                    "variant": "ghost",
+                                    "size": "sm",
+                                    "icon": "dots",
+                                    "iconPosition": "only",
+                                    "_title": "More actions"
+                                },
+                                "children": {
+                                    "ship": {
+                                        "component": "menuItem",
+                                        "icon": "truck",
+                                        "_label": "Mark shipped",
+                                        "on": {
+                                            "press": [
+                                                {
+                                                    "command": "set",
+                                                    "target": "$.data.selectedOrder",
+                                                    "value": "$row.id"
+                                                },
+                                                {
+                                                    "command": "emit",
+                                                    "target": "order.ship",
+                                                    "value": "$row.id"
+                                                },
+                                                {
+                                                    "command": "show",
+                                                    "target": "$.app.toasts",
+                                                    "value": "orderShipped"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "cancel": {
+                                        "component": "menuItem",
+                                        "icon": "ban",
+                                        "_label": "Cancel order",
+                                        "on": {
+                                            "press": [
+                                                {
+                                                    "command": "set",
+                                                    "target": "$.data.selectedOrder",
+                                                    "value": "$row.id"
+                                                },
+                                                {
+                                                    "command": "emit",
+                                                    "target": "order.open",
+                                                    "value": "$row.id"
+                                                },
+                                                {
+                                                    "command": "open",
+                                                    "target": "$.app.children.orders.children.cancelDialog"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "detail": {
+                    "component": "drawer",
+                    "side": "end",
+                    "_title": "Order details",
+                    "body": {
+                        "component": "tabs",
+                        "appearance": "line",
+                        "children": {
+                            "summary": {
+                                "component": "panel",
+                                "placement": {
+                                    "_tab": "Summary",
+                                    "icon": "receipt"
+                                },
+                                "layout": {
+                                    "type": "column",
+                                    "gap": "md"
+                                },
+                                "children": {
+                                    "who": {
+                                        "component": "toolbar",
+                                        "children": {
+                                            "avatar": {
+                                                "component": "avatar",
+                                                "<-_name": "$.data.detail.customer"
+                                            },
+                                            "name": {
+                                                "component": "text",
+                                                "textRole": "heading",
+                                                "<-_text": "$.data.detail.customer"
+                                            },
+                                            "number": {
+                                                "component": "badge",
+                                                "tone": "neutral",
+                                                "<-_text": "$.data.detail.label"
+                                            }
+                                        }
+                                    },
+                                    "facts": {
+                                        "component": "descriptionList",
+                                        "<-record": "$.data.detail",
+                                        "items": {
+                                            "status": {
+                                                "_term": "Status",
+                                                "node": {
+                                                    "component": "badge",
+                                                    "<-_text": "$row.status",
+                                                    "<-tone": "$row.statusTone"
+                                                }
+                                            },
+                                            "total": {
+                                                "_term": "Total",
+                                                "field": "total",
+                                                "format": "currency",
+                                                "currency": "EUR"
+                                            },
+                                            "email": {
+                                                "_term": "Email",
+                                                "field": "email"
+                                            },
+                                            "channel": {
+                                                "_term": "Channel",
+                                                "field": "channel"
+                                            },
+                                            "priority": {
+                                                "_term": "Priority",
+                                                "field": "priority"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "items": {
+                                "component": "descriptionList",
+                                "placement": {
+                                    "_tab": "Items",
+                                    "icon": "package"
+                                },
+                                "<-record": "$.data.detail",
+                                "items": {
+                                    "product": {
+                                        "_term": "Product",
+                                        "field": "product"
+                                    },
+                                    "sku": {
+                                        "_term": "SKU",
+                                        "field": "sku"
+                                    },
+                                    "quantity": {
+                                        "_term": "Quantity",
+                                        "field": "quantity",
+                                        "format": "number"
+                                    },
+                                    "unitPrice": {
+                                        "_term": "Unit price",
+                                        "field": "unitPrice",
+                                        "format": "currency",
+                                        "currency": "EUR"
+                                    },
+                                    "total": {
+                                        "_term": "Total",
+                                        "field": "total",
+                                        "format": "currency",
+                                        "currency": "EUR"
+                                    }
+                                }
+                            },
+                            "history": {
+                                "component": "panel",
+                                "placement": {
+                                    "_tab": "History",
+                                    "icon": "clock"
+                                },
+                                "layout": {
+                                    "type": "column",
+                                    "gap": "md"
+                                },
+                                "children": {
+                                    "progress": {
+                                        "component": "progress",
+                                        "_label": "Fulfilment",
+                                        "<-value": "$.data.detail.progress"
+                                    },
+                                    "dates": {
+                                        "component": "descriptionList",
+                                        "<-record": "$.data.detail",
+                                        "items": {
+                                            "created": {
+                                                "_term": "Created",
+                                                "field": "created"
+                                            },
+                                            "shipped": {
+                                                "_term": "Shipped",
+                                                "field": "shipped"
+                                            }
+                                        }
+                                    },
+                                    "rule": {
+                                        "component": "divider",
+                                        "_label": "Note"
+                                    },
+                                    "note": {
+                                        "component": "text",
+                                        "textRole": "caption",
+                                        "_text": "Dates are shown as stored, in UTC."
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "footer": {
+                        "component": "toolbar",
+                        "align": "end",
+                        "children": {
+                            "more": {
+                                "component": "menu",
+                                "anchor": "topEnd",
+                                "_label": "Order actions",
+                                "trigger": {
+                                    "component": "button",
+                                    "variant": "ghost",
+                                    "icon": "dots",
+                                    "iconPosition": "only",
+                                    "_title": "More actions"
+                                },
+                                "children": {
+                                    "ship": {
+                                        "component": "menuItem",
+                                        "icon": "truck",
+                                        "_label": "Mark shipped",
+                                        "_description": "Sets the status and the fulfilment progress",
+                                        "on": {
+                                            "press": [
+                                                {
+                                                    "command": "emit",
+                                                    "target": "order.ship"
+                                                },
+                                                {
+                                                    "command": "show",
+                                                    "target": "$.app.toasts",
+                                                    "value": "orderShipped"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "copy": {
+                                        "component": "menuItem",
+                                        "icon": "mail",
+                                        "_label": "Email the customer",
+                                        "disabled": true
+                                    },
+                                    "cancel": {
+                                        "component": "menuItem",
+                                        "icon": "ban",
+                                        "_label": "Cancel order",
+                                        "on": {
+                                            "press": {
+                                                "command": "open",
+                                                "target": "$.app.children.orders.children.cancelDialog"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "cancel": {
+                                "component": "button",
+                                "tone": "danger",
+                                "variant": "soft",
+                                "icon": "ban",
+                                "_title": "Cancel order",
+                                "on": {
+                                    "press": {
+                                        "command": "open",
+                                        "target": "$.app.children.orders.children.cancelDialog"
+                                    }
+                                }
+                            },
+                            "close": {
+                                "component": "button",
+                                "variant": "ghost",
+                                "_title": "Close",
+                                "on": {
+                                    "press": {
+                                        "command": "close",
+                                        "target": "^detail"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "newOrder": {
+                    "component": "formDialog",
+                    "_title": "New order",
+                    "width": "lg",
+                    "body": {
+                        "validateOn": "blur",
+                        "layout": {
+                            "type": "grid",
+                            "cols": 2,
+                            "gap": "md",
+                            "collapseBelow": "md"
+                        },
+                        "children": {
+                            "name": null,
+                            "customer": {
+                                "component": "textField",
+                                "_label": "Customer",
+                                "_placeholder": "Full name",
+                                "icon": "user",
+                                "required": true,
+                                "minLength": 2,
+                                "maxLength": 60,
+                                "<-value": "$.data.draft.customer"
+                            },
+                            "email": {
+                                "component": "textField",
+                                "_label": "Email",
+                                "_placeholder": "name@example.com",
+                                "inputType": "email",
+                                "icon": "mail",
+                                "required": true,
+                                "pattern": "email",
+                                "_errors": {
+                                    "pattern": "Enter an email address such as name@example.com"
+                                },
+                                "<-value": "$.data.draft.email"
+                            },
+                            "product": {
+                                "component": "selectField",
+                                "_label": "Product",
+                                "required": true,
+                                "icon": "package",
+                                "options": {
+                                    "chai": {
+                                        "_label": "Chai tea"
+                                    },
+                                    "chang": {
+                                        "_label": "Chang beer"
+                                    },
+                                    "syrup": {
+                                        "_label": "Aniseed syrup"
+                                    },
+                                    "cajun": {
+                                        "_label": "Cajun seasoning"
+                                    },
+                                    "gumbo": {
+                                        "_label": "Gumbo mix"
+                                    },
+                                    "marmalade": {
+                                        "_label": "Marmalade"
+                                    },
+                                    "cheese": {
+                                        "_label": "Queso Cabrales"
+                                    },
+                                    "coffee": {
+                                        "_label": "Ipoh coffee"
+                                    }
+                                },
+                                "<-value": "$.data.draft.product"
+                            },
+                            "quantity": {
+                                "component": "textField",
+                                "_label": "Quantity",
+                                "_help": "Whole number from 1 to 99",
+                                "required": true,
+                                "pattern": "integer",
+                                "min": 1,
+                                "max": 99,
+                                "<-value": "$.data.draft.quantity"
+                            },
+                            "channel": {
+                                "component": "radioField",
+                                "_label": "Channel",
+                                "orientation": "horizontal",
+                                "required": true,
+                                "options": {
+                                    "web": {
+                                        "_label": "Web shop"
+                                    },
+                                    "phone": {
+                                        "_label": "Phone"
+                                    },
+                                    "marketplace": {
+                                        "_label": "Marketplace"
+                                    }
+                                },
+                                "<-value": "$.data.draft.channel"
+                            },
+                            "delivery": {
+                                "component": "dateField",
+                                "_label": "Delivery date",
+                                "required": true,
+                                "min": "2026-01-01",
+                                "max": "2027-12-31",
+                                "<-value": "$.data.draft.delivery"
+                            },
+                            "express": {
+                                "component": "switchField",
+                                "_label": "Express shipping",
+                                "_help": "Leaves the warehouse the same day",
+                                "<-checked": "$.data.draft.express"
+                            },
+                            "confirmed": {
+                                "component": "checkField",
+                                "_label": "The customer confirmed the order",
+                                "required": true,
+                                "<-checked": "$.data.draft.confirmed"
+                            },
+                            "notes": {
+                                "component": "textareaField",
+                                "_label": "Notes",
+                                "_placeholder": "Delivery instructions",
+                                "rows": 3,
+                                "autoGrow": true,
+                                "maxLength": 200,
+                                "placement": {
+                                    "span": 2
+                                },
+                                "<-value": "$.data.draft.notes"
+                            }
+                        },
+                        "on": {
+                            "submitted": [
+                                {
+                                    "command": "close",
+                                    "target": "^formDialog"
+                                },
+                                {
+                                    "command": "emit",
+                                    "target": "order.create"
+                                },
+                                {
+                                    "command": "reset",
+                                    "target": "^formDialog.body"
+                                },
+                                {
+                                    "command": "show",
+                                    "target": "$.app.toasts",
+                                    "value": "orderCreated"
+                                }
+                            ]
+                        }
+                    },
+                    "footer": {
+                        "children": {
+                            "reset": {
+                                "component": "button",
+                                "variant": "ghost",
+                                "tone": "neutral",
+                                "_title": "Reset",
+                                "on": {
+                                    "press": {
+                                        "command": "reset",
+                                        "target": "^formDialog.body"
+                                    }
+                                }
+                            },
+                            "save": {
+                                "_title": "Create order"
+                            }
+                        }
+                    }
+                },
+                "cancelDialog": {
+                    "component": "confirmDialog",
+                    "_title": "Cancel this order?",
+                    "body": {
+                        "_text": "The order is marked as cancelled and the customer is notified. This cannot be undone."
+                    },
+                    "footer": {
+                        "children": {
+                            "cancel": {
+                                "_title": "Keep order"
+                            },
+                            "confirm": {
+                                "_title": "Cancel order",
+                                "tone": "danger",
+                                "on": {
+                                    "press": [
+                                        {
+                                            "command": "close",
+                                            "target": "^confirmDialog"
+                                        },
+                                        {
+                                            "command": "emit",
+                                            "target": "order.cancel"
+                                        },
+                                        {
+                                            "command": "close",
+                                            "target": "$.app.children.orders.children.detail"
+                                        },
+                                        {
+                                            "command": "show",
+                                            "target": "$.app.toasts",
+                                            "value": "orderCancelled"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "customers": {
+            "component": "panel",
+            "_title": "Customers",
+            "_description": "A keyed map of customers, written into the document's data before mount",
+            "<-hidden": "$.data.view.hidden.customers",
+            "layout": {
+                "type": "grid",
+                "cols": 3,
+                "gap": "md",
+                "collapseBelow": "lg"
+            },
+            "children": {
+                "list": {
+                    "component": "recordList",
+                    "placement": {
+                        "span": 2
+                    },
+                    "rowHeight": "lg",
+                    "<-records": "$.data.customers",
+                    "row": {
+                        "component": "toolbar",
+                        "density": "compact",
+                        "children": {
+                            "avatar": {
+                                "component": "avatar",
+                                "size": "sm",
+                                "<-_name": "$row.name"
+                            },
+                            "name": {
+                                "component": "text",
+                                "textRole": "label",
+                                "<-_text": "$row.name"
+                            },
+                            "city": {
+                                "component": "text",
+                                "textRole": "caption",
+                                "<-_text": "$row.city"
+                            },
+                            "tier": {
+                                "component": "badge",
+                                "<-_text": "$row.tier",
+                                "<-tone": "$row.tierTone"
+                            }
+                        }
+                    }
+                },
+                "about": {
+                    "component": "card",
+                    "_title": "About Northwind",
+                    "_subtitle": "Fine foods since 1997",
+                    "media": {
+                        "component": "image",
+                        "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMjAgMTgwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMxZDRlZDgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwZjc2NmUiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgZmlsbD0idXJsKCNnKSIvPjxwYXRoIGQ9Ik02MCAxMjhWNTJsNTAgNzZWNTJNMTUwIDUybDE4IDc2IDIyLTU4IDIyIDU4IDE4LTc2IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMTAiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjx0ZXh0IHg9IjE2MCIgeT0iMTYwIiBmaWxsPSIjZTBmMmZlIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Tk9SVEhXSU5EIE9QUzwvdGV4dD48L3N2Zz4=",
+                        "_alt": "Northwind Ops logo",
+                        "ratio": "16:9"
+                    },
+                    "layout": {
+                        "type": "column",
+                        "gap": "sm"
+                    },
+                    "children": {
+                        "text": {
+                            "component": "text",
+                            "element": "p",
+                            "_text": "Every customer row is a template node; $row links point each recycled slot at its record."
+                        },
+                        "rule": {
+                            "component": "divider"
+                        },
+                        "orders": {
+                            "component": "link",
+                            "_text": "Go to the orders",
+                            "href": "#orders",
+                            "on": {
+                                "press": [
+                                    {
+                                        "command": "set",
+                                        "target": "$.data.view.section",
+                                        "value": "orders"
+                                    },
+                                    {
+                                        "command": "set",
+                                        "target": "$.data.view.hidden.customers",
+                                        "value": true
+                                    },
+                                    {
+                                        "command": "set",
+                                        "target": "$.data.view.hidden.orders",
+                                        "value": false
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "settings": {
+            "component": "panel",
+            "_title": "Settings",
+            "_description": "Language, theme overlays, density and token overrides, all as store writes",
+            "<-hidden": "$.data.view.hidden.settings",
+            "layout": {
+                "type": "grid",
+                "cols": 2,
+                "gap": "md",
+                "collapseBelow": "md"
+            },
+            "children": {
+                "language": {
+                    "component": "card",
+                    "_title": "Language",
+                    "_subtitle": "Writes $.locale; main.ts applies the overlay",
+                    "children": {
+                        "choices": {
+                            "component": "toolbar",
+                            "children": {
+                                "en": {
+                                    "component": "button",
+                                    "variant": "soft",
+                                    "_title": "English",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.locale",
+                                            "value": "en"
+                                        }
+                                    }
+                                },
+                                "de": {
+                                    "component": "button",
+                                    "variant": "soft",
+                                    "_title": "Deutsch",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.locale",
+                                            "value": "de"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "mode": {
+                    "component": "card",
+                    "_title": "Theme mode",
+                    "_subtitle": "Writes $.theme.active.mode",
+                    "layout": {
+                        "type": "column",
+                        "gap": "sm"
+                    },
+                    "children": {
+                        "choices": {
+                            "component": "toolbar",
+                            "wrap": true,
+                            "children": {
+                                "light": {
+                                    "component": "button",
+                                    "variant": "soft",
+                                    "icon": "sun",
+                                    "_title": "Light",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.theme.active.mode",
+                                            "value": "light"
+                                        }
+                                    }
+                                },
+                                "dark": {
+                                    "component": "button",
+                                    "variant": "soft",
+                                    "icon": "moon",
+                                    "_title": "Dark",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.theme.active.mode",
+                                            "value": "dark"
+                                        }
+                                    }
+                                },
+                                "contrast": {
+                                    "component": "button",
+                                    "variant": "soft",
+                                    "_title": "High contrast",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.theme.active.mode",
+                                            "value": "contrast"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "motion": {
+                            "component": "toolbar",
+                            "wrap": true,
+                            "children": {
+                                "full": {
+                                    "component": "button",
+                                    "variant": "ghost",
+                                    "_title": "Full motion",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.theme.active.motion",
+                                            "value": "full"
+                                        }
+                                    }
+                                },
+                                "reduced": {
+                                    "component": "button",
+                                    "variant": "ghost",
+                                    "_title": "Reduced motion",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.theme.active.motion",
+                                            "value": "reduced"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "density": {
+                    "component": "card",
+                    "_title": "Density",
+                    "_subtitle": "Writes density on every section panel",
+                    "children": {
+                        "choices": {
+                            "component": "toolbar",
+                            "wrap": true,
+                            "children": {
+                                "compact": {
+                                    "component": "button",
+                                    "variant": "soft",
+                                    "_title": "Compact",
+                                    "on": {
+                                        "press": [
+                                            {
+                                                "command": "set",
+                                                "target": "$.app.children.dashboard.density",
+                                                "value": "compact"
+                                            },
+                                            {
+                                                "command": "set",
+                                                "target": "$.app.children.orders.density",
+                                                "value": "compact"
+                                            },
+                                            {
+                                                "command": "set",
+                                                "target": "$.app.children.customers.density",
+                                                "value": "compact"
+                                            },
+                                            {
+                                                "command": "set",
+                                                "target": "$.app.children.settings.density",
+                                                "value": "compact"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "comfortable": {
+                                    "component": "button",
+                                    "variant": "soft",
+                                    "_title": "Comfortable",
+                                    "on": {
+                                        "press": [
+                                            {
+                                                "command": "set",
+                                                "target": "$.app.children.dashboard.density",
+                                                "value": "comfortable"
+                                            },
+                                            {
+                                                "command": "set",
+                                                "target": "$.app.children.orders.density",
+                                                "value": "comfortable"
+                                            },
+                                            {
+                                                "command": "set",
+                                                "target": "$.app.children.customers.density",
+                                                "value": "comfortable"
+                                            },
+                                            {
+                                                "command": "set",
+                                                "target": "$.app.children.settings.density",
+                                                "value": "comfortable"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "spacious": {
+                                    "component": "button",
+                                    "variant": "soft",
+                                    "_title": "Spacious",
+                                    "on": {
+                                        "press": [
+                                            {
+                                                "command": "set",
+                                                "target": "$.app.children.dashboard.density",
+                                                "value": "spacious"
+                                            },
+                                            {
+                                                "command": "set",
+                                                "target": "$.app.children.orders.density",
+                                                "value": "spacious"
+                                            },
+                                            {
+                                                "command": "set",
+                                                "target": "$.app.children.customers.density",
+                                                "value": "spacious"
+                                            },
+                                            {
+                                                "command": "set",
+                                                "target": "$.app.children.settings.density",
+                                                "value": "spacious"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "accent": {
+                    "component": "card",
+                    "_title": "Accent colour",
+                    "_subtitle": "Writes $.theme.tokens.color.accent.base (a mode switch restores it)",
+                    "children": {
+                        "choices": {
+                            "component": "toolbar",
+                            "wrap": true,
+                            "children": {
+                                "blue": {
+                                    "component": "button",
+                                    "variant": "soft",
+                                    "_title": "Blue",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.theme.tokens.color.accent.base",
+                                            "value": "{palette.blue.600}"
+                                        }
+                                    }
+                                },
+                                "teal": {
+                                    "component": "button",
+                                    "variant": "soft",
+                                    "_title": "Teal",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.theme.tokens.color.accent.base",
+                                            "value": "{palette.teal.700}"
+                                        }
+                                    }
+                                },
+                                "violet": {
+                                    "component": "button",
+                                    "variant": "soft",
+                                    "_title": "Violet",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.theme.tokens.color.accent.base",
+                                            "value": "{palette.violet.600}"
+                                        }
+                                    }
+                                },
+                                "custom": {
+                                    "component": "button",
+                                    "variant": "soft",
+                                    "_title": "#b45309",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.theme.tokens.color.accent.base",
+                                            "value": "#b45309"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "override": {
+                    "component": "card",
+                    "_title": "Node theme override",
+                    "_subtitle": "This card carries its own theme: success accent, square buttons",
+                    "theme": {
+                        "color": {
+                            "accent": {
+                                "base": "{color.success.base}",
+                                "soft": "{color.success.soft}"
+                            }
+                        },
+                        "button": {
+                            "radius": "0"
+                        }
+                    },
+                    "layout": {
+                        "type": "column",
+                        "gap": "sm"
+                    },
+                    "children": {
+                        "sample": {
+                            "component": "button",
+                            "icon": "check",
+                            "_title": "Accent button"
+                        },
+                        "bar": {
+                            "component": "progress",
+                            "_label": "Accent progress",
+                            "value": 64
+                        }
+                    }
+                },
+                "plain": {
+                    "component": "card",
+                    "_title": "Without an override",
+                    "_subtitle": "The same nodes, inheriting the app tokens",
+                    "layout": {
+                        "type": "column",
+                        "gap": "sm"
+                    },
+                    "children": {
+                        "sample": {
+                            "component": "button",
+                            "icon": "check",
+                            "_title": "Accent button"
+                        },
+                        "bar": {
+                            "component": "progress",
+                            "_label": "Accent progress",
+                            "value": 64
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
