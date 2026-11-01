@@ -8,7 +8,7 @@ export default mergeConfig(
         test: {
             include: ['test/**/*.browser.test.ts'],
             passWithNoTests: false,
-            testTimeout: 30000,
+            testTimeout: 60000,
             browser: {
                 enabled: true,
                 headless: true,

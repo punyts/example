@@ -6,10 +6,21 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { PATHS, startApp } from '../src/bootstrap.ts';
 import type { RunningApp } from '../src/bootstrap.ts';
+import catalog from '@punyts/stateui-components/catalog.json';
 import type { Order } from '../src/data.ts';
+import { appDocument } from '../src/document/index.ts';
+import type { Delivery, Message, Product } from '../src/seed.ts';
 
 const NAV = '$.app.nav.children';
 const SETTINGS = '$.app.children.settings.children';
+
+/** The sections of the nav, in order; every one has a smoke test */
+const SECTIONS = ['dashboard', 'orders', 'fulfilment', 'deliveries', 'customers', 'products', 'catalog', 'desk', 'support', 'help', 'settings'] as const;
+
+/** Components that exist only as test fixtures of the component library */
+const FIXTURES = new Set(['orderEditor', 'probe']);
+const SETTINGS_PAGE = '$.app.children.settings';
+const MODE = `${SETTINGS_PAGE}.children.appearance.children.mode.children.mode`;
 const NEW_ORDER_FIELDS = `${PATHS.newOrder}.body.children`;
 
 let host: HTMLElement;
@@ -66,6 +77,14 @@ function typeInto(path: string, value: string): void {
     input.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
 }
 
+/** Presses the option of a `segmented` (or the button of any component) whose text is `label` */
+function choose(path: string, label: string): void {
+    const root = elementAt(path).shadowRoot;
+    const control = Array.from(root?.querySelectorAll<HTMLElement>('button, [role="radio"]') ?? []).find((candidate) => candidate.textContent?.trim() === label);
+    if (!control) throw new Error(`no "${label}" at ${path}`);
+    control.click();
+}
+
 /** The row cards the orders list has rendered (its recycled slots) */
 function renderedRows(): HTMLElement[] {
     const prefix = `${PATHS.orderList}.slots.`;
@@ -92,7 +111,7 @@ function isShown(element: Element): boolean {
     return element.checkVisibility() && element.getBoundingClientRect().height > 0;
 }
 
-async function showSection(name: 'dashboard' | 'orders' | 'customers' | 'settings'): Promise<void> {
+async function showSection(name: (typeof SECTIONS)[number]): Promise<void> {
     press(`${NAV}.${name}`);
     await until(() => app.store.get(`$.data.view.hidden.${name}`) === false);
     await frame();
@@ -287,7 +306,7 @@ describe('Northwind Ops', () => {
         expect(deepText(nav)).toContain('Orders');
 
         // Act
-        press(`${SETTINGS}.language.children.choices.children.de`);
+        choose(`${SETTINGS}.general.children.language.children.language`, 'Deutsch');
         await until(() => deepText(nav).includes('Bestellungen'));
 
         // Assert
@@ -303,12 +322,342 @@ describe('Northwind Ops', () => {
         expect(app.store.get('$.theme.active.mode')).toBe('light');
 
         // Act
-        press(`${SETTINGS}.mode.children.choices.children.dark`);
+        press(`${SETTINGS_PAGE}.nav.children.appearance`);
+        await until(() => app.store.get(`${SETTINGS_PAGE}.children.appearance.hidden`) === false);
+        await frame();
+        choose(MODE, 'Dark');
         await until(() => app.store.get('$.theme.active.mode') === 'dark');
-        press(`${SETTINGS}.mode.children.choices.children.contrast`);
+        choose(MODE, 'High contrast');
 
         // Assert
         await until(() => app.store.get('$.theme.active.mode') === 'contrast');
+        expect(app.store.get('$.data.prefs.mode')).toBe('contrast');
         expect(app.errors).toEqual([]);
+    });
+});
+
+/** Every `component` name the app document places, in the tree and in the nodes held by map items such as table cells */
+function placedComponents(value: unknown, names = new Set<string>()): Set<string> {
+    if (Array.isArray(value)) {
+        for (const item of value) placedComponents(item, names);
+    } else if (value !== null && typeof value === 'object') {
+        const record = value as Record<string, unknown>;
+        if (typeof record['component'] === 'string') names.add(record['component']);
+        for (const item of Object.values(record)) placedComponents(item, names);
+    }
+    return names;
+}
+
+describe('Northwind Ops component coverage', () => {
+    it('should place every component of the catalog in the app document', () => {
+        // Arrange
+        const names = (catalog as { components: { name: string }[] }).components.map((component) => component.name).filter((name) => !FIXTURES.has(name));
+
+        // Act
+        const placed = placedComponents(appDocument.app);
+        const missing = names.filter((name) => !placed.has(name));
+
+        // Assert
+        expect(names.length).toBeGreaterThanOrEqual(75);
+        expect(missing).toEqual([]);
+    });
+
+    it('should list every section of the nav in the view flags and the German overlay', () => {
+        // Arrange and Act
+        const nav = Object.keys((appDocument.app as unknown as { nav: { children: Record<string, unknown> } }).nav.children);
+        const hidden = Object.keys((appDocument.data as unknown as { view: { hidden: Record<string, boolean> } }).view.hidden);
+        const german = (appDocument.locales as unknown as { de: { nav: { children: Record<string, unknown> }; children: Record<string, unknown> } }).de;
+
+        // Assert
+        expect(nav).toEqual([...SECTIONS]);
+        expect(hidden).toEqual([...SECTIONS]);
+        expect(Object.keys(german.nav.children)).toEqual([...SECTIONS]);
+        for (const section of SECTIONS) expect(german.children[section], section).toBeDefined();
+    });
+});
+
+describe('Northwind Ops sections', () => {
+    it.each(SECTIONS)('should render the %s section without errors in English and German', async (section) => {
+        // Arrange
+        await showSection(section);
+
+        // Act
+        await frame();
+        const shownInEnglish = isShown(elementAt(`$.app.children.${section}`));
+        app.store.set('$.locale', 'de');
+        await until(() => deepText(elementAt('$.app.nav')).includes('Bestellungen'));
+        await frame();
+        await wait(50);
+
+        // Assert
+        expect(shownInEnglish).toBe(true);
+        expect(isShown(elementAt(`$.app.children.${section}`))).toBe(true);
+        expect(app.errors).toEqual([]);
+        expect(runErrors()).toEqual([]);
+    });
+
+    it('should show every section without errors after switching to German first', async () => {
+        // Arrange
+        app.store.set('$.locale', 'de');
+        await until(() => deepText(elementAt('$.app.nav')).includes('Bestellungen'));
+
+        // Act
+        for (const section of SECTIONS) await showSection(section);
+        await wait(100);
+
+        // Assert
+        expect(app.errors).toEqual([]);
+        expect(deepText(elementAt('$.app.children.settings'))).toContain('Allgemein');
+    });
+
+    it('should switch the locale back to English with no errors', async () => {
+        // Arrange
+        app.store.set('$.locale', 'de');
+        await until(() => deepText(elementAt('$.app.nav')).includes('Bestellungen'));
+
+        // Act
+        app.store.set('$.locale', 'en');
+        await until(() => deepText(elementAt('$.app.nav')).includes('Orders'));
+
+        // Assert
+        expect(app.store.get('$.data.prefs.language')).toBe('en');
+        expect(app.errors).toEqual([]);
+    });
+});
+
+describe('Northwind Ops new sections', () => {
+    it('should chart revenue by month and orders by status on the dashboard', async () => {
+        // Arrange and Act
+        await frame();
+
+        // Assert
+        const months = app.store.get<{ label: string; revenue: number }[]>('$.data.charts.byMonth');
+        const statuses = app.store.get<{ id: string; count: number }[]>('$.data.charts.byStatus');
+        expect(months.length).toBeGreaterThanOrEqual(10);
+        expect(months[0]?.label).toBe('Jan');
+        expect(statuses.reduce((sum, status) => sum + status.count, 0)).toBe(10000);
+        expect(app.store.get<unknown[]>('$.data.topCustomers')).toHaveLength(5);
+        expect(app.store.get<unknown[]>('$.data.recent')).toHaveLength(6);
+    });
+
+    it('should write the new status into the order when a board card moves', async () => {
+        // Arrange
+        await showSection('fulfilment');
+        const before = app.store.get<Order>('$.data.orders.3');
+        expect(before.status).not.toBe('shipped');
+
+        // Act
+        elementAt(PATHS.board).dispatchEvent(new CustomEvent('move', { detail: { key: '4', from: before.status, to: 'shipped', index: 0 }, bubbles: true, composed: true }));
+        await until(() => app.store.get('$.data.orders.3.statusTone') === 'success');
+
+        // Assert
+        expect(app.store.get('$.data.orders.3.progress')).toBe(85);
+        await until(() => deepAll(document).some((element) => element.localName === 'ui-toast' && deepText(element).includes('Order moved')));
+        expect(runErrors()).toEqual([]);
+    });
+
+    it('should set the order status when a step of the drawer stepper is chosen', async () => {
+        // Arrange
+        await showSection('orders');
+        await until(() => rowSlot('2') !== undefined);
+        press(`${rowSlot('2') as string}.children.open`);
+        await until(() => app.store.get(`${PATHS.detail}.open`) === true);
+        const stepper = `${PATHS.detail}.body.children.history.children.steps`;
+
+        // Act
+        elementAt(stepper).dispatchEvent(new CustomEvent('select', { detail: 'packed', bubbles: true, composed: true }));
+        await until(() => app.store.get('$.data.orders.1.status') === 'packed');
+
+        // Assert
+        expect(app.store.get('$.data.detail.step')).toBe('packed');
+        expect(app.store.get('$.data.detail.completed')).toEqual(['pending', 'paid']);
+        expect(runErrors()).toEqual([]);
+    });
+
+    it('should filter and page the deliveries when the date range or the page changes', async () => {
+        // Arrange
+        await showSection('deliveries');
+        const all = app.store.get<Delivery[]>('$.data.deliveries.all');
+        const total = app.store.get<number>('$.data.deliveries.total');
+        expect(total).toBe(all.length);
+        expect(app.store.get<Delivery[]>('$.data.deliveries.rows')).toHaveLength(6);
+
+        // Act
+        app.store.set('$.data.deliveries.page', 2);
+        await until(() => app.store.get<Delivery[]>('$.data.deliveries.rows')[0]?.id === all[6]?.id);
+        app.store.set('$.data.deliveries.range', { start: '2026-11-02', end: '2026-11-08' });
+        await until(() => app.store.get<number>('$.data.deliveries.total') < total);
+
+        // Assert
+        const shown = app.store.get<Delivery[]>('$.data.deliveries.shown');
+        expect(shown.length).toBeGreaterThan(0);
+        expect(shown.every((delivery) => delivery.start >= '2026-11-02' && delivery.start <= '2026-11-08')).toBe(true);
+        expect(app.store.get('$.data.deliveries.page')).toBe(1);
+        expect(app.store.get<number>('$.data.deliveries.total')).toBe(shown.length);
+        expect(runErrors()).toEqual([]);
+    });
+
+    it('should list the products of a category in the catalog and write an edit back to the products', async () => {
+        // Arrange
+        await showSection('catalog');
+
+        // Act
+        app.store.set('$.data.catalog.category', 'beverages');
+        await until(() => app.store.get<Product[]>('$.data.catalog.items').length === 3);
+        app.store.set('$.data.catalog.items.0.name', 'Chai tea, large');
+        await until(() => app.store.get('$.data.products.all.0.name') === 'Chai tea, large');
+
+        // Assert
+        expect(Object.keys(app.store.get<Record<string, unknown>>('$.data.catalog.trail'))).toEqual(['catalog', 'beverages']);
+        expect(app.store.get<{ id: string; name: string }[]>('$.data.productOptions')[0]?.name).toBe('Chai tea, large');
+        expect(runErrors()).toEqual([]);
+    });
+
+    it('should stream the customer reply into one chat message after the agent sends one', async () => {
+        // Arrange
+        await showSection('support');
+        const input = `${PATHS.chat}.children.composer.children.input`;
+        const before = app.store.get<Message[]>('$.data.chat.messages').length;
+        typeInto(input, 'Please send the photo');
+        await frame();
+
+        // Act
+        app.command(input, 'send');
+        await until(() => app.store.get<Message[]>('$.data.chat.messages').length === before + 2);
+        await until(() => app.store.get(`$.data.chat.messages.${before + 1}.streaming`) === false);
+
+        // Assert
+        const messages = app.store.get<Message[]>('$.data.chat.messages');
+        expect(messages[before]?.text).toBe('Please send the photo');
+        expect(messages[before + 1]?.author).toBe('Ada Andersen');
+        expect(messages[before + 1]?.text).toContain('support@northwind.example');
+        expect(runErrors()).toEqual([]);
+    });
+
+    it('should add a product through the crud table form', async () => {
+        // Arrange
+        await showSection('products');
+        const crud = PATHS.crud;
+        const before = app.store.get<Product[]>('$.data.products.all').length;
+        press(`${crud}.actions.children.add`);
+        await until(() => app.store.get(`${crud}.children.form.open`) === true);
+        const fields = `${crud}.children.form.body.children`;
+        typeInto(`${fields}.name`, 'Green tea');
+        app.store.set('$.data.products.draft.price', 12);
+        app.store.set('$.data.products.draft.stock', 30);
+        await frame();
+
+        // Act
+        press(`${crud}.children.form.footer.children.save`);
+        await until(() => app.store.get<Product[]>('$.data.products.all').length === before + 1);
+
+        // Assert
+        const added = app.store.get<Product[]>('$.data.products.all')[before] as Product;
+        expect(added.name).toBe('Green tea');
+        expect(added.price).toBe(12);
+        expect(added.categoryLabel).toBe('Tea');
+        expect(app.store.get<{ id: string }[]>('$.data.productOptions').some((option) => option.id === added.id)).toBe(true);
+        expect(runErrors()).toEqual([]);
+    });
+
+    it('should hand an attached file to the transferFile hook and show its name in the wizard review', async () => {
+        // Arrange
+        await showSection('desk');
+        const field = `${PATHS.wizard}.children.tabs.children.options.children.attachment`;
+        const input = elementAt(field).shadowRoot?.querySelector<HTMLInputElement>('input[type="file"]');
+        if (!input) throw new Error('no file input in the attachment field');
+        const transfer = new DataTransfer();
+        transfer.items.add(new File(['order 4711'], 'po-4711.pdf', { type: 'application/pdf' }));
+
+        // Act
+        input.files = transfer.files;
+        input.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+        await until(() => app.store.get<unknown[]>('$.data.wizard.attachment').length === 1);
+
+        // Assert
+        expect(app.store.get('$.data.wizard.attachment.0.name')).toBe('po-4711.pdf');
+        await until(() => app.store.get('$.data.wizard.attachmentName') === 'po-4711.pdf');
+        expect(runErrors()).toEqual([]);
+    });
+
+    it('should create an order when the wizard is finished', async () => {
+        // Arrange
+        await showSection('desk');
+        const before = app.store.get<Order[]>('$.data.orders').length;
+        const tabs = `${PATHS.wizard}.children.tabs.children`;
+        app.store.set('$.data.wizard.customer', 'Wizard Customer');
+        app.store.set('$.data.wizard.channel', 'phone');
+        app.store.set('$.data.wizard.delivery', '2026-11-20');
+        await frame();
+        press(`${tabs}.details.actions.children.next`);
+        await until(() => app.store.get(`${PATHS.wizard}.children.stepper.active`) === 'options');
+        app.store.set('$.data.wizard.product', 'coffee');
+        app.store.set('$.data.wizard.quantity', 2);
+        app.store.set('$.data.wizard.discount', 0.1);
+        await frame();
+        press(`${tabs}.options.actions.children.next`);
+        await until(() => app.store.get(`${PATHS.wizard}.children.stepper.active`) === 'review');
+        await frame();
+        elementAt(`${tabs}.review.children.confirm`).shadowRoot?.querySelector<HTMLInputElement>('input')?.click();
+        await frame();
+
+        // Act
+        press(`${tabs}.review.actions.children.next`);
+        await until(() => app.store.get<Order[]>('$.data.orders').length === before + 1);
+
+        // Assert
+        const created = app.store.get<Order[]>('$.data.orders')[before] as Order;
+        expect(created.customer).toBe('Wizard Customer');
+        expect(created.product).toBe('Ipoh coffee');
+        expect(created.quantity).toBe(2);
+        expect(created.total).toBe(82.8);
+        expect(app.store.get('$.data.wizard.customer')).toBe('');
+        expect(app.store.get(`${PATHS.wizard}.children.stepper.active`)).toBe('details');
+        expect(runErrors()).toEqual([]);
+    });
+
+    it('should mirror the settings controls in the theme, the locale and the section density', async () => {
+        // Arrange
+        await showSection('settings');
+
+        // Act
+        app.store.set('$.data.prefs.density', 'compact');
+        app.store.set('$.theme.active.motion', 'reduced');
+        app.store.set('$.data.prefs.accent', 'teal');
+
+        // Assert
+        await until(() => app.store.get('$.app.children.orders.density') === 'compact');
+        expect(app.store.get('$.app.children.help.density')).toBe('compact');
+        expect(app.store.get('$.data.prefs.motion')).toBe('reduced');
+        expect(app.store.get('$.theme.tokens.color.accent.base')).toBe('{palette.teal.700}');
+        expect(app.errors).toEqual([]);
+    });
+
+    it('should open the contact modal from the help section', async () => {
+        // Arrange
+        await showSection('help');
+        const dialog = '$.app.children.help.children.contactDialog';
+
+        // Act
+        press('$.app.children.help.children.more.children.contact');
+        await until(() => app.store.get(`${dialog}.open`) === true);
+        press(`${dialog}.footer.children.cancel`);
+        await until(() => app.store.get(`${dialog}.open`) === false);
+
+        // Assert
+        expect(runErrors()).toEqual([]);
+    });
+
+    it('should go back to the dashboard when the Dashboard crumb is chosen', async () => {
+        // Arrange
+        await showSection('orders');
+
+        // Act
+        elementAt(`${PATHS.orders}.children.trail`).dispatchEvent(new CustomEvent('select', { detail: 'home', bubbles: true, composed: true }));
+        await until(() => app.store.get('$.data.view.hidden.dashboard') === false);
+
+        // Assert
+        expect(app.store.get('$.data.view.section')).toBe('dashboard');
+        expect(app.store.get('$.data.view.hidden.orders')).toBe(true);
     });
 });
