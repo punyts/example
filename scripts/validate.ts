@@ -9,14 +9,16 @@ import type { BuildError } from '@punyts/stateui-app/core';
 import { isIconName } from '@punyts/stateui-components';
 import catalog from '@punyts/stateui-components/catalog.json' with { type: 'json' };
 import { appDocument } from '../src/document/index.ts';
-import { generateCustomers } from '../src/data.ts';
+import { generateCustomers, generateOrders } from '../src/data.ts';
+import { seedData } from '../src/seed.ts';
 
 const format = (error: BuildError): string =>
     `${error.severity ?? 'error'} ${error.code} ${error.message}${error.statePath ? ` (${error.statePath})` : ''}`;
 
 const library = libraryFromCatalog(catalog as never);
-// The customers are part of the mounted document's data (src/bootstrap.ts adds them), so validate them too
-const document = { ...appDocument, data: { ...appDocument.data, customers: generateCustomers() } };
+// The customers and the small data sets are part of the mounted document's data (src/bootstrap.ts adds them), so validate them too
+const customers = generateCustomers();
+const document = { ...appDocument, data: { ...appDocument.data, ...seedData(generateOrders(customers), customers) } };
 const { valid, errors } = validateDocument(document, library, { isIconName });
 
 for (const error of errors) console.log(format(error));

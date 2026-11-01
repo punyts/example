@@ -36,6 +36,10 @@ export interface Order {
     created: string;
     shipped: string;
     progress: number;
+    /** The extras chosen in the new-order wizard, as text; empty for a generated order */
+    extras: string;
+    /** The name of the purchase order file attached in the wizard; empty when there is none */
+    attachment: string;
 }
 
 export const ORDER_COUNT = 10_000;
@@ -134,6 +138,8 @@ export function makeOrder(input: {
     priority: string;
     created: string;
     shipped?: string;
+    extras?: string;
+    attachment?: string;
 }): Order {
     const product = PRODUCTS[input.productKey] ?? (PRODUCTS['chai'] as { name: string; price: number });
     const total = Math.round(product.price * input.quantity * 100) / 100;
@@ -156,7 +162,9 @@ export function makeOrder(input: {
         priority: input.priority,
         created: input.created,
         shipped: input.shipped ?? '',
-        progress: STATUS_PROGRESS[input.status]
+        progress: STATUS_PROGRESS[input.status],
+        extras: input.extras ?? '',
+        attachment: input.attachment ?? ''
     };
 }
 
