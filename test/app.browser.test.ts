@@ -158,6 +158,27 @@ describe('Northwind Ops', () => {
         expect(isShown(dashboard)).toBe(false);
     });
 
+    it('should move the nav and the panels together from the one section value', async () => {
+        // Arrange
+        const catalog = elementAt('$.app.children.catalog');
+        const dashboard = elementAt('$.app.children.dashboard');
+
+        // Act
+        app.store.set('$.data.view.section', 'catalog');
+        await until(() => isShown(catalog));
+        const refused = app.store.set('$.data.view.hidden.dashboard', false);
+        app.store.set('$.data.view.section', 'nowhere');
+        await frame();
+
+        // Assert
+        expect(app.store.get(`${NAV}.catalog.selected`)).toBe(true);
+        expect(app.store.get(`${NAV}.dashboard.selected`)).toBe(false);
+        expect(refused).toBe(false);
+        expect(isShown(dashboard)).toBe(false);
+        expect(app.store.get('$.data.view.section')).toBe('catalog');
+        expect(SECTIONS.filter((name) => app.store.get(`$.data.view.hidden.${name}`) === false)).toEqual(['catalog']);
+    });
+
     it('should render only a window of rows and bring order 9000 into view with scrollTo', async () => {
         // Arrange
         await showSection('orders');

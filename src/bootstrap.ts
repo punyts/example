@@ -13,7 +13,7 @@ import { PRODUCTS, STATUS_PROGRESS, STATUS_TONES, computeStats, generateCustomer
 import type { Customer, Order, OrderStatus } from './data.ts';
 import { appDocument } from './document/index.ts';
 import icons from './icons.json';
-import { showSection } from './sections.ts';
+import { bindSections, showSection } from './sections.ts';
 import { CATEGORIES, CUSTOMER_REPLY, STEPS, completedSteps, emptyProductDraft, ordersByStatus, recentOrders, revenueByMonth, seedData, topCustomers } from './seed.ts';
 import type { Category, Delivery, Message, Product } from './seed.ts';
 import { categoryTrail, filterDeliveries, pageOf, productsInCategory } from './views.ts';
@@ -74,7 +74,7 @@ export interface RunningApp {
     elementAt(path: string): HTMLElement | undefined;
     /** Runs a component command on the node at `path`, as an `on` entry would */
     command(path: string, name: string, value?: unknown): void;
-    /** Shows one section and hides the others, as a nav item does */
+    /** Shows one section, as a nav item does: writes `$.data.view.section` */
     showSection(name: string): void;
     dispose(): void;
 }
@@ -594,6 +594,7 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
         ['$.data.wizard.attachment', onWizardFile]
     ];
     for (const [paths, listener] of bridges) live.on(paths, listener);
+    const unbindSections = bindSections(live);
 
     refreshStats();
     later(() => live.set('$.data.ui.forecastLoading', false), fakeDelay * 2);
@@ -611,6 +612,7 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
             disposed = true;
             for (const timer of timers) clearTimeout(timer);
             for (const [paths, listener] of bridges) live.off(paths, listener);
+            unbindSections();
             mounted.dispose();
             locale.unregister();
             unregisterData();
