@@ -1,10 +1,29 @@
 {
     "view": {
         "section": "dashboard",
-        "hidden": { "dashboard": false, "orders": true, "customers": true, "settings": true }
+        "hidden": {
+            "dashboard": false,
+            "orders": true,
+            "fulfilment": true,
+            "deliveries": true,
+            "customers": true,
+            "products": true,
+            "catalog": true,
+            "desk": true,
+            "support": true,
+            "help": true,
+            "settings": true
+        }
     },
-    "ui": { "ordersLoading": false, "forecastLoading": true },
-    "requests": { "toast": "", "jumpTo": "" },
+    "ui": {
+        "ordersLoading": false,
+        "forecastLoading": true,
+        "cardHeight": "md"
+    },
+    "requests": {
+        "toast": "",
+        "jumpTo": ""
+    },
     "selectedOrder": "",
     "detail": {
         "id": "",
@@ -22,7 +41,11 @@
         "priority": "",
         "created": "",
         "shipped": "",
-        "progress": 0
+        "progress": 0,
+        "step": "",
+        "completed": [],
+        "extras": "",
+        "attachment": ""
     },
     "draft": {
         "customer": "",
@@ -45,8 +68,27 @@
         "cancelled": 0,
         "fulfilled": 0,
         "forecast": 0,
-        "top": { "name": "", "city": "", "orders": 0, "spend": 0 }
+        "top": {
+            "name": "",
+            "city": "",
+            "orders": 0,
+            "spend": 0
+        }
     },
     "customers": {},
-    "orders": []
+    "orders": [],
+    "wizard": {
+        "customer": "",
+        "contact": "",
+        "channel": "phone",
+        "delivery": "",
+        "product": "",
+        "productName": "",
+        "quantity": 1,
+        "discount": 0,
+        "extras": [],
+        "express": false,
+        "attachment": [],
+        "attachmentName": ""
+    }
 }

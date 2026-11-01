@@ -6,6 +6,7 @@
 import type { Store } from '@punyts/state';
 import type { AppState } from '@punyts/stateui-app';
 import { makeOrder } from './data.ts';
+import { showSection } from './sections.ts';
 import type { Order } from './data.ts';
 
 export interface ConsoleElements {
@@ -38,10 +39,6 @@ export function storeExcerpt(store: Store<AppState>): Record<string, unknown> {
 /** Each action: a label describing the write, and the write itself */
 export function consoleActions(store: Store<AppState>): Record<string, { label: string; run(): void }> {
     let agentOrders = 0;
-    const showSection = (section: 'dashboard' | 'orders' | 'customers' | 'settings'): void => {
-        store.set('$.data.view.section', section);
-        for (const name of ['dashboard', 'orders', 'customers', 'settings']) store.set(`$.data.view.hidden.${name}`, name !== section);
-    };
     return {
         'add-order': {
             label: 'store.get("$.data.orders").push(order)',
@@ -86,7 +83,7 @@ export function consoleActions(store: Store<AppState>): Record<string, { label: 
         jump: {
             label: 'show orders, then store.set("$.data.requests.jumpTo", "9000")',
             run() {
-                showSection('orders');
+                showSection(store, 'orders');
                 // The list was hidden; give its viewport observer a frame to measure before scrolling
                 requestAnimationFrame(() => store.set('$.data.requests.jumpTo', '9000'));
             }
