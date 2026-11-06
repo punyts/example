@@ -18,7 +18,8 @@ const SETTINGS = '$.app.children.settings.children';
 const SECTIONS = ['dashboard', 'orders', 'fulfilment', 'deliveries', 'customers', 'products', 'catalog', 'desk', 'support', 'help', 'settings'] as const;
 
 /** Components that exist only as test fixtures of the component library */
-const FIXTURES = new Set(['orderEditor', 'probe']);
+/** Test fixtures of the library, and `outlet`, which only a shell with screens places: this app is one document */
+const FIXTURES = new Set(['orderEditor', 'probe', 'outlet']);
 const SETTINGS_PAGE = '$.app.children.settings';
 const MODE = `${SETTINGS_PAGE}.children.appearance.children.mode.children.mode`;
 const NEW_ORDER_FIELDS = `${PATHS.newOrder}.body.children`;
