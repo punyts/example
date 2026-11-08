@@ -11,17 +11,17 @@ import type { Order } from '../src/data.ts';
 import { appDocument } from '../src/document/index.ts';
 import type { Delivery, Message, Product } from '../src/seed.ts';
 
-const NAV = '$.app.nav.children';
-const SETTINGS = '$.app.children.settings.children';
+const NAV = '$.screens.main.children.nav.children';
+const SETTINGS = '$.screens.main.children.settings.children.sections.children';
 
 /** The sections of the nav, in order; every one has a smoke test */
 const SECTIONS = ['dashboard', 'orders', 'fulfilment', 'deliveries', 'customers', 'products', 'catalog', 'desk', 'support', 'help', 'settings'] as const;
 
 /** Components that exist only as test fixtures of the component library */
 /** Test fixtures of the library, and `outlet`, which only a shell with screens places: this app is one document */
-const FIXTURES = new Set(['orderEditor', 'probe', 'outlet']);
-const SETTINGS_PAGE = '$.app.children.settings';
-const MODE = `${SETTINGS_PAGE}.children.appearance.children.mode.children.mode`;
+const FIXTURES = new Set(['orderEditor', 'probe']);
+const SETTINGS_PANEL = '$.screens.main.children.settings';
+const MODE = `${SETTINGS_PANEL}.children.sections.children.appearance.children.mode.children.mode`;
 const NEW_ORDER_FIELDS = `${PATHS.newOrder}.body.children`;
 
 let host: HTMLElement;
@@ -145,7 +145,7 @@ describe('Northwind Ops', () => {
 
     it('should switch the visible section when a nav item is pressed', async () => {
         // Arrange
-        const dashboard = elementAt('$.app.children.dashboard');
+        const dashboard = elementAt('$.screens.main.children.dashboard');
         const orders = elementAt(PATHS.orders);
         expect(isShown(dashboard)).toBe(true);
         expect(isShown(orders)).toBe(false);
@@ -161,8 +161,8 @@ describe('Northwind Ops', () => {
 
     it('should move the nav and the panels together from the one section value', async () => {
         // Arrange
-        const catalog = elementAt('$.app.children.catalog');
-        const dashboard = elementAt('$.app.children.dashboard');
+        const catalog = elementAt('$.screens.main.children.catalog');
+        const dashboard = elementAt('$.screens.main.children.dashboard');
 
         // Act
         app.store.set('$.data.view.section', 'catalog');
@@ -324,7 +324,7 @@ describe('Northwind Ops', () => {
     it('should show German text after switching the locale to de', async () => {
         // Arrange
         await showSection('settings');
-        const nav = elementAt('$.app.nav');
+        const nav = elementAt('$.screens.main.children.nav');
         expect(deepText(nav)).toContain('Orders');
 
         // Act
@@ -334,7 +334,7 @@ describe('Northwind Ops', () => {
         // Assert
         expect(app.store.get('$.locale')).toBe('de');
         expect(deepText(nav)).not.toContain('Orders');
-        expect(deepText(elementAt('$.app.children.settings'))).toContain('Sprache');
+        expect(deepText(elementAt('$.screens.main.children.settings'))).toContain('Sprache');
         expect(app.errors).toEqual([]);
     });
 
@@ -344,8 +344,8 @@ describe('Northwind Ops', () => {
         expect(app.store.get('$.theme.active.mode')).toBe('light');
 
         // Act
-        press(`${SETTINGS_PAGE}.nav.children.appearance`);
-        await until(() => app.store.get(`${SETTINGS_PAGE}.children.appearance.hidden`) === false);
+        press(`${SETTINGS_PANEL}.children.menu.children.appearance`);
+        await until(() => app.store.get(`${SETTINGS_PANEL}.children.sections.children.appearance.hidden`) === false);
         await frame();
         choose(MODE, 'Dark');
         await until(() => app.store.get('$.theme.active.mode') === 'dark');
@@ -376,7 +376,7 @@ describe('Northwind Ops component coverage', () => {
         const names = (catalog as { components: { name: string }[] }).components.map((component) => component.name).filter((name) => !FIXTURES.has(name));
 
         // Act
-        const placed = placedComponents(appDocument.app);
+        const placed = placedComponents([appDocument.app, appDocument.screens] as never);
         const missing = names.filter((name) => !placed.has(name));
 
         // Assert
@@ -386,9 +386,11 @@ describe('Northwind Ops component coverage', () => {
 
     it('should list every section of the nav in the view flags and the German overlay', () => {
         // Arrange and Act
-        const nav = Object.keys((appDocument.app as unknown as { nav: { children: Record<string, unknown> } }).nav.children);
+        type Main = { root: { children: { nav: { children: Record<string, unknown> } } }; locales: { de: { children: Record<string, { children?: Record<string, unknown> }> } } };
+        const main = (appDocument.screens as unknown as { main: Main }).main;
+        const nav = Object.keys(main.root.children.nav.children);
         const hidden = Object.keys((appDocument.data as unknown as { view: { hidden: Record<string, boolean> } }).view.hidden);
-        const german = (appDocument.locales as unknown as { de: { nav: { children: Record<string, unknown> }; children: Record<string, unknown> } }).de;
+        const german = { nav: main.locales.de.children['nav'] as { children: Record<string, unknown> }, children: main.locales.de.children };
 
         // Assert
         expect(nav).toEqual([...SECTIONS]);
@@ -405,15 +407,15 @@ describe('Northwind Ops sections', () => {
 
         // Act
         await frame();
-        const shownInEnglish = isShown(elementAt(`$.app.children.${section}`));
+        const shownInEnglish = isShown(elementAt(`$.screens.main.children.${section}`));
         app.store.set('$.locale', 'de');
-        await until(() => deepText(elementAt('$.app.nav')).includes('Bestellungen'));
+        await until(() => deepText(elementAt('$.screens.main.children.nav')).includes('Bestellungen'));
         await frame();
         await wait(50);
 
         // Assert
         expect(shownInEnglish).toBe(true);
-        expect(isShown(elementAt(`$.app.children.${section}`))).toBe(true);
+        expect(isShown(elementAt(`$.screens.main.children.${section}`))).toBe(true);
         expect(app.errors).toEqual([]);
         expect(runErrors()).toEqual([]);
     });
@@ -421,7 +423,7 @@ describe('Northwind Ops sections', () => {
     it('should show every section without errors after switching to German first', async () => {
         // Arrange
         app.store.set('$.locale', 'de');
-        await until(() => deepText(elementAt('$.app.nav')).includes('Bestellungen'));
+        await until(() => deepText(elementAt('$.screens.main.children.nav')).includes('Bestellungen'));
 
         // Act
         for (const section of SECTIONS) await showSection(section);
@@ -429,17 +431,17 @@ describe('Northwind Ops sections', () => {
 
         // Assert
         expect(app.errors).toEqual([]);
-        expect(deepText(elementAt('$.app.children.settings'))).toContain('Allgemein');
+        expect(deepText(elementAt('$.screens.main.children.settings'))).toContain('Allgemein');
     });
 
     it('should switch the locale back to English with no errors', async () => {
         // Arrange
         app.store.set('$.locale', 'de');
-        await until(() => deepText(elementAt('$.app.nav')).includes('Bestellungen'));
+        await until(() => deepText(elementAt('$.screens.main.children.nav')).includes('Bestellungen'));
 
         // Act
         app.store.set('$.locale', 'en');
-        await until(() => deepText(elementAt('$.app.nav')).includes('Orders'));
+        await until(() => deepText(elementAt('$.screens.main.children.nav')).includes('Orders'));
 
         // Assert
         expect(app.store.get('$.data.prefs.language')).toBe('en');
@@ -648,8 +650,8 @@ describe('Northwind Ops new sections', () => {
         app.store.set('$.data.prefs.accent', 'teal');
 
         // Assert
-        await until(() => app.store.get('$.app.children.orders.density') === 'compact');
-        expect(app.store.get('$.app.children.help.density')).toBe('compact');
+        await until(() => app.store.get('$.screens.main.children.orders.density') === 'compact');
+        expect(app.store.get('$.screens.main.children.help.density')).toBe('compact');
         expect(app.store.get('$.data.prefs.motion')).toBe('reduced');
         expect(app.store.get('$.theme.tokens.color.accent.base')).toBe('{palette.teal.700}');
         expect(app.errors).toEqual([]);
@@ -658,10 +660,10 @@ describe('Northwind Ops new sections', () => {
     it('should open the contact modal from the help section', async () => {
         // Arrange
         await showSection('help');
-        const dialog = '$.app.children.help.children.contactDialog';
+        const dialog = '$.screens.main.children.help.children.contactDialog';
 
         // Act
-        press('$.app.children.help.children.more.children.contact');
+        press('$.screens.main.children.help.children.more.children.contact');
         await until(() => app.store.get(`${dialog}.open`) === true);
         press(`${dialog}.footer.children.cancel`);
         await until(() => app.store.get(`${dialog}.open`) === false);

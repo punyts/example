@@ -35,34 +35,37 @@ export function componentOverlays(files: Readonly<Record<string, JsonObject>> = 
 /** State paths of the nodes the code talks to */
 export const PATHS = {
     toasts: '$.app.toasts',
-    orders: '$.app.children.orders',
-    orderList: '$.app.children.orders.children.list',
-    customerList: '$.app.children.customers.children.list',
-    detail: '$.app.children.orders.children.detail',
-    newOrder: '$.app.children.orders.children.newOrder',
-    cancelDialog: '$.app.children.orders.children.cancelDialog',
-    board: '$.app.children.fulfilment.children.board',
-    calendar: '$.app.children.deliveries.children.calendar',
-    crud: '$.app.children.products.children.tabs.children.manage',
-    wizard: '$.app.children.desk.children.wizard',
-    chat: '$.app.children.support.children.chat.children.view',
-    settings: '$.app.children.settings'
+    orders: '$.screens.main.children.orders',
+    orderList: '$.screens.main.children.orders.children.list',
+    customerList: '$.screens.main.children.customers.children.list',
+    detail: '$.screens.main.children.orders.children.detail',
+    newOrder: '$.screens.main.children.orders.children.newOrder',
+    cancelDialog: '$.screens.main.children.orders.children.cancelDialog',
+    board: '$.screens.main.children.fulfilment.children.board',
+    calendar: '$.screens.main.children.deliveries.children.calendar',
+    crud: '$.screens.main.children.products.children.tabs.children.manage',
+    wizard: '$.screens.main.children.desk.children.wizard',
+    chat: '$.screens.main.children.support.children.chat.children.view',
+    settings: '$.screens.main.children.settings'
 } as const;
+
+/** The children of the screen root that frame the sections: the section density skips them, and the settings */
+const FRAME: readonly string[] = ['header', 'nav', 'footer', 'settings'];
 
 /** Record views and tables size themselves to their host, which a document has no property for; bootstrap sets the height */
 const SIZES: Readonly<Record<string, string>> = {
     [PATHS.orderList]: '520px',
     [PATHS.customerList]: '460px',
-    '$.app.children.dashboard.children.grid.children.recent.children.list': '240px',
-    '$.app.children.dashboard.children.grid.children.topCustomers.children.table': '260px',
-    '$.app.children.deliveries.children.side.children.list': '300px',
-    '$.app.children.products.children.tabs.children.manage.children.table': '320px',
-    '$.app.children.products.children.tabs.children.stock': '360px',
-    '$.app.children.products.children.tabs.children.gallery': '420px',
-    '$.app.children.catalog.children.split.start': '420px',
-    '$.app.children.catalog.children.split.end.children.list': '380px',
+    '$.screens.main.children.dashboard.children.grid.children.recent.children.list': '240px',
+    '$.screens.main.children.dashboard.children.grid.children.topCustomers.children.table': '260px',
+    '$.screens.main.children.deliveries.children.side.children.list': '300px',
+    '$.screens.main.children.products.children.tabs.children.manage.children.table': '320px',
+    '$.screens.main.children.products.children.tabs.children.stock': '360px',
+    '$.screens.main.children.products.children.tabs.children.gallery': '420px',
+    '$.screens.main.children.catalog.children.split.start': '420px',
+    '$.screens.main.children.catalog.children.split.end.children.list': '380px',
     [PATHS.chat]: '420px',
-    '$.app.children.support.children.history.children.thread': '320px'
+    '$.screens.main.children.support.children.history.children.thread': '320px'
 };
 
 export interface RunningApp {
@@ -557,8 +560,8 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
         if (token) live.set('$.theme.tokens.color.accent.base', token);
     };
     const onDensity = (_path: string, value: unknown): void => {
-        for (const name of Object.keys(live.get<Record<string, unknown>>('$.app.children'))) {
-            if (name !== 'settings') live.set(`$.app.children.${name}.density`, value as string);
+        for (const name of Object.keys(live.get<Record<string, unknown>>('$.screens.main.children'))) {
+            if (!FRAME.includes(name)) live.set(`$.screens.main.children.${name}.density`, value as string);
         }
     };
     const onRange = (): void => {

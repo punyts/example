@@ -11,11 +11,11 @@ import { CORE_ICON_NAMES, ICON_ALIASES } from '@punyts/stateui-components';
 import type { IconsFile } from '@punyts/stateui-components';
 
 const iconsPath = fileURLToPath(import.meta.resolve('@punyts/stateui-components/icons.json'));
-const appPath = fileURLToPath(new URL('../src/document/app.json', import.meta.url));
+const treePaths = ['app.json', 'main.json'].map((name) => fileURLToPath(new URL(`../src/document/${name}`, import.meta.url)));
 const outPath = fileURLToPath(new URL('../src/icons.json', import.meta.url));
 
 const file = JSON.parse(readFileSync(iconsPath, 'utf8')) as IconsFile;
-const app: unknown = JSON.parse(readFileSync(appPath, 'utf8'));
+const trees: unknown[] = treePaths.map((path) => JSON.parse(readFileSync(path, 'utf8')));
 
 /** Every value of an `icon` or (icon component) `name` key in the tree */
 function collect(value: unknown, names: Set<string>): void {
@@ -31,7 +31,7 @@ function collect(value: unknown, names: Set<string>): void {
 }
 
 const names = new Set<string>();
-collect(app, names);
+collect(trees, names);
 const core = new Set(CORE_ICON_NAMES);
 const aliases = ICON_ALIASES as Readonly<Record<string, string>>;
 const out: Record<string, { outline: readonly unknown[]; filled?: readonly unknown[] }> = {};

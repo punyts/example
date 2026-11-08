@@ -32,10 +32,12 @@ npm run icons      # regenerate src/icons.json after adding an icon to the docum
 | File | What it holds |
 | --- | --- |
 | `index.html` | The page: the `#app` host and the agent console |
-| `src/document/app.json` | The node tree (`$.app`): sections, lists, dialogs, `on` entries |
+| `src/document/app.json` | The app node (`$.app`): the document title and the toasts |
+| `src/document/main.json` | The root of the one screen, `main` (`$.screens.main`): header, menu, sections, lists, dialogs, `on` entries |
 | `src/document/data.json` | The initial `$.data`: view flags, draft, stats, request slots |
-| `src/document/locale.de.json` | German text for everything the app document writes itself |
-| `src/document/index.ts` | Assembles the app document (locale, theme, data, app, locales) |
+| `src/document/locale.de.json` | German text of the app node (the toasts) |
+| `src/document/main.locale.de.json` | German text for everything the screen `main` writes itself |
+| `src/document/index.ts` | Assembles the app document (locale, theme, data, the app node, the screen `main`, locales) |
 | `src/bootstrap.ts` | `startApp`: registration, mount, `onEmit` handlers, store bridges |
 | `src/data.ts` | Seeded generators for 240 customers and 10,000 orders, plus stats |
 | `src/seed.ts` | Seeded smaller data sets (products, categories, deliveries, support threads, chart figures) and `seedData`, which puts them into the document's data |
@@ -53,7 +55,7 @@ npm run icons      # regenerate src/icons.json after adding an icon to the docum
 
 | Feature | Where |
 | --- | --- |
-| `page` with header, `nav`, footer and a `toastRegion` in the toasts slot | `app.json` root |
+| The app node with the document title and a `toastRegion`; one screen whose root `panel` has a `region` layout (`collapseBelow: md`) placing the header (`n`), the `nav` (`w`, a menu button below 768 px with `collapseBelow: md`), the sections (`center`) and the footer (`s`) | `app.json`, `main.json` root |
 | Nav switching sections through `$.data.view.hidden.*` and `<-hidden` links | `nav` and the section panels |
 | `dashboardGrid` with `stat`, `card`, `alert`, `progress`, `badge`, `descriptionList`, `emptyState`, `avatar`, `skeleton`, `spinner`, card `loading` | Dashboard |
 | `recordList` over 10,000 orders: windowed rows, `$row` links, `selected` bound to `$.data.selectedOrder`, `loading` during a fake refresh, empty state | Orders |
@@ -66,7 +68,7 @@ npm run icons      # regenerate src/icons.json after adding an icon to the docum
 | A second `recordList` over a keyed map of customers | Customers |
 | Locale switch en/de, with the component overlays and `locales.de` | Settings, account menu, console |
 | Theme mode light/dark/contrast, motion, density, accent token override, node `theme` override | Settings |
-| German text for the app's own content | `locale.de.json` |
+| German text for the app's own content | `locale.de.json`, `main.locale.de.json` |
 
 ## Sections and the components they show
 
@@ -85,9 +87,9 @@ The app document places every component of the catalog (the test fixtures `order
 | New order (`desk`) | `wizard` (with `stepper`, `tabs` and `form` steps): `comboboxField`, `radioField`, `dateField`, `selectField`, `numberField`, `sliderField`, `multiSelectField`, `switchField`, `fileField`, `descriptionList`, `checkField` |
 | Support (`support`) | `chatView` (live, the customer's reply streams in), `messageList` (an earlier thread), `markdown` (a canned reply), `select`, `textarea`, `form` with `selectField` and `textareaField` (escalation), `divider` |
 | Help (`help`) | `accordion` of `disclosure` entries, a stand-alone `disclosure` with `markdown`, `modal` (contact support) |
-| Settings (`settings`) | `settingsPage` with General, Notifications, Appearance and Theme overrides; `segmented` (language, theme mode, motion, density), `switch`, `checkbox` and `select` (notifications, accent colour), `toast` (a preview), `textField`, `card` with a node `theme` |
+| Settings (`settings`) | `settingsPanel` with General, Notifications, Appearance and Theme overrides; `segmented` (language, theme mode, motion, density), `switch`, `checkbox` and `select` (notifications, accent colour), `toast` (a preview), `textField`, `card` with a node `theme` |
 
-Every section has German text in `locale.de.json`; the data in the lists (customer names, product names, thread
+Every section has German text in `main.locale.de.json`; the data in the lists (customer names, product names, thread
 messages, category labels) is data and stays as it is.
 
 ### Where code is needed
