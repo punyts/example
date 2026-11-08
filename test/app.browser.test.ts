@@ -15,10 +15,9 @@ const NAV = '$.screens.main.children.nav.children';
 const SETTINGS = '$.screens.main.children.settings.children.sections.children';
 
 /** The sections of the nav, in order; every one has a smoke test */
-const SECTIONS = ['dashboard', 'orders', 'fulfilment', 'deliveries', 'customers', 'products', 'catalog', 'desk', 'support', 'help', 'settings'] as const;
+const SECTIONS = ['dashboard', 'orders', 'fulfilment', 'deliveries', 'customers', 'products', 'catalog', 'warehouse', 'desk', 'support', 'help', 'settings'] as const;
 
 /** Components that exist only as test fixtures of the component library */
-/** Test fixtures of the library, and `outlet`, which only a shell with screens places: this app is one document */
 const FIXTURES = new Set(['orderEditor', 'probe']);
 const SETTINGS_PANEL = '$.screens.main.children.settings';
 const MODE = `${SETTINGS_PANEL}.children.sections.children.appearance.children.mode.children.mode`;
@@ -683,5 +682,29 @@ describe('Northwind Ops new sections', () => {
         // Assert
         expect(app.store.get('$.data.view.section')).toBe('dashboard');
         expect(app.store.get('$.data.view.hidden.orders')).toBe(true);
+    });
+
+    it('should draw one bin per record and the dock picture the readFile hook serves on the floor plan', async () => {
+        // Arrange and Act
+        await showSection('warehouse');
+        const floor = elementAt('$.screens.main.children.warehouse.children.plan.children.floor');
+        await until(() => deepAll(floor).some((element) => element.localName === 'image' && (element.getAttribute('href') ?? '') !== ''), 5000);
+
+        // Assert
+        const bins = app.store.get<unknown[]>('$.data.warehouse.bins');
+        expect(bins).toHaveLength(21);
+        expect(deepAll(floor).filter((element) => element.localName === 'rect' && element.getAttribute('width') === '26')).toHaveLength(21);
+        expect(app.errors).toEqual([]);
+    });
+
+    it('should load the 3D renderer through the load3d hook and draw the racks', async () => {
+        // Arrange and Act
+        await showSection('warehouse');
+        const scene = elementAt('$.screens.main.children.warehouse.children.views.children.racks.children.scene');
+        await until(() => scene.getAttribute('data-render') === 'ready', 15000);
+
+        // Assert
+        expect(scene.hasAttribute('data-fallback')).toBe(false);
+        expect(app.errors).toEqual([]);
     });
 });

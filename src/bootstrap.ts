@@ -17,6 +17,7 @@ import { bindSections, showSection } from './sections.ts';
 import { CATEGORIES, CUSTOMER_REPLY, STEPS, completedSteps, emptyProductDraft, ordersByStatus, recentOrders, revenueByMonth, seedData, topCustomers } from './seed.ts';
 import type { Category, Delivery, Message, Product } from './seed.ts';
 import { categoryTrail, filterDeliveries, pageOf, productsInCategory } from './views.ts';
+import { load3d, readFile } from './warehouse.ts';
 
 /** The component overlays the library ships, `<name>.locale.<code>.json`, grouped as `registerLocaleStep` wants them */
 const localeFiles = import.meta.glob<JsonObject>('@stateui-components-dist/*.locale.*.json', { eager: true, import: 'default' });
@@ -498,7 +499,7 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
         }
     };
 
-    const mounted = mountApp(host, document, library, { onEmit, onError, transferFile });
+    const mounted = mountApp(host, document, library, { onEmit, onError, transferFile, readFile, load3d });
     if (!mounted.store) {
         locale.unregister();
         unregisterData();

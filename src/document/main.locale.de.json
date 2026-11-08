@@ -66,6 +66,9 @@
                 "catalog": {
                     "_label": "Katalog"
                 },
+                "warehouse": {
+                    "_label": "Lager"
+                },
                 "desk": {
                     "_label": "Neue Bestellung"
                 },
@@ -859,6 +862,70 @@
                                             }
                                         }
                                     }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "warehouse": {
+            "_title": "Lager",
+            "_description": "Der Grundriss, die Regale in 3D und eine Fläche zum Skizzieren eines neuen Layouts",
+            "children": {
+                "plan": {
+                    "_title": "Grundriss",
+                    "_subtitle": "Fächer nach Bestand gefärbt: grün ist voll, gelb ist knapp, grau ist leer. Ziehen Sie den Kommissionierer zu einem Fach.",
+                    "children": {
+                        "floor": {
+                            "_title": "Grundriss des Lagers",
+                            "_description": "Drei Gänge mit Fächern, das Kühllager, die Kommissionierroute, der Packtisch, ein Gabelstapler und Tor 1",
+                            "children": {
+                                "coldLabel": {
+                                    "_text": "Kühllager"
+                                },
+                                "dockLabel": {
+                                    "_text": "Tor 1"
+                                },
+                                "packingLabel": {
+                                    "_text": "Packen"
+                                },
+                                "forklift": {
+                                    "_label": "Gabelstapler"
+                                },
+                                "picker": {
+                                    "_label": "Der Kommissionierer: entlang der Route ziehen"
+                                }
+                            }
+                        }
+                    }
+                },
+                "views": {
+                    "children": {
+                        "racks": {
+                            "_title": "Regale in 3D",
+                            "_subtitle": "Drehen Sie die Ansicht mit dem Zeiger",
+                            "children": {
+                                "scene": {
+                                    "_title": "Die Regale von Gang A",
+                                    "_fallback": "Diese 3D-Ansicht kann in diesem Browser nicht gezeigt werden: Sie zeigt sechs Regale verschiedener Höhe, einen Gabelstapler und eine Palette.",
+                                    "children": {
+                                        "pallet": {
+                                            "_label": "Eine Palette wartet am Tor"
+                                        },
+                                        "label": {
+                                            "_text": "Gang A"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "sketch": {
+                            "_title": "Layout skizzieren",
+                            "_subtitle": "Zeichnen Sie, wo neue Regale hinkommen, und besprechen Sie es mit dem Team",
+                            "children": {
+                                "pad": {
+                                    "_label": "Layout-Skizze"
                                 }
                             }
                         }

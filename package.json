@@ -24,6 +24,7 @@
         "@punyts/core": "^1.0.0",
         "@punyts/state": "^1.2.0",
         "@punyts/stateui": "^0.2.0",
+        "@punyts/stateui-3d": "^0.1.0",
         "@punyts/stateui-app": "^0.1.0",
         "@punyts/stateui-components": "^0.1.0"
     },

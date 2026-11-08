@@ -43,6 +43,8 @@ npm run icons      # regenerate src/icons.json after adding an icon to the docum
 | `src/seed.ts` | Seeded smaller data sets (products, categories, deliveries, support threads, chart figures) and `seedData`, which puts them into the document's data |
 | `src/views.ts` | Pure helpers: deliveries in a date range, one page of a list, products of a category, the breadcrumb trail |
 | `src/sections.ts` | `showSection`: shows one section and hides the others (the console, the breadcrumb handler and the tests use it) |
+| `src/warehouse.ts` | The Warehouse files and the `readFile` and `load3d` hooks that serve them |
+| `src/assets/` | The dock picture (PNG) and the pallet model (GLB) of the Warehouse section |
 | `src/console.ts` | The agent console: store writes and a live JSON excerpt of the store |
 | `src/main.ts` | Page entry: `startApp` plus `startConsole` |
 | `src/icons.json` | Path data of the non-core icons the document uses (generated) |
@@ -84,6 +86,7 @@ The app document places every component of the catalog (the test fixtures `order
 | Customers (`customers`) | unchanged: `recordList`, `card`, `image`, `link` |
 | Products (`products`) | `tabs` with `crudTable` (add, edit with `numberField` and `selectField`, delete with `confirmDialog` and `formDialog`), a stock `table` with `input`, `select`, `checkbox` and `switch` in its cells, and a `recordGrid` gallery |
 | Catalog (`catalog`) | `breadcrumb` (the path to the category), `splitPane` with a `tree` of categories and a `masterDetail` of the products in the category |
+| Warehouse (`warehouse`) | A `drawing` floor plan with every 2D shape (`rect`, `circle`, `ellipse`, `line`, `polyline`, `polygon`, `path`, `drawText`, `drawGroup`, a `drawImage` of a stored file and a `drawRepeat` of the bins), a `scene3d` of the racks (`camera`, `light`, `mesh`, `group3d`, a `repeat3d` of the racks, a `label3d` and a `model` from a GLB file) and a `paintField` sketch pad |
 | New order (`desk`) | `wizard` (with `stepper`, `tabs` and `form` steps): `comboboxField`, `radioField`, `dateField`, `selectField`, `numberField`, `sliderField`, `multiSelectField`, `switchField`, `fileField`, `descriptionList`, `checkField` |
 | Support (`support`) | `chatView` (live, the customer's reply streams in), `messageList` (an earlier thread), `markdown` (a canned reply), `select`, `textarea`, `form` with `selectField` and `textareaField` (escalation), `divider` |
 | Help (`help`) | `accordion` of `disclosure` entries, a stand-alone `disclosure` with `markdown`, `modal` (contact support) |
@@ -118,6 +121,14 @@ progress in four steps, rejects a file over 2 MB with `too_large`, honours cance
 reference (`local-<n>`, name, size, type). Nothing leaves the browser tab and no bytes are kept; the field shows the file
 name, and the review step reads the name from `$.data.wizard.attachment`. The `fileField` in the wizard (`accept`: PDF and
 images, 2 MB) shows the whole story: choose, progress, done toast, remove, and the errors.
+
+### The Warehouse files and the 3D renderer
+
+The Warehouse section shows two stored files: the dock picture on the floor plan and the pallet model in the 3D view.
+Their references in `main.json` name them by id, as references to a file store would. `bootstrap.ts` passes `mountApp` a
+`readFile` hook (`warehouse.ts`) that serves the two files shipped in `src/assets/` by those ids, and a `load3d` hook that
+imports `@punyts/stateui-3d` (three.js) as its own chunk the first time a `scene3d` asks for it, so the rest of the app
+never loads it.
 
 ## The agent console
 
