@@ -165,6 +165,11 @@
                     "icon": "receipt",
                     "_label": "Orders"
                 },
+                "archive": {
+                    "component": "menuItem",
+                    "icon": "clock",
+                    "_label": "Archive"
+                },
                 "fulfilment": {
                     "component": "menuItem",
                     "icon": "layout-kanban",
@@ -1361,6 +1366,87 @@
                             }
                         }
                     }
+                }
+            }
+        },
+        "archive": {
+            "component": "panel",
+            "placement": {
+                "region": "center"
+            },
+            "_title": "Order archive",
+            "_description": "Pages of a fake archive API: an effect asks for the page in $.data.archive.request, keeps the records by id and fills the page window",
+            "<-hidden": "$.data.view.hidden.archive",
+            "layout": {
+                "type": "column",
+                "gap": "md"
+            },
+            "children": {
+                "tools": {
+                    "component": "toolbar",
+                    "density": "compact",
+                    "children": {
+                        "status": {
+                            "component": "badge",
+                            "<-_text": "$.data.archive.view.statusText",
+                            "<-tone": "$.data.archive.view.statusTone"
+                        }
+                    }
+                },
+                "archiveList": {
+                    "component": "recordList",
+                    "rowHeight": "md",
+                    "<-records": "$.data.archive.page.records",
+                    "<-loading": "$.data.archive.view.loading",
+                    "empty": {
+                        "component": "emptyState",
+                        "icon": "clock",
+                        "_title": "Nothing loaded yet",
+                        "_text": "The archive answers in a moment."
+                    },
+                    "row": {
+                        "component": "card",
+                        "children": {
+                            "number": {
+                                "component": "text",
+                                "textRole": "label",
+                                "<-_text": "$row.label",
+                                "truncate": 1
+                            },
+                            "customer": {
+                                "component": "text",
+                                "truncate": 1,
+                                "placement": {
+                                    "grow": 1
+                                },
+                                "<-_text": "$row.customer"
+                            },
+                            "status": {
+                                "component": "badge",
+                                "<-_text": "$row.status",
+                                "<-tone": "$row.statusTone"
+                            },
+                            "total": {
+                                "component": "text",
+                                "textRole": "code",
+                                "<-_text": "$row.totalText"
+                            }
+                        },
+                        "layout": {
+                            "type": "row",
+                            "gap": "md",
+                            "align": "center"
+                        },
+                        "elevation": "flat",
+                        "padding": "none",
+                        "density": "compact"
+                    }
+                },
+                "pager": {
+                    "component": "pagination",
+                    "<-page": "$.data.archive.request.page",
+                    "<-pageSize": "$.data.archive.request.size",
+                    "<-total": "$.data.archive.page.total"
                 }
             }
         },

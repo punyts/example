@@ -34,15 +34,17 @@ npm run icons      # regenerate src/icons.json after adding an icon to the docum
 | `index.html` | The page: the `#app` host and the agent console |
 | `src/document/app.json` | The app node (`$.app`): the document title and the toasts |
 | `src/document/main.json` | The root of the one screen, `main` (`$.screens.main`): header, menu, sections, lists, dialogs, `on` entries |
-| `src/document/data.json` | The initial `$.data`: view flags, draft, stats, request slots |
+| `src/document/data.json` | The initial `$.data`: view flags, draft, stats, request slots, the archive's request, records and page |
+| `src/document/logic.json` | The document's logic: the archive effect, its compute unit, its status table and the pager rule |
 | `src/document/locale.de.json` | German text of the app node (the toasts) |
 | `src/document/main.locale.de.json` | German text for everything the screen `main` writes itself |
-| `src/document/index.ts` | Assembles the app document (locale, theme, data, the app node, the screen `main`, locales) |
+| `src/document/index.ts` | Assembles the app document (locale, theme, data, the app node, the screen `main`, logic, locales) |
 | `src/bootstrap.ts` | `startApp`: registration, mount, `onEmit` handlers, store bridges |
 | `src/data.ts` | Seeded generators for 240 customers and 10,000 orders, plus stats |
 | `src/seed.ts` | Seeded smaller data sets (products, categories, deliveries, support threads, chart figures) and `seedData`, which puts them into the document's data |
 | `src/views.ts` | Pure helpers: deliveries in a date range, one page of a list, products of a category, the breadcrumb trail |
 | `src/sections.ts` | `showSection`: shows one section and hides the others (the console, the breadcrumb handler and the tests use it) |
+| `src/archive.ts` | The fake archive API behind the archive effect (`archive.fetch`, paged, aborts on a newer request) and the `money.format` compute function, passed to `mountApp` as `logicFunctions` |
 | `src/warehouse.ts` | The Warehouse files and the `readFile` and `load3d` hooks that serve them |
 | `src/assets/` | The dock picture (PNG) and the pallet model (GLB) of the Warehouse section |
 | `src/console.ts` | The agent console: store writes and a live JSON excerpt of the store |
@@ -81,6 +83,7 @@ The app document places every component of the catalog (the test fixtures `order
 | --- | --- |
 | Dashboard (`dashboard`) | the ones listed in the feature table, plus `chart` (a bar chart of revenue by month and a donut of orders by status), `popover` (how the chart is computed), `list` (latest orders), `table` (top customers) and `tableRow` (the footnote under the table) |
 | Orders (`orders`) | `breadcrumb` (Dashboard / Orders; the Dashboard crumb goes back), `stepper` in the drawer's History tab (a step sets the order's status), the components in the feature table |
+| Archive (`archive`) | A `recordList` filled by logic, no code in the section: the effect `fetchArchive` asks the fake API for the page in `$.data.archive.request` (token, abort, cache of 10 pages), merges the records into `$.data.archive.records` by `id` and fills the page window `$.data.archive.page`; the compute unit `archiveTotal` formats each record's total with `money.format`, the table `archiveStatus` turns the effect's status into the `badge`, and a rule copies the `pagination`'s page into the request. Editing a record (`$.data.archive.records.<id>.total`) rewrites its row |
 | Fulfilment (`fulfilment`) | `board` over the 10,000 orders (one column per status; a move writes the status), `segmented` for the card size |
 | Deliveries (`deliveries`) | `calendar` of planned deliveries, `dateRangeField` filter, `list` of the deliveries in the range, `pagination`, `badge` |
 | Customers (`customers`) | unchanged: `recordList`, `card`, `image`, `link` |

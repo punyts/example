@@ -4,6 +4,7 @@
         "hidden": {
             "dashboard": false,
             "orders": true,
+            "archive": true,
             "fulfilment": true,
             "deliveries": true,
             "customers": true,
@@ -346,5 +347,24 @@
                 }
             }
         ]
+    },
+    "archive": {
+        "request": {
+            "page": 1,
+            "size": 10
+        },
+        "status": {
+            "state": "idle"
+        },
+        "records": {},
+        "page": {
+            "records": {},
+            "total": 0
+        },
+        "view": {
+            "statusText": "",
+            "statusTone": "neutral",
+            "loading": false
+        }
     }
 }

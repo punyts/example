@@ -11,6 +11,8 @@ import catalog from '@punyts/stateui-components/catalog.json';
 import { registerAll } from '@punyts/stateui-components/components';
 import { PRODUCTS, STATUS_PROGRESS, STATUS_TONES, computeStats, generateCustomers, generateOrders, makeOrder } from './data.ts';
 import type { Customer, Order, OrderStatus } from './data.ts';
+import { createArchiveApi } from './archive.ts';
+import type { ArchiveApi } from './archive.ts';
 import { appDocument } from './document/index.ts';
 import icons from './icons.json';
 import { bindSections, showSection } from './sections.ts';
@@ -37,6 +39,8 @@ export function componentOverlays(files: Readonly<Record<string, JsonObject>> = 
 export const PATHS = {
     toasts: '$.app.toasts',
     orders: '$.screens.main.children.orders',
+    archive: '$.screens.main.children.archive',
+    archiveList: '$.screens.main.children.archive.children.archiveList',
     orderList: '$.screens.main.children.orders.children.list',
     customerList: '$.screens.main.children.customers.children.list',
     detail: '$.screens.main.children.orders.children.detail',
@@ -57,6 +61,7 @@ const FRAME: readonly string[] = ['header', 'nav', 'footer', 'settings'];
 const SIZES: Readonly<Record<string, string>> = {
     [PATHS.orderList]: '520px',
     [PATHS.customerList]: '460px',
+    [PATHS.archiveList]: '480px',
     '$.screens.main.children.dashboard.children.grid.children.recent.children.list': '240px',
     '$.screens.main.children.dashboard.children.grid.children.topCustomers.children.table': '260px',
     '$.screens.main.children.deliveries.children.side.children.list': '300px',
@@ -80,6 +85,8 @@ export interface RunningApp {
     command(path: string, name: string, value?: unknown): void;
     /** Shows one section, as a nav item does: writes `$.data.view.section` */
     showSection(name: string): void;
+    /** The fake archive API behind the archive section's effect: its requests, aborts and answer delay */
+    archive: ArchiveApi;
     dispose(): void;
 }
 
@@ -88,6 +95,8 @@ export interface StartOptions {
     orderCount?: number;
     /** Delay of the fake refresh and forecast, in ms */
     fakeDelay?: number;
+    /** Delay of an answer of the fake archive API, in ms (400 by default) */
+    archiveDelay?: number;
 }
 
 type CommandElement = HTMLElement & {
@@ -122,6 +131,7 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
     const customers: Record<string, Customer> = generateCustomers();
     const orders: Order[] = generateOrders(customers, options.orderCount);
     const fakeDelay = options.fakeDelay ?? 900;
+    const archive = createArchiveApi(orders, options.archiveDelay ?? 400);
     const errors: BuildError[] = [];
     const onError = report(errors);
     const timers = new Set<ReturnType<typeof setTimeout>>();
@@ -499,7 +509,7 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
         }
     };
 
-    const mounted = mountApp(host, document, library, { onEmit, onError, transferFile, readFile, load3d });
+    const mounted = mountApp(host, document, library, { onEmit, onError, transferFile, readFile, load3d }, { logicFunctions: archive.functions });
     if (!mounted.store) {
         locale.unregister();
         unregisterData();
@@ -611,6 +621,7 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
         elementAt,
         command,
         showSection: (name: string) => showSection(live, name),
+        archive,
         dispose() {
             if (disposed) return;
             disposed = true;

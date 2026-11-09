@@ -51,6 +51,9 @@
                 "orders": {
                     "_label": "Bestellungen"
                 },
+                "archive": {
+                    "_label": "Archiv"
+                },
                 "fulfilment": {
                     "_label": "Auslieferung"
                 },
@@ -578,6 +581,18 @@
                                 "_title": "Bestellung stornieren"
                             }
                         }
+                    }
+                }
+            }
+        },
+        "archive": {
+            "_title": "Bestellarchiv",
+            "_description": "Seiten einer simulierten Archiv-API: ein Effekt fragt die Seite in $.data.archive.request ab und hält die Datensätze nach id",
+            "children": {
+                "archiveList": {
+                    "empty": {
+                        "_title": "Noch nichts geladen",
+                        "_text": "Das Archiv antwortet gleich."
                     }
                 }
             }

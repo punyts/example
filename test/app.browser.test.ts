@@ -15,7 +15,7 @@ const NAV = '$.screens.main.children.nav.children';
 const SETTINGS = '$.screens.main.children.settings.children.sections.children';
 
 /** The sections of the nav, in order; every one has a smoke test */
-const SECTIONS = ['dashboard', 'orders', 'fulfilment', 'deliveries', 'customers', 'products', 'catalog', 'warehouse', 'desk', 'support', 'help', 'settings'] as const;
+const SECTIONS = ['dashboard', 'orders', 'archive', 'fulfilment', 'deliveries', 'customers', 'products', 'catalog', 'warehouse', 'desk', 'support', 'help', 'settings'] as const;
 
 /** Components that exist only as test fixtures of the component library */
 const FIXTURES = new Set(['orderEditor', 'probe']);
@@ -121,7 +121,7 @@ beforeEach(() => {
     host = document.createElement('div');
     host.style.inlineSize = '1200px';
     document.body.append(host);
-    app = startApp(host, { fakeDelay: 20 });
+    app = startApp(host, { fakeDelay: 20, archiveDelay: 20 });
 });
 
 afterEach(() => {
@@ -705,6 +705,90 @@ describe('Northwind Ops new sections', () => {
 
         // Assert
         expect(scene.hasAttribute('data-fallback')).toBe(false);
+        expect(app.errors).toEqual([]);
+    });
+});
+
+describe('Northwind Ops order archive', () => {
+    const ARCHIVE = '$.data.archive';
+    type Row = { id: string; label: string; total: number; totalText?: string };
+    const page = (): Record<string, Row> => app.store.get<Record<string, Row>>(`${ARCHIVE}.page.records`);
+    const ready = (token?: string) => (): boolean => app.store.get(`${ARCHIVE}.status.state`) === 'ready' && (token === undefined || app.store.get(`${ARCHIVE}.status.token`) !== token);
+
+    it('should load the first page, show its rows with their totals and a ready status', async () => {
+        // Act
+        await showSection('archive');
+        await until(ready());
+        await until(() => deepText(elementAt(PATHS.archiveList)).includes(Object.values(page())[0]?.label ?? '?'));
+
+        // Assert
+        const rows = page();
+        expect(Object.keys(rows)).toEqual(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
+        expect(app.store.get(`${ARCHIVE}.page.total`)).toBe(95);
+        expect(rows['0']?.totalText).toMatch(/^€/);
+        expect(app.store.get(`${ARCHIVE}.view.statusText`)).toBe('Up to date');
+        expect(Object.keys(app.store.get<Record<string, unknown>>(`${ARCHIVE}.records`))).toHaveLength(10);
+        expect(app.errors).toEqual([]);
+    });
+
+    it('should page through the pager and answer a page it has seen from the cache, with no request', async () => {
+        // Arrange
+        await showSection('archive');
+        await until(ready());
+        const firstToken = app.store.get<string>(`${ARCHIVE}.status.token`);
+
+        // Act: the pager's next page, then back to the first page
+        const pager = elementAt('$.screens.main.children.archive.children.pager');
+        const next = Array.from(pager.shadowRoot?.querySelectorAll<HTMLButtonElement>('button') ?? []).find((button) => button.textContent?.includes('2'));
+        if (!next) throw new Error('no page 2 button');
+        next.click();
+        await until(() => app.store.get(`${ARCHIVE}.request.page`) === 2);
+        await until(ready(firstToken));
+        const second = Object.keys(page());
+        const requests = app.archive.requests.length;
+        app.store.set(`${ARCHIVE}.request.page`, 1);
+        await until(() => app.store.get(`${ARCHIVE}.status.token`) === firstToken);
+
+        // Assert
+        expect(second).toEqual(['10', '11', '12', '13', '14', '15', '16', '17', '18', '19']);
+        expect(app.archive.requests.length).toBe(requests);
+        expect(Object.keys(page())).toEqual(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
+        expect(Object.keys(app.store.get<Record<string, unknown>>(`${ARCHIVE}.records`))).toHaveLength(20);
+    });
+
+    it('should cancel the request a newer one replaces and show only the newer answer', async () => {
+        // Arrange
+        await showSection('archive');
+        await until(ready());
+        app.archive.delay = 200;
+
+        // Act
+        app.store.set(`${ARCHIVE}.request.page`, 3);
+        await wait(20);
+        app.store.set(`${ARCHIVE}.request.page`, 4);
+        const loading = app.store.get(`${ARCHIVE}.view.statusText`);
+        await until(() => app.store.get(`${ARCHIVE}.status.state`) === 'ready' && Object.hasOwn(page(), '30'));
+
+        // Assert
+        expect(loading).toBe('Loading');
+        expect(app.archive.aborted).toBe(1);
+        expect(Object.keys(page())).toEqual(['30', '31', '32', '33', '34', '35', '36', '37', '38', '39']);
+        expect(Object.keys(app.store.get<Record<string, unknown>>(`${ARCHIVE}.records`))).toHaveLength(20);
+    });
+
+    it('should rewrite the row of a record that changes, its total formatted again', async () => {
+        // Arrange
+        await showSection('archive');
+        await until(ready());
+        const id = page()['2']?.id as string;
+
+        // Act
+        app.store.set(`${ARCHIVE}.records.${id}.total`, 1234.5);
+        await until(() => page()['2']?.total === 1234.5);
+        await until(() => deepText(elementAt(PATHS.archiveList)).includes('€1,234.50'));
+
+        // Assert
+        expect(page()['2']?.totalText).toBe('€1,234.50');
         expect(app.errors).toEqual([]);
     });
 });

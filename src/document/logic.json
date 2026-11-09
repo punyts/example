@@ -1,0 +1,86 @@
+{
+    "effects": {
+        "fetchArchive": {
+            "request": "$.data.archive.request",
+            "run": "archive.fetch",
+            "status": "$.data.archive.status",
+            "records": {
+                "into": "$.data.archive.records",
+                "key": "id"
+            },
+            "window": "$.data.archive.page",
+            "cache": 10
+        }
+    },
+    "computes": {
+        "archiveTotal": {
+            "inputs": {
+                "amount": "$.data.archive.records.{id}.total"
+            },
+            "run": "money.format",
+            "outputs": {
+                "text": "$.data.archive.records.{id}.totalText"
+            }
+        }
+    },
+    "tables": {
+        "archiveStatus": {
+            "inputs": {
+                "state": {
+                    "path": "$.data.archive.status.state",
+                    "values": [
+                        "idle",
+                        "loading",
+                        "ready",
+                        "error"
+                    ]
+                }
+            },
+            "outputs": {
+                "text": "$.data.archive.view.statusText",
+                "tone": "$.data.archive.view.statusTone",
+                "loading": "$.data.archive.view.loading"
+            },
+            "rows": [
+                {
+                    "state": "idle",
+                    "text": "Not loaded",
+                    "tone": "neutral",
+                    "loading": false
+                },
+                {
+                    "state": "loading",
+                    "text": "Loading",
+                    "tone": "info",
+                    "loading": true
+                },
+                {
+                    "state": "ready",
+                    "text": "Up to date",
+                    "tone": "success",
+                    "loading": false
+                },
+                {
+                    "state": "error",
+                    "text": "Failed",
+                    "tone": "danger",
+                    "loading": false
+                }
+            ]
+        }
+    },
+    "rules": {
+        "archivePage": {
+            "when": {
+                "path": "$.screens.main.children.archive.children.pager.page"
+            },
+            "do": [
+                {
+                    "command": "set",
+                    "target": "$.data.archive.request.page",
+                    "value": "{{ $trigger }}"
+                }
+            ]
+        }
+    }
+}
