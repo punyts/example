@@ -487,15 +487,6 @@ export function fsAct(fs: unknown, command: unknown, now: unknown): Fs {
     return fsView(next);
 }
 
-/**
- * The item an open asks for: an item id, or `selected` for the selected item (an `on` value is literal, so the Open
- * button cannot pass the selection itself)
- */
-export function fsPick(ask: unknown, selected: unknown): string {
-    const id = first(ask);
-    return id === 'selected' ? first(selected) : id;
-}
-
 /** Opens an item from the listing: a folder becomes the open folder, anything else becomes the selection */
 export function fsEnter(fs: unknown, id: unknown): Fs {
     const state = readFs(fs);
@@ -679,7 +670,6 @@ export const DESK_FUNCTIONS = {
     fsListing,
     fsPath,
     fsOpenCommand,
-    fsPick,
     fsSaveNote,
     fsSavePicture,
     fsUpload,

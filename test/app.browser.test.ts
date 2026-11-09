@@ -142,6 +142,17 @@ describe('Northwind Ops', () => {
         expect(elementAt(PATHS.orderList)).toBeDefined();
     });
 
+    it('should give the order list the height its placement names', async () => {
+        // Arrange: the app is mounted in beforeEach
+
+        // Act
+        await frame();
+
+        // Assert
+        expect(elementAt(PATHS.orderList).getAttribute('height')).toBe('520px');
+        expect(getComputedStyle(elementAt(PATHS.orderList)).blockSize).toBe('520px');
+    });
+
     it('should switch the visible section when a nav item is pressed', async () => {
         // Arrange
         const dashboard = elementAt('$.screens.main.children.dashboard');

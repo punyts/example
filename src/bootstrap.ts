@@ -58,21 +58,17 @@ export const PATHS = {
 /** The children of the screen root that frame the sections: the section density skips them, and the settings */
 const FRAME: readonly string[] = ['header', 'nav', 'footer', 'settings'];
 
-/** Record views and tables size themselves to their host, which a document has no property for; bootstrap sets the height */
+/**
+ * Record views and tables size themselves to their host. One in a column, row or grid takes its height from its
+ * placement in the document; these sit in tabs, a split pane or a composed component, where a placement has no height,
+ * so bootstrap sets it
+ */
 const SIZES: Readonly<Record<string, string>> = {
-    [PATHS.orderList]: '520px',
-    [PATHS.customerList]: '460px',
-    [PATHS.archiveList]: '480px',
-    '$.screens.main.children.dashboard.children.grid.children.recent.children.list': '240px',
-    '$.screens.main.children.dashboard.children.grid.children.topCustomers.children.table': '260px',
-    '$.screens.main.children.deliveries.children.side.children.list': '300px',
     '$.screens.main.children.products.children.tabs.children.manage.children.table': '320px',
     '$.screens.main.children.products.children.tabs.children.stock': '360px',
     '$.screens.main.children.products.children.tabs.children.gallery': '420px',
     '$.screens.main.children.catalog.children.split.start': '420px',
-    '$.screens.main.children.catalog.children.split.end.children.list': '380px',
-    [PATHS.chat]: '420px',
-    '$.screens.main.children.support.children.history.children.thread': '320px'
+    '$.screens.main.children.catalog.children.split.end.children.list': '380px'
 };
 
 export interface RunningApp {
@@ -521,7 +517,7 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
     errors.push(...mounted.errors);
     const live = store;
 
-    // Record views size to their host; a document has no property for a height, so the code gives them one
+    // The record views whose parent gives a placement no height
     for (const [path, height] of Object.entries(SIZES)) {
         const element = elementAt(path);
         if (element) element.style.blockSize = height;

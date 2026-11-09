@@ -569,6 +569,9 @@
                                         "component": "text",
                                         "truncate": 1,
                                         "<-_text": "$row.line"
+                                    },
+                                    "placement": {
+                                        "height": "240px"
                                     }
                                 }
                             }
@@ -616,6 +619,9 @@
                                             "align": "end",
                                             "sortable": true
                                         }
+                                    },
+                                    "placement": {
+                                        "height": "260px"
                                     }
                                 },
                                 "footnote": {
@@ -887,6 +893,9 @@
                                 }
                             }
                         }
+                    },
+                    "placement": {
+                        "height": "520px"
                     }
                 },
                 "detail": {
@@ -1445,6 +1454,9 @@
                         "elevation": "flat",
                         "padding": "none",
                         "density": "compact"
+                    },
+                    "placement": {
+                        "height": "480px"
                     }
                 },
                 "pager": {
@@ -1710,6 +1722,9 @@
                                         "<-_text": "$row.slot"
                                     }
                                 }
+                            },
+                            "placement": {
+                                "height": "300px"
                             }
                         },
                         "pager": {
@@ -1749,7 +1764,8 @@
                 "list": {
                     "component": "recordList",
                     "placement": {
-                        "span": 2
+                        "span": 2,
+                        "height": "460px"
                     },
                     "rowHeight": "lg",
                     "<-records": "$.data.customers",
@@ -5274,6 +5290,9 @@
                                         }
                                     }
                                 }
+                            },
+                            "placement": {
+                                "height": "420px"
                             }
                         }
                     }
@@ -5289,7 +5308,10 @@
                     "children": {
                         "thread": {
                             "component": "messageList",
-                            "<-records": "$.data.support.history"
+                            "<-records": "$.data.support.history",
+                            "placement": {
+                                "height": "320px"
+                            }
                         }
                     }
                 },

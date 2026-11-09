@@ -98,7 +98,7 @@ const FILES = appWindow('files', { type: 'column', gap: 'sm' }, {
         children: {
             up: ghost('Up one folder', 'arrow-up', fsInput('up')),
             path: { component: 'text', textRole: 'label', '<-_text': '$.data.fs.path' },
-            open: button('Open', 'folder-open', set('$.data.input.open', 'selected'), { variant: 'soft', size: 'sm' })
+            open: button('Open', 'folder-open', { command: 'set', target: '$.data.input.open', from: '$.data.fs.selected' }, { variant: 'soft', size: 'sm' })
         }
     },
     browse: {
@@ -312,10 +312,12 @@ function desktopIcons(): Json {
     return icons;
 }
 
-const SURFACE = {
+/** The desktop surface: an `adhoc` area that clips what is dragged past its edge, so no window covers the taskbar */
+const surface = (height: string): Json => ({
     component: 'panel',
     padding: 'none',
-    layout: { type: 'adhoc' },
+    placement: { height },
+    layout: { type: 'adhoc', clip: true },
     children: {
         wallpaper: WALLPAPER,
         ...desktopIcons(),
@@ -326,7 +328,7 @@ const SURFACE = {
         ridgeline: RIDGELINE,
         settings: SETTINGS
     }
-};
+});
 
 function launcherItems(): Json {
     const items: Json = {};
@@ -365,12 +367,12 @@ const TASKBAR = {
     }
 };
 
-const SCREEN = {
+const screen = (surfaceHeight: string): Json => ({
     component: 'panel',
     padding: 'none',
     layout: { type: 'column', gap: 'none' },
-    children: { surface: SURFACE, taskbar: TASKBAR }
-};
+    children: { surface: surface(surfaceHeight), taskbar: TASKBAR }
+});
 
 const APP = {
     component: 'app',
@@ -402,10 +404,10 @@ export const DESK_LOGIC = {
         desk: answer('desk', [set('$.data.desk.state', '{{ deskAct($.data.desk.state, $trigger) }}')]),
         fs: answer('fs', [set('$.data.fs', '{{ fsAct($.data.fs, $trigger, now()) }}')]),
         open: answer('open', [
-            set('$.data.notes', '{{ notesLoad($.data.notes, $.data.fs.items, fsPick($trigger, $.data.fs.selected)) }}'),
-            set('$.data.viewer', '{{ viewerLoad($.data.viewer, $.data.fs.items, fsPick($trigger, $.data.fs.selected)) }}'),
-            set('$.data.fs', '{{ fsEnter($.data.fs, fsPick($trigger, $.data.fs.selected)) }}'),
-            set(input('desk'), '{{ fsOpenCommand($.data.fs.items, fsPick($trigger, $.data.fs.selected)) }}')
+            set('$.data.notes', '{{ notesLoad($.data.notes, $.data.fs.items, $trigger) }}'),
+            set('$.data.viewer', '{{ viewerLoad($.data.viewer, $.data.fs.items, $trigger) }}'),
+            set('$.data.fs', '{{ fsEnter($.data.fs, $trigger) }}'),
+            set(input('desk'), '{{ fsOpenCommand($.data.fs.items, $trigger) }}')
         ]),
         note: answer('note', [
             set('$.data.fs', '{{ fsSaveNote($.data.fs, $.data.notes, now(), $trigger) }}'),
@@ -452,15 +454,18 @@ export function deskData(saved: { items?: unknown; nextId?: unknown; prefs?: { w
     };
 }
 
-/** The whole document, with the data of `deskData` */
-export function desktopDocument(data: Json = deskData()): AppDocument {
+/** The height of the desktop surface: the viewport less the taskbar */
+export const SURFACE_HEIGHT = 'calc(100dvh - 60px)';
+
+/** The whole document, with the data of `deskData` and the surface `surfaceHeight` tall */
+export function desktopDocument(data: Json = deskData(), surfaceHeight: string = SURFACE_HEIGHT): AppDocument {
     return {
         locale: 'en',
         theme: { active: { mode: 'light', brand: 'default', motion: 'full' } },
         data,
         app: APP,
         start: 'desk',
-        screens: { desk: { root: SCREEN } },
+        screens: { desk: { root: screen(surfaceHeight) } },
         logic: DESK_LOGIC
     } as unknown as AppDocument;
 }

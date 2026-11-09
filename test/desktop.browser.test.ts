@@ -139,6 +139,8 @@ describe('Lumen desktop', () => {
         // Assert
         expect(runErrors()).toEqual([]);
         expect(desk.files.kind).toBe('opfs');
+        expect(Math.round(elementAt(DESK_PATHS.surface).getBoundingClientRect().height)).toBe(820);
+        expect(getComputedStyle(elementAt(DESK_PATHS.surface).shadowRoot?.querySelector('[layout-host]') as Element).overflow).toBe('clip');
         expect(wallpaper.height).toBeGreaterThan(800);
         for (const app of ['files', 'notes', 'paint', 'viewer', 'ridgeline', 'settings'] as const) expect(shown(app)).toBe(false);
         expect(desk.store.get('$.data.desk.clock')).not.toBe('');

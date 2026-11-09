@@ -57,10 +57,10 @@ npm run icons      # regenerate src/icons.json after adding an icon to the docum
 | `test/views.browser.test.ts` | Tests of the seed data and the view helpers |
 | `test/ridgeline.browser.test.ts` | Tests of the Ridgeline rules: start, steps, picking, flanking, the ways to win, the move limit |
 | `desktop.html` | The page of the Lumen desktop: the `#desktop` host, the full height of the window |
-| `src/desktop/desk.ts` | Lumen's pure functions: the window manager (`deskAct`), the file system (`fsAct`, `fsListing`, `fsPick`, saving notes and pictures, uploads), the viewer and the wallpaper paints; `DESK_FUNCTIONS` goes to `mountApp` as expression functions |
+| `src/desktop/desk.ts` | Lumen's pure functions: the window manager (`deskAct`), the file system (`fsAct`, `fsListing`, saving notes and pictures, uploads), the viewer and the wallpaper paints; `DESK_FUNCTIONS` goes to `mountApp` as expression functions |
 | `src/desktop/files.ts` | `openFileStore`: the file store in OPFS (a folder, `lumen` by default), with `transferFile`, `readFile`, `prune` and `desk.json`; it falls back to memory where OPFS is missing |
 | `src/desktop/document.ts` | The Lumen document: the window component, the six windows, the wallpaper, the taskbar, the toasts and the rules |
-| `src/desktop/bootstrap.ts` | `startDesktop`: mount, dark mode, the clock, the surface height, saving and removing unused files |
+| `src/desktop/bootstrap.ts` | `startDesktop`: mount, dark mode, the clock, saving and removing unused files |
 | `src/desktop/main.ts` | Entry of `desktop.html` |
 | `scripts/validate-desktop.ts` | Part of `npm run validate`: validates the Lumen document |
 | `test/desk.browser.test.ts` | Tests of the window manager, the file system and the wallpaper functions |
@@ -221,11 +221,12 @@ page.
 ### Where Lumen needs code
 
 - **Opening a file.** The listing's `activate` event emits `fs.open`, and the handler writes the item id to
-  `$.data.input.open`. An `on` value is taken as it is written (a `{{ }}` in it is not evaluated), so the Open button
-  writes `selected`, and the rule turns that into the selected id with `fsPick`.
-- **Dark windows, the clock, the height.** The switch sets `$.theme.active.mode`, a timer writes the clock, and the
-  surface gets its height after mount. Inside a window the content fills it by `grow`, so the lists of Files and the
-  editor of Notes grow when a window is snapped or maximized.
+  `$.data.input.open`. The Open button writes the same input with `from: "$.data.fs.selected"`, which reads the
+  selection when it is pressed (an `on` value is taken as written, so a `{{ }}` there would not be evaluated).
+- **Dark windows and the clock.** The switch sets `$.theme.active.mode` and a timer writes the clock. The surface
+  takes its height from its placement (`calc(100dvh - 60px)`; `startDesktop` passes `surfaceHeight` to the document)
+  and clips, so a window dragged low never covers the taskbar. Inside a window the content fills it by `grow`, so the
+  lists of Files and the editor of Notes grow when a window is snapped or maximized.
 - **Saving and unused files.** `desk.json` is written a moment after the items or preferences change. Then
   `files.prune` removes the stored files that nothing uses: no item, no unsaved Paint picture and no upload in progress.
   This covers deleted pictures and uploads and old Paint drawings. It also runs once at start. A file stored in the last
@@ -238,11 +239,11 @@ Not built yet: the camera and microphone (stage 3). The plans are `docs/design/s
 
 - **Row height.** `recordList` rows have a fixed height (`rowHeight`), so the row card uses `padding: none` to keep
   its buttons inside a 36 px row.
-- **List height.** `recordList` sizes to its host and the document has no property for a height, so `bootstrap.ts`
-  sets `block-size` on the two lists after mount.
 - **Record views and tables.** Everything that draws through a record view (the lists, the tables, the `tree`, the
-  `recordGrid`, the `chatView` and the `messageList`) takes its height from its host, so `bootstrap.ts` sets `block-size`
-  on them after mount (`SIZES`). The `board` takes its height from the `board.height` token set in a node `theme`.
+  `recordGrid`, the `chatView` and the `messageList`) takes its height from its host. Where the parent is a column or
+  a grid, the document gives it one with `placement.height` (the order, customer and archive lists, the dashboard
+  lists, the chat). The five inside tabs, a split pane or a `crudTable` get `block-size` from `bootstrap.ts` after
+  mount (`SIZES`), since a placement there has no height. The `board` takes its height from the `board.height` token set in a node `theme`.
 - **Mount cost.** Every section renders at mount, hidden or not, so the first render of the whole app takes a few
   seconds in a browser (the board and the dashboard charts are the largest parts); the browser tests allow 60 s per test.
 - **tableRow.** A `table` builds its own `tableRow`s. Placed on its own, a `tableRow` takes no `<-value` link in its cells

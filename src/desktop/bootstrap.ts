@@ -5,8 +5,8 @@
  * - **Persistence.** The items and preferences are saved to `desk.json` a moment after they change. Then the stored
  *   files nothing uses any more (a deleted picture or upload, an old Paint drawing) are removed from the file store, and
  *   once at start for what an earlier page left.
- * - **Dark mode, the clock, the height.** The dark switch sets the theme mode; a timer writes the clock; the desktop
- *   surface gets its height, which a document has no property for. The windows' content fills them by `grow`.
+ * - **Dark mode and the clock.** The dark switch sets the theme mode; a timer writes the clock. The desktop surface
+ *   takes its height from its placement, and the windows' content fills them by `grow`.
  */
 import type { Store } from '@punyts/state';
 import { libraryFromCatalog, mountApp, registerMountStep } from '@punyts/stateui-app';
@@ -17,7 +17,7 @@ import icons from '../icons.json';
 import { RIDGELINE_FUNCTIONS } from '../ridgeline.ts';
 import { load3d } from '../warehouse.ts';
 import { DESK_FUNCTIONS, usedFileIds } from './desk.ts';
-import { DESK_PATHS, deskData, desktopDocument } from './document.ts';
+import { deskData, desktopDocument } from './document.ts';
 import { openFileStore } from './files.ts';
 import type { FileStore, FileStoreOptions } from './files.ts';
 
@@ -69,7 +69,7 @@ export async function startDesktop(host: HTMLElement, options: DesktopOptions = 
 
     const files = await openFileStore(options);
     const saved = ((await files.loadMeta()) ?? {}) as NonNullable<Parameters<typeof deskData>[0]>;
-    const document = desktopDocument(deskData(saved));
+    const document = desktopDocument(deskData(saved), options.surfaceHeight);
 
     const unregisterIcons = registerMountStep('lumen-icons', {
         start({ store }) {
@@ -98,15 +98,6 @@ export async function startDesktop(host: HTMLElement, options: DesktopOptions = 
     errors.push(...mounted.errors);
     const live = store;
     const elementAt = (path: string): HTMLElement | undefined => findAt(host, path);
-
-    // Sizes a document cannot give
-    const sizes: Record<string, string> = {
-        [DESK_PATHS.surface]: options.surfaceHeight ?? 'calc(100dvh - 60px)'
-    };
-    for (const [path, height] of Object.entries(sizes)) {
-        const element = elementAt(path);
-        if (element) element.style.blockSize = height;
-    }
 
     // Dark windows
     const applyDark = (): void => {

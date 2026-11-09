@@ -13,7 +13,6 @@ import {
     fsListing,
     fsOpenCommand,
     fsPath,
-    fsPick,
     fsSaveNote,
     fsSavePicture,
     fsUpload,
@@ -303,14 +302,6 @@ describe('the file system', () => {
         expect(folder.listing.map((row) => row.id)).toEqual(['welcome']);
         expect(note.selected).toBe('welcome');
         expect(note.folder).toBe('documents');
-    });
-
-    it('should pick the selected item for an open of "selected" and an id otherwise', () => {
-        // Arrange and Act and Assert
-        expect(fsPick('selected', 'welcome')).toBe('welcome');
-        expect(fsPick('selected', ['p'])).toBe('p');
-        expect(fsPick('documents', 'welcome')).toBe('documents');
-        expect(fsPick('', 'welcome')).toBe('');
     });
 
     it('should open notes in Notes and pictures in the Viewer', () => {
