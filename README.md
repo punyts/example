@@ -35,7 +35,7 @@ npm run icons      # regenerate src/icons.json after adding an icon to the docum
 | `src/document/app.json` | The app node (`$.app`): the document title and the toasts |
 | `src/document/main.json` | The root of the one screen, `main` (`$.screens.main`): header, menu, sections, lists, dialogs, `on` entries |
 | `src/document/data.json` | The initial `$.data`: view flags, draft, stats, request slots, the archive's request, records and page |
-| `src/document/logic.json` | The document's logic: the archive effect, its compute unit, its status table and the pager rule |
+| `src/document/logic.json` | The document's logic: the archive effect, its compute unit, its status table and the pager rule; the Ridgeline rules and its status table |
 | `src/document/locale.de.json` | German text of the app node (the toasts) |
 | `src/document/main.locale.de.json` | German text for everything the screen `main` writes itself |
 | `src/document/index.ts` | Assembles the app document (locale, theme, data, the app node, the screen `main`, logic, locales) |
@@ -45,6 +45,7 @@ npm run icons      # regenerate src/icons.json after adding an icon to the docum
 | `src/views.ts` | Pure helpers: deliveries in a date range, one page of a list, products of a category, the breadcrumb trail |
 | `src/sections.ts` | `showSection`: shows one section and hides the others (the console, the breadcrumb handler and the tests use it) |
 | `src/archive.ts` | The fake archive API behind the archive effect (`archive.fetch`, paged, aborts on a newer request) and the `money.format` compute function, passed to `mountApp` as `logicFunctions` |
+| `src/ridgeline.ts` | The rules of Ridgeline as pure functions over a JSON game state, and `RIDGELINE_FUNCTIONS` (`ridgelineNew`, `ridgelinePick`, `ridgelineMove`), passed to `mountApp` as logic expression functions |
 | `src/warehouse.ts` | The Warehouse files and the `readFile` and `load3d` hooks that serve them |
 | `src/assets/` | The dock picture (PNG) and the pallet model (GLB) of the Warehouse section |
 | `src/console.ts` | The agent console: store writes and a live JSON excerpt of the store |
@@ -54,6 +55,7 @@ npm run icons      # regenerate src/icons.json after adding an icon to the docum
 | `scripts/extract-icons.ts` | `npm run icons` |
 | `test/app.browser.test.ts` | Browser tests of the running app, the catalog coverage test and a smoke test per section in English and German |
 | `test/views.browser.test.ts` | Tests of the seed data and the view helpers |
+| `test/ridgeline.browser.test.ts` | Tests of the Ridgeline rules: start, steps, picking, flanking, the ways to win, the move limit |
 
 ## Feature table
 
@@ -90,6 +92,7 @@ The app document places every component of the catalog (the test fixtures `order
 | Products (`products`) | `tabs` with `crudTable` (add, edit with `numberField` and `selectField`, delete with `confirmDialog` and `formDialog`), a stock `table` with `input`, `select`, `checkbox` and `switch` in its cells, and a `recordGrid` gallery |
 | Catalog (`catalog`) | `breadcrumb` (the path to the category), `splitPane` with a `tree` of categories and a `masterDetail` of the products in the category |
 | Warehouse (`warehouse`) | A `drawing` floor plan with every 2D shape (`rect`, `circle`, `ellipse`, `line`, `polyline`, `polygon`, `path`, `drawText`, `drawGroup`, a `drawImage` of a stored file and a `drawRepeat` of the bins), a `scene3d` of the racks (`camera`, `light`, `mesh`, `group3d`, a `repeat3d` of the racks, a `label3d` and a `model` from a GLB file) and a `paintField` sketch pad |
+| Ridgeline (`ridgeline`) | A two-player board game (below): a `scene3d` with a `repeat3d` of 25 tiles, ten `group3d` pieces built from `mesh` primitives that glide with `transition`, pulsing Beacon and selection rings (`animate`), `label3d` side names and coordinates; `stat` counters, a `button` and the rules in `markdown` |
 | New order (`desk`) | `wizard` (with `stepper`, `tabs` and `form` steps): `comboboxField`, `radioField`, `dateField`, `selectField`, `numberField`, `sliderField`, `multiSelectField`, `switchField`, `fileField`, `descriptionList`, `checkField` |
 | Support (`support`) | `chatView` (live, the customer's reply streams in), `messageList` (an earlier thread), `markdown` (a canned reply), `select`, `textarea`, `form` with `selectField` and `textareaField` (escalation), `divider` |
 | Help (`help`) | `accordion` of `disclosure` entries, a stand-alone `disclosure` with `markdown`, `modal` (contact support) |
@@ -132,6 +135,28 @@ Their references in `main.json` name them by id, as references to a file store w
 `readFile` hook (`warehouse.ts`) that serves the two files shipped in `src/assets/` by those ids, and a `load3d` hook that
 imports `@punyts/stateui-3d` (three.js) as its own chunk the first time a `scene3d` asks for it, so the rest of the app
 never loads it.
+
+### Ridgeline, the board game
+
+Ridgeline is an original two-player game on a 5 × 5 board, played in the 3D scene of its section: press a piece,
+then a green tile.
+
+- Amber and Teal each have a Warden and four Scouts on their home row (Amber row 1, Teal row 5), the Warden on column c,
+  its side's Beacon. Amber moves first.
+- A turn moves one piece one step to an empty tile. Scouts step straight (forward, back or sideways) and may not enter
+  either Beacon; Wardens step in any of the eight directions.
+- Flanking: after your move, an enemy Scout next to the piece you moved, with one of your pieces right behind it on the
+  same line, is captured and goes to its tray. Stepping between two enemies is safe; Wardens are never captured.
+- You win when your Warden stands on the enemy Beacon, when the enemy has no Scouts left, or when it has no move. After
+  60 moves the side with more Scouts wins; equal Scouts is a draw.
+
+How it is built: the whole game state (pieces with their scene positions, tile colours, the selection ring, the counts)
+is one JSON value at `$.data.game.board`. A press on a piece writes its id to `$.data.game.input.pick`, a press on a
+tile writes the tile id to `$.data.game.input.to`, and the New game button writes `true` to `$.data.game.input.reset`.
+Three rules in `logic.json` (`ridgelinePick`, `ridgelineMove`, `ridgelineNew`) each set the board to the result of an
+expression function from `src/ridgeline.ts` and clear their input, so the same press works again. The table
+`ridgelineStatus` turns the winner, the turn and the reason into the hidden flags of the localized status lines. The
+scene links each piece's `position` and each tile's `material` to the state; the pieces glide with `transition`.
 
 ## The agent console
 

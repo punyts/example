@@ -15,7 +15,7 @@ const NAV = '$.screens.main.children.nav.children';
 const SETTINGS = '$.screens.main.children.settings.children.sections.children';
 
 /** The sections of the nav, in order; every one has a smoke test */
-const SECTIONS = ['dashboard', 'orders', 'archive', 'fulfilment', 'deliveries', 'customers', 'products', 'catalog', 'warehouse', 'desk', 'support', 'help', 'settings'] as const;
+const SECTIONS = ['dashboard', 'orders', 'archive', 'fulfilment', 'deliveries', 'customers', 'products', 'catalog', 'warehouse', 'ridgeline', 'desk', 'support', 'help', 'settings'] as const;
 
 /** Components that exist only as test fixtures of the component library */
 const FIXTURES = new Set(['orderEditor', 'probe']);
@@ -790,5 +790,91 @@ describe('Northwind Ops order archive', () => {
         // Assert
         expect(page()['2']?.totalText).toBe('€1,234.50');
         expect(app.errors).toEqual([]);
+    });
+});
+
+describe('Northwind Ops Ridgeline', () => {
+    const SCENE = '$.screens.main.children.ridgeline.children.table.children.scene';
+    const STATUS = '$.screens.main.children.ridgeline.children.side.children.status.children';
+    const BOARD = '$.data.game.board';
+
+    /** Presses a piece (a group3d of the scene) or a tile (a copy of the tiles repeat3d) through its proxy button */
+    function pressIn3d(path: string): void {
+        const proxy = elementAt(SCENE).shadowRoot?.querySelector<HTMLElement>(`[data-shape-path="${SCENE}.${path}"]`);
+        if (!proxy) throw new Error(`no proxy for ${path}`);
+        proxy.click();
+    }
+
+    async function play(piece: string, tile: string): Promise<void> {
+        const moves = app.store.get<number>(`${BOARD}.moves`);
+        pressIn3d(`children.${piece}`);
+        await until(() => app.store.get(`${BOARD}.picked`) === piece);
+        pressIn3d(`children.tiles.rows.${tile}`);
+        await until(() => app.store.get(`${BOARD}.moves`) === moves + 1);
+    }
+
+    /** The status lines on show, by key */
+    const statusShown = (): string[] =>
+        ['amberTurn', 'tealTurn', 'amberWon', 'tealWon', 'drawn', 'byBeacon', 'byScouts', 'byStuck', 'byLimit'].filter((key) => isShown(elementAt(`${STATUS}.${key}`)));
+
+    it('should pick a piece, colour its tiles and move it with presses in the 3D scene', async () => {
+        // Arrange
+        await showSection('ridgeline');
+        const scene = elementAt(SCENE);
+        await until(() => scene.getAttribute('data-render') === 'ready', 15000);
+
+        // Act
+        pressIn3d('children.a2');
+        await until(() => app.store.get(`${BOARD}.picked`) === 'a2');
+        const legal = app.store.get<string>(`${BOARD}.tiles.t11.paint.color`);
+        const haloShown = app.store.get<boolean>(`${BOARD}.halo.visible`);
+        pressIn3d('children.tiles.rows.t11');
+        await until(() => app.store.get(`${BOARD}.turn`) === 'teal');
+        await frame();
+
+        // Assert
+        expect(legal).toBe('#45b860');
+        expect(haloShown).toBe(true);
+        expect(app.store.get(`${BOARD}.last`)).toBe('b1-b2');
+        expect(app.store.get(`${SCENE}.children.a2.position`)).toEqual([-1, 0.06, 1]);
+        expect(app.store.get('$.data.game.input')).toEqual({ pick: '', to: '', reset: false });
+        expect(statusShown()).toEqual(['tealTurn']);
+        expect(runErrors()).toEqual([]);
+    });
+
+    it('should show the win when the Amber Warden reaches the Teal Beacon', async () => {
+        // Arrange
+        await showSection('ridgeline');
+
+        // Act: Amber walks its Warden up the board while Teal shuffles a Scout, then the Teal Warden steps off its Beacon
+        await play('aW', 't21');
+        await play('t1', 't03');
+        await play('aW', 't22');
+        await play('t1', 't04');
+        await play('aW', 't13');
+        await play('tW', 't33');
+        await play('aW', 't24');
+
+        // Assert
+        expect(app.store.get(`${BOARD}.winner`)).toBe('amber');
+        expect(app.store.get(`${BOARD}.reason`)).toBe('beacon');
+        await until(() => statusShown().join() === 'amberWon,byBeacon');
+        expect(runErrors()).toEqual([]);
+    });
+
+    it('should start a new game from the New game button', async () => {
+        // Arrange
+        await showSection('ridgeline');
+        await play('a1', 't01');
+
+        // Act
+        press('$.screens.main.children.ridgeline.children.side.children.newGame');
+        await until(() => app.store.get(`${BOARD}.moves`) === 0);
+
+        // Assert
+        expect(app.store.get(`${BOARD}.turn`)).toBe('amber');
+        expect(app.store.get(`${BOARD}.pieces.a1.at`)).toEqual([-2, 0.06, 2]);
+        expect(app.store.get('$.data.game.input.reset')).toBe(false);
+        expect(statusShown()).toEqual(['amberTurn']);
     });
 });

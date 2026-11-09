@@ -11,6 +11,7 @@
             "products": true,
             "catalog": true,
             "warehouse": true,
+            "ridgeline": true,
             "desk": true,
             "support": true,
             "help": true,

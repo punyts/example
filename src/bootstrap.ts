@@ -12,6 +12,7 @@ import { registerAll } from '@punyts/stateui-components/components';
 import { PRODUCTS, STATUS_PROGRESS, STATUS_TONES, computeStats, generateCustomers, generateOrders, makeOrder } from './data.ts';
 import type { Customer, Order, OrderStatus } from './data.ts';
 import { createArchiveApi } from './archive.ts';
+import { RIDGELINE_FUNCTIONS } from './ridgeline.ts';
 import type { ArchiveApi } from './archive.ts';
 import { appDocument } from './document/index.ts';
 import icons from './icons.json';
@@ -509,7 +510,7 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
         }
     };
 
-    const mounted = mountApp(host, document, library, { onEmit, onError, transferFile, readFile, load3d }, { logicFunctions: archive.functions });
+    const mounted = mountApp(host, document, library, { onEmit, onError, transferFile, readFile, load3d }, { logicFunctions: { ...archive.functions, expressions: { ...archive.functions.expressions, ...RIDGELINE_FUNCTIONS } } });
     if (!mounted.store) {
         locale.unregister();
         unregisterData();

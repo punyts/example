@@ -72,6 +72,9 @@
                 "warehouse": {
                     "_label": "Lager"
                 },
+                "ridgeline": {
+                    "_label": "Ridgeline"
+                },
                 "desk": {
                     "_label": "Neue Bestellung"
                 },
@@ -943,6 +946,121 @@
                                     "_label": "Layout-Skizze"
                                 }
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "ridgeline": {
+            "_title": "Ridgeline",
+            "_description": "Ein Brettspiel für zwei auf einem 3D-Brett: erst eine Figur antippen, dann ein grünes Feld",
+            "children": {
+                "table": {
+                    "_title": "Das Brett",
+                    "_subtitle": "Mit dem Zeiger lässt sich das Brett drehen. Bernstein spielt von der vorderen Seite.",
+                    "children": {
+                        "scene": {
+                            "_title": "Das Ridgeline-Brett",
+                            "_fallback": "Dieses 3D-Brett kann in diesem Browser nicht gezeigt werden. Es ist ein Brett mit 5 mal 5 Feldern, Bernstein auf Reihe 1 und Türkis auf Reihe 5.",
+                            "children": {
+                                "amberName": {
+                                    "_text": "Bernstein"
+                                },
+                                "tealName": {
+                                    "_text": "Türkis"
+                                },
+                                "aW": {
+                                    "_label": "Bernstein Wächter"
+                                },
+                                "a1": {
+                                    "_label": "Bernstein Späher 1"
+                                },
+                                "a2": {
+                                    "_label": "Bernstein Späher 2"
+                                },
+                                "a3": {
+                                    "_label": "Bernstein Späher 3"
+                                },
+                                "a4": {
+                                    "_label": "Bernstein Späher 4"
+                                },
+                                "tW": {
+                                    "_label": "Türkis Wächter"
+                                },
+                                "t1": {
+                                    "_label": "Türkis Späher 1"
+                                },
+                                "t2": {
+                                    "_label": "Türkis Späher 2"
+                                },
+                                "t3": {
+                                    "_label": "Türkis Späher 3"
+                                },
+                                "t4": {
+                                    "_label": "Türkis Späher 4"
+                                }
+                            }
+                        }
+                    }
+                },
+                "side": {
+                    "_title": "Die Partie",
+                    "children": {
+                        "status": {
+                            "children": {
+                                "amberTurn": {
+                                    "_text": "Bernstein ist am Zug"
+                                },
+                                "tealTurn": {
+                                    "_text": "Türkis ist am Zug"
+                                },
+                                "amberWon": {
+                                    "_text": "Bernstein gewinnt!"
+                                },
+                                "tealWon": {
+                                    "_text": "Türkis gewinnt!"
+                                },
+                                "drawn": {
+                                    "_text": "Unentschieden"
+                                },
+                                "byBeacon": {
+                                    "_text": "Der Wächter hat das gegnerische Leuchtfeuer erreicht."
+                                },
+                                "byScouts": {
+                                    "_text": "Der Gegner hat keine Späher mehr."
+                                },
+                                "byStuck": {
+                                    "_text": "Der Gegner hat keinen Zug mehr."
+                                },
+                                "byLimit": {
+                                    "_text": "60 Züge gespielt: die Späher wurden gezählt."
+                                }
+                            }
+                        },
+                        "counts": {
+                            "children": {
+                                "amberScouts": {
+                                    "_label": "Späher Bernstein"
+                                },
+                                "tealScouts": {
+                                    "_label": "Späher Türkis"
+                                },
+                                "moves": {
+                                    "_label": "Gespielte Züge"
+                                },
+                                "last": {
+                                    "_label": "Letzter Zug"
+                                }
+                            }
+                        },
+                        "newGame": {
+                            "_title": "Neue Partie"
+                        },
+                        "rulesTitle": {
+                            "_text": "So wird gespielt"
+                        },
+                        "rules": {
+                            "_text": "**Ziel.** Bring deinen Wächter auf das gegnerische Leuchtfeuer, das leuchtende Feld in der Mitte der hinteren Reihe.\n\n- **Ein Zug** setzt eine deiner Figuren einen Schritt weit auf ein freies Feld. Erst die Figur antippen, dann ein grünes Feld.\n- **Späher** ziehen gerade: vor, zurück oder seitwärts. Sie dürfen kein Leuchtfeuer betreten.\n- **Wächter** ziehen in alle acht Richtungen.\n- **Einkesseln.** Steht nach deinem Zug ein gegnerischer Späher neben der gezogenen Figur und direkt dahinter auf derselben Linie eine deiner Figuren, ist er geschlagen. Wer zwischen zwei Gegner zieht, bleibt stehen. Wächter werden nie geschlagen.\n- **Du gewinnst auch**, wenn der Gegner keine Späher mehr oder keinen Zug mehr hat. Nach 60 Zügen gewinnt, wer mehr Späher hat; bei gleich vielen ist es unentschieden."
                         }
                     }
                 }

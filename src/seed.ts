@@ -8,6 +8,7 @@
  */
 import { PRODUCTS, createRandom, formatMoney } from './data.ts';
 import type { Customer, Order, OrderStatus } from './data.ts';
+import { newGame } from './ridgeline.ts';
 
 export interface Product {
     id: string;
@@ -336,7 +337,20 @@ export function seedData(orders: readonly Order[], customers: Readonly<Record<st
         charts: { byMonth: revenueByMonth(orders), byStatus: ordersByStatus(orders) },
         recent: recentOrders(orders),
         topCustomers: topCustomers(orders, customers),
-        prefs: defaultPreferences()
+        prefs: defaultPreferences(),
+        game: emptyGame()
+    };
+}
+
+/**
+ * The Ridgeline section: the game state the rules write (`board`), the inputs a press writes (a piece to pick, a tile to
+ * move to, a new game) and the hidden flags of the status lines, which the `ridgelineStatus` table writes
+ */
+export function emptyGame(): Record<string, unknown> {
+    return {
+        board: newGame(),
+        input: { pick: '', to: '', reset: false },
+        status: { amberTurn: false, tealTurn: true, amberWon: true, tealWon: true, drawn: true, byBeacon: true, byScouts: true, byStuck: true, byLimit: true }
     };
 }
 

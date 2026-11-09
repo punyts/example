@@ -200,6 +200,11 @@
                     "icon": "building-warehouse",
                     "_label": "Warehouse"
                 },
+                "ridgeline": {
+                    "component": "menuItem",
+                    "icon": "chess",
+                    "_label": "Ridgeline"
+                },
                 "desk": {
                     "component": "menuItem",
                     "icon": "clipboard-plus",
@@ -2700,6 +2705,2297 @@
                                     ]
                                 }
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "ridgeline": {
+            "component": "panel",
+            "placement": {
+                "region": "center"
+            },
+            "_title": "Ridgeline",
+            "_description": "A two-player board game on a 3D board: press a piece, then a green tile",
+            "<-hidden": "$.data.view.hidden.ridgeline",
+            "layout": {
+                "type": "row",
+                "gap": "md",
+                "align": "start",
+                "collapseBelow": "md"
+            },
+            "children": {
+                "table": {
+                    "component": "card",
+                    "placement": {
+                        "grow": 2
+                    },
+                    "_title": "The board",
+                    "_subtitle": "Turn the board with the pointer. Amber plays from the near side.",
+                    "layout": {
+                        "type": "column",
+                        "gap": "sm"
+                    },
+                    "children": {
+                        "scene": {
+                            "component": "scene3d",
+                            "_title": "The Ridgeline board",
+                            "_fallback": "This 3D board cannot be shown in this browser. It is a 5 by 5 board with Amber pieces on row 1 and Teal pieces on row 5.",
+                            "controls": "orbit",
+                            "environment": "studio",
+                            "theme": {
+                                "scene3d": {
+                                    "height": "520px"
+                                }
+                            },
+                            "children": {
+                                "camera": {
+                                    "component": "camera",
+                                    "position": [
+                                        0,
+                                        5.6,
+                                        5.4
+                                    ],
+                                    "target": [
+                                        0,
+                                        -0.2,
+                                        0.25
+                                    ],
+                                    "fov": 45,
+                                    "active": true
+                                },
+                                "ambient": {
+                                    "component": "light",
+                                    "kind": "ambient",
+                                    "intensity": 0.45
+                                },
+                                "sun": {
+                                    "component": "light",
+                                    "kind": "directional",
+                                    "position": [
+                                        4,
+                                        9,
+                                        5
+                                    ],
+                                    "intensity": 1.4,
+                                    "shadows": true
+                                },
+                                "lamp": {
+                                    "component": "light",
+                                    "kind": "point",
+                                    "position": [
+                                        0,
+                                        3.5,
+                                        0
+                                    ],
+                                    "color": "#ffe2b8",
+                                    "intensity": 0.6
+                                },
+                                "ground": {
+                                    "component": "mesh",
+                                    "geometry": {
+                                        "kind": "plane",
+                                        "width": 16,
+                                        "height": 16
+                                    },
+                                    "position": [
+                                        0,
+                                        -0.36,
+                                        0
+                                    ],
+                                    "material": {
+                                        "color": "#2b2f36",
+                                        "roughness": 0.95
+                                    },
+                                    "castShadow": false,
+                                    "rotation": [
+                                        -90,
+                                        0,
+                                        0
+                                    ],
+                                    "receiveShadow": true
+                                },
+                                "plinth": {
+                                    "component": "mesh",
+                                    "geometry": {
+                                        "kind": "box",
+                                        "width": 5.7,
+                                        "height": 0.3,
+                                        "depth": 5.7
+                                    },
+                                    "position": [
+                                        0,
+                                        -0.21,
+                                        0
+                                    ],
+                                    "material": {
+                                        "color": "#5b3d27",
+                                        "roughness": 0.65
+                                    },
+                                    "castShadow": true,
+                                    "receiveShadow": true
+                                },
+                                "trim": {
+                                    "component": "mesh",
+                                    "geometry": {
+                                        "kind": "box",
+                                        "width": 5.9,
+                                        "height": 0.06,
+                                        "depth": 5.9
+                                    },
+                                    "position": [
+                                        0,
+                                        -0.33,
+                                        0
+                                    ],
+                                    "material": {
+                                        "color": "#c9a75a",
+                                        "metalness": 0.85,
+                                        "roughness": 0.3
+                                    },
+                                    "castShadow": false
+                                },
+                                "tiles": {
+                                    "component": "repeat3d",
+                                    "<-records": "$.data.game.board.tiles",
+                                    "row": {
+                                        "component": "mesh",
+                                        "geometry": {
+                                            "kind": "box",
+                                            "width": 0.94,
+                                            "height": 0.12,
+                                            "depth": 0.94
+                                        },
+                                        "material": {
+                                            "color": "#e4d6bd",
+                                            "roughness": 0.6
+                                        },
+                                        "receiveShadow": true,
+                                        "<-position": "$row.at",
+                                        "<-material": "$row.paint",
+                                        "interactive": true,
+                                        "<-_label": "$row.name",
+                                        "on": {
+                                            "press": {
+                                                "command": "set",
+                                                "target": "$.data.game.input.to",
+                                                "value": "$row.id"
+                                            }
+                                        }
+                                    }
+                                },
+                                "beaconAmber": {
+                                    "component": "mesh",
+                                    "geometry": {
+                                        "kind": "torus",
+                                        "radius": 0.36,
+                                        "tube": 0.035,
+                                        "segments": 48
+                                    },
+                                    "position": [
+                                        0,
+                                        0.075,
+                                        2
+                                    ],
+                                    "material": {
+                                        "color": "#f0a73a",
+                                        "emissive": "#f0a73a",
+                                        "roughness": 0.3
+                                    },
+                                    "castShadow": false,
+                                    "rotation": [
+                                        -90,
+                                        0,
+                                        0
+                                    ],
+                                    "animate": {
+                                        "name": "pulse",
+                                        "duration": 1800,
+                                        "loop": true
+                                    }
+                                },
+                                "beaconTeal": {
+                                    "component": "mesh",
+                                    "geometry": {
+                                        "kind": "torus",
+                                        "radius": 0.36,
+                                        "tube": 0.035,
+                                        "segments": 48
+                                    },
+                                    "position": [
+                                        0,
+                                        0.075,
+                                        -2
+                                    ],
+                                    "material": {
+                                        "color": "#35bfae",
+                                        "emissive": "#35bfae",
+                                        "roughness": 0.3
+                                    },
+                                    "castShadow": false,
+                                    "rotation": [
+                                        -90,
+                                        0,
+                                        0
+                                    ],
+                                    "animate": {
+                                        "name": "pulse",
+                                        "duration": 1800,
+                                        "loop": true
+                                    }
+                                },
+                                "halo": {
+                                    "component": "mesh",
+                                    "geometry": {
+                                        "kind": "torus",
+                                        "radius": 0.465,
+                                        "tube": 0.04,
+                                        "segments": 48
+                                    },
+                                    "material": {
+                                        "color": "#d6e9ff",
+                                        "emissive": "#4f9cff",
+                                        "roughness": 0.3
+                                    },
+                                    "rotation": [
+                                        -90,
+                                        0,
+                                        0
+                                    ],
+                                    "<-position": "$.data.game.board.halo.at",
+                                    "<-visible": "$.data.game.board.halo.visible",
+                                    "animate": {
+                                        "name": "pulse",
+                                        "duration": 1400,
+                                        "loop": true
+                                    }
+                                },
+                                "trayAmber": {
+                                    "component": "mesh",
+                                    "geometry": {
+                                        "kind": "box",
+                                        "width": 0.9,
+                                        "height": 0.12,
+                                        "depth": 3.9
+                                    },
+                                    "position": [
+                                        -3.45,
+                                        0,
+                                        0
+                                    ],
+                                    "material": {
+                                        "color": "#4a3222",
+                                        "roughness": 0.75
+                                    },
+                                    "castShadow": false,
+                                    "receiveShadow": true
+                                },
+                                "trayTeal": {
+                                    "component": "mesh",
+                                    "geometry": {
+                                        "kind": "box",
+                                        "width": 0.9,
+                                        "height": 0.12,
+                                        "depth": 3.9
+                                    },
+                                    "position": [
+                                        3.45,
+                                        0,
+                                        0
+                                    ],
+                                    "material": {
+                                        "color": "#4a3222",
+                                        "roughness": 0.75
+                                    },
+                                    "castShadow": false,
+                                    "receiveShadow": true
+                                },
+                                "colA": {
+                                    "component": "label3d",
+                                    "_text": "a",
+                                    "position": [
+                                        -2,
+                                        0.02,
+                                        2.66
+                                    ],
+                                    "fontSize": 0.22,
+                                    "color": "#f3e6cf"
+                                },
+                                "colB": {
+                                    "component": "label3d",
+                                    "_text": "b",
+                                    "position": [
+                                        -1,
+                                        0.02,
+                                        2.66
+                                    ],
+                                    "fontSize": 0.22,
+                                    "color": "#f3e6cf"
+                                },
+                                "colC": {
+                                    "component": "label3d",
+                                    "_text": "c",
+                                    "position": [
+                                        0,
+                                        0.02,
+                                        2.66
+                                    ],
+                                    "fontSize": 0.22,
+                                    "color": "#f3e6cf"
+                                },
+                                "colD": {
+                                    "component": "label3d",
+                                    "_text": "d",
+                                    "position": [
+                                        1,
+                                        0.02,
+                                        2.66
+                                    ],
+                                    "fontSize": 0.22,
+                                    "color": "#f3e6cf"
+                                },
+                                "colE": {
+                                    "component": "label3d",
+                                    "_text": "e",
+                                    "position": [
+                                        2,
+                                        0.02,
+                                        2.66
+                                    ],
+                                    "fontSize": 0.22,
+                                    "color": "#f3e6cf"
+                                },
+                                "row1": {
+                                    "component": "label3d",
+                                    "_text": "1",
+                                    "position": [
+                                        -2.66,
+                                        0.02,
+                                        2
+                                    ],
+                                    "fontSize": 0.22,
+                                    "color": "#f3e6cf"
+                                },
+                                "row2": {
+                                    "component": "label3d",
+                                    "_text": "2",
+                                    "position": [
+                                        -2.66,
+                                        0.02,
+                                        1
+                                    ],
+                                    "fontSize": 0.22,
+                                    "color": "#f3e6cf"
+                                },
+                                "row3": {
+                                    "component": "label3d",
+                                    "_text": "3",
+                                    "position": [
+                                        -2.66,
+                                        0.02,
+                                        0
+                                    ],
+                                    "fontSize": 0.22,
+                                    "color": "#f3e6cf"
+                                },
+                                "row4": {
+                                    "component": "label3d",
+                                    "_text": "4",
+                                    "position": [
+                                        -2.66,
+                                        0.02,
+                                        -1
+                                    ],
+                                    "fontSize": 0.22,
+                                    "color": "#f3e6cf"
+                                },
+                                "row5": {
+                                    "component": "label3d",
+                                    "_text": "5",
+                                    "position": [
+                                        -2.66,
+                                        0.02,
+                                        -2
+                                    ],
+                                    "fontSize": 0.22,
+                                    "color": "#f3e6cf"
+                                },
+                                "amberName": {
+                                    "component": "label3d",
+                                    "_text": "Amber",
+                                    "position": [
+                                        0,
+                                        0.05,
+                                        3.25
+                                    ],
+                                    "fontSize": 0.32,
+                                    "color": "#f0a73a"
+                                },
+                                "tealName": {
+                                    "component": "label3d",
+                                    "_text": "Teal",
+                                    "position": [
+                                        0,
+                                        0.05,
+                                        -3.25
+                                    ],
+                                    "fontSize": 0.32,
+                                    "color": "#35bfae"
+                                },
+                                "aW": {
+                                    "component": "group3d",
+                                    "<-position": "$.data.game.board.pieces.aW.at",
+                                    "transition": {
+                                        "duration": "slow",
+                                        "easing": "standard"
+                                    },
+                                    "interactive": true,
+                                    "_label": "Amber Warden",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.data.game.input.pick",
+                                            "value": "aW"
+                                        }
+                                    },
+                                    "children": {
+                                        "base": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.35,
+                                                "radiusBottom": 0.4,
+                                                "height": 0.12,
+                                                "segments": 48
+                                            },
+                                            "position": [
+                                                0,
+                                                0.06,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#7a4210",
+                                                "roughness": 0.55
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "rim": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "torus",
+                                                "radius": 0.36,
+                                                "tube": 0.038,
+                                                "segments": 48
+                                            },
+                                            "position": [
+                                                0,
+                                                0.12,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true,
+                                            "rotation": [
+                                                -90,
+                                                0,
+                                                0
+                                            ]
+                                        },
+                                        "body": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.17,
+                                                "radiusBottom": 0.3,
+                                                "height": 0.58,
+                                                "segments": 40
+                                            },
+                                            "position": [
+                                                0,
+                                                0.41,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#e0861c",
+                                                "roughness": 0.4
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "collar": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "torus",
+                                                "radius": 0.19,
+                                                "tube": 0.04,
+                                                "segments": 40
+                                            },
+                                            "position": [
+                                                0,
+                                                0.7,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true,
+                                            "rotation": [
+                                                -90,
+                                                0,
+                                                0
+                                            ]
+                                        },
+                                        "shoulders": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.23,
+                                                "radiusBottom": 0.19,
+                                                "height": 0.08,
+                                                "segments": 40
+                                            },
+                                            "position": [
+                                                0,
+                                                0.78,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#f7c77e",
+                                                "roughness": 0.35
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "glow": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "sphere",
+                                                "radius": 0.12,
+                                                "segments": 32
+                                            },
+                                            "position": [
+                                                0,
+                                                0.96,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#ffcf6e",
+                                                "emissive": "#ffcf6e",
+                                                "roughness": 0.2
+                                            },
+                                            "castShadow": true,
+                                            "animate": {
+                                                "name": "pulse",
+                                                "duration": 2200,
+                                                "loop": true
+                                            }
+                                        },
+                                        "postN": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.017,
+                                                "radiusBottom": 0.017,
+                                                "height": 0.26,
+                                                "segments": 8
+                                            },
+                                            "position": [
+                                                0,
+                                                0.96,
+                                                -0.15
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "postS": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.017,
+                                                "radiusBottom": 0.017,
+                                                "height": 0.26,
+                                                "segments": 8
+                                            },
+                                            "position": [
+                                                0,
+                                                0.96,
+                                                0.15
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "postE": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.017,
+                                                "radiusBottom": 0.017,
+                                                "height": 0.26,
+                                                "segments": 8
+                                            },
+                                            "position": [
+                                                0.15,
+                                                0.96,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "postW": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.017,
+                                                "radiusBottom": 0.017,
+                                                "height": 0.26,
+                                                "segments": 8
+                                            },
+                                            "position": [
+                                                -0.15,
+                                                0.96,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "roof": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cone",
+                                                "radius": 0.22,
+                                                "height": 0.2,
+                                                "segments": 40
+                                            },
+                                            "position": [
+                                                0,
+                                                1.19,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "finial": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "sphere",
+                                                "radius": 0.045,
+                                                "segments": 16
+                                            },
+                                            "position": [
+                                                0,
+                                                1.32,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true
+                                        }
+                                    }
+                                },
+                                "a1": {
+                                    "component": "group3d",
+                                    "<-position": "$.data.game.board.pieces.a1.at",
+                                    "transition": {
+                                        "duration": "slow",
+                                        "easing": "standard"
+                                    },
+                                    "interactive": true,
+                                    "_label": "Amber Scout 1",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.data.game.input.pick",
+                                            "value": "a1"
+                                        }
+                                    },
+                                    "children": {
+                                        "base": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.29,
+                                                "radiusBottom": 0.33,
+                                                "height": 0.1,
+                                                "segments": 40
+                                            },
+                                            "position": [
+                                                0,
+                                                0.05,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#7a4210",
+                                                "roughness": 0.55
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "rim": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "torus",
+                                                "radius": 0.3,
+                                                "tube": 0.03,
+                                                "segments": 40
+                                            },
+                                            "position": [
+                                                0,
+                                                0.1,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true,
+                                            "rotation": [
+                                                -90,
+                                                0,
+                                                0
+                                            ]
+                                        },
+                                        "body": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.13,
+                                                "radiusBottom": 0.23,
+                                                "height": 0.4,
+                                                "segments": 32
+                                            },
+                                            "position": [
+                                                0,
+                                                0.3,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#e0861c",
+                                                "roughness": 0.4
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "collar": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "torus",
+                                                "radius": 0.14,
+                                                "tube": 0.032,
+                                                "segments": 32
+                                            },
+                                            "position": [
+                                                0,
+                                                0.5,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true,
+                                            "rotation": [
+                                                -90,
+                                                0,
+                                                0
+                                            ]
+                                        },
+                                        "head": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "sphere",
+                                                "radius": 0.15,
+                                                "segments": 32
+                                            },
+                                            "position": [
+                                                0,
+                                                0.64,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#f7c77e",
+                                                "roughness": 0.35
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "crest": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cone",
+                                                "radius": 0.07,
+                                                "height": 0.16,
+                                                "segments": 24
+                                            },
+                                            "position": [
+                                                0,
+                                                0.84,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#7a4210",
+                                                "roughness": 0.4
+                                            },
+                                            "castShadow": true
+                                        }
+                                    }
+                                },
+                                "a2": {
+                                    "component": "group3d",
+                                    "<-position": "$.data.game.board.pieces.a2.at",
+                                    "transition": {
+                                        "duration": "slow",
+                                        "easing": "standard"
+                                    },
+                                    "interactive": true,
+                                    "_label": "Amber Scout 2",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.data.game.input.pick",
+                                            "value": "a2"
+                                        }
+                                    },
+                                    "children": {
+                                        "base": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.29,
+                                                "radiusBottom": 0.33,
+                                                "height": 0.1,
+                                                "segments": 40
+                                            },
+                                            "position": [
+                                                0,
+                                                0.05,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#7a4210",
+                                                "roughness": 0.55
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "rim": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "torus",
+                                                "radius": 0.3,
+                                                "tube": 0.03,
+                                                "segments": 40
+                                            },
+                                            "position": [
+                                                0,
+                                                0.1,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true,
+                                            "rotation": [
+                                                -90,
+                                                0,
+                                                0
+                                            ]
+                                        },
+                                        "body": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.13,
+                                                "radiusBottom": 0.23,
+                                                "height": 0.4,
+                                                "segments": 32
+                                            },
+                                            "position": [
+                                                0,
+                                                0.3,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#e0861c",
+                                                "roughness": 0.4
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "collar": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "torus",
+                                                "radius": 0.14,
+                                                "tube": 0.032,
+                                                "segments": 32
+                                            },
+                                            "position": [
+                                                0,
+                                                0.5,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true,
+                                            "rotation": [
+                                                -90,
+                                                0,
+                                                0
+                                            ]
+                                        },
+                                        "head": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "sphere",
+                                                "radius": 0.15,
+                                                "segments": 32
+                                            },
+                                            "position": [
+                                                0,
+                                                0.64,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#f7c77e",
+                                                "roughness": 0.35
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "crest": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cone",
+                                                "radius": 0.07,
+                                                "height": 0.16,
+                                                "segments": 24
+                                            },
+                                            "position": [
+                                                0,
+                                                0.84,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#7a4210",
+                                                "roughness": 0.4
+                                            },
+                                            "castShadow": true
+                                        }
+                                    }
+                                },
+                                "a3": {
+                                    "component": "group3d",
+                                    "<-position": "$.data.game.board.pieces.a3.at",
+                                    "transition": {
+                                        "duration": "slow",
+                                        "easing": "standard"
+                                    },
+                                    "interactive": true,
+                                    "_label": "Amber Scout 3",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.data.game.input.pick",
+                                            "value": "a3"
+                                        }
+                                    },
+                                    "children": {
+                                        "base": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.29,
+                                                "radiusBottom": 0.33,
+                                                "height": 0.1,
+                                                "segments": 40
+                                            },
+                                            "position": [
+                                                0,
+                                                0.05,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#7a4210",
+                                                "roughness": 0.55
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "rim": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "torus",
+                                                "radius": 0.3,
+                                                "tube": 0.03,
+                                                "segments": 40
+                                            },
+                                            "position": [
+                                                0,
+                                                0.1,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true,
+                                            "rotation": [
+                                                -90,
+                                                0,
+                                                0
+                                            ]
+                                        },
+                                        "body": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.13,
+                                                "radiusBottom": 0.23,
+                                                "height": 0.4,
+                                                "segments": 32
+                                            },
+                                            "position": [
+                                                0,
+                                                0.3,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#e0861c",
+                                                "roughness": 0.4
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "collar": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "torus",
+                                                "radius": 0.14,
+                                                "tube": 0.032,
+                                                "segments": 32
+                                            },
+                                            "position": [
+                                                0,
+                                                0.5,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true,
+                                            "rotation": [
+                                                -90,
+                                                0,
+                                                0
+                                            ]
+                                        },
+                                        "head": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "sphere",
+                                                "radius": 0.15,
+                                                "segments": 32
+                                            },
+                                            "position": [
+                                                0,
+                                                0.64,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#f7c77e",
+                                                "roughness": 0.35
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "crest": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cone",
+                                                "radius": 0.07,
+                                                "height": 0.16,
+                                                "segments": 24
+                                            },
+                                            "position": [
+                                                0,
+                                                0.84,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#7a4210",
+                                                "roughness": 0.4
+                                            },
+                                            "castShadow": true
+                                        }
+                                    }
+                                },
+                                "a4": {
+                                    "component": "group3d",
+                                    "<-position": "$.data.game.board.pieces.a4.at",
+                                    "transition": {
+                                        "duration": "slow",
+                                        "easing": "standard"
+                                    },
+                                    "interactive": true,
+                                    "_label": "Amber Scout 4",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.data.game.input.pick",
+                                            "value": "a4"
+                                        }
+                                    },
+                                    "children": {
+                                        "base": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.29,
+                                                "radiusBottom": 0.33,
+                                                "height": 0.1,
+                                                "segments": 40
+                                            },
+                                            "position": [
+                                                0,
+                                                0.05,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#7a4210",
+                                                "roughness": 0.55
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "rim": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "torus",
+                                                "radius": 0.3,
+                                                "tube": 0.03,
+                                                "segments": 40
+                                            },
+                                            "position": [
+                                                0,
+                                                0.1,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true,
+                                            "rotation": [
+                                                -90,
+                                                0,
+                                                0
+                                            ]
+                                        },
+                                        "body": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.13,
+                                                "radiusBottom": 0.23,
+                                                "height": 0.4,
+                                                "segments": 32
+                                            },
+                                            "position": [
+                                                0,
+                                                0.3,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#e0861c",
+                                                "roughness": 0.4
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "collar": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "torus",
+                                                "radius": 0.14,
+                                                "tube": 0.032,
+                                                "segments": 32
+                                            },
+                                            "position": [
+                                                0,
+                                                0.5,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true,
+                                            "rotation": [
+                                                -90,
+                                                0,
+                                                0
+                                            ]
+                                        },
+                                        "head": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "sphere",
+                                                "radius": 0.15,
+                                                "segments": 32
+                                            },
+                                            "position": [
+                                                0,
+                                                0.64,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#f7c77e",
+                                                "roughness": 0.35
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "crest": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cone",
+                                                "radius": 0.07,
+                                                "height": 0.16,
+                                                "segments": 24
+                                            },
+                                            "position": [
+                                                0,
+                                                0.84,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#7a4210",
+                                                "roughness": 0.4
+                                            },
+                                            "castShadow": true
+                                        }
+                                    }
+                                },
+                                "tW": {
+                                    "component": "group3d",
+                                    "<-position": "$.data.game.board.pieces.tW.at",
+                                    "transition": {
+                                        "duration": "slow",
+                                        "easing": "standard"
+                                    },
+                                    "interactive": true,
+                                    "_label": "Teal Warden",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.data.game.input.pick",
+                                            "value": "tW"
+                                        }
+                                    },
+                                    "children": {
+                                        "base": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.35,
+                                                "radiusBottom": 0.4,
+                                                "height": 0.12,
+                                                "segments": 48
+                                            },
+                                            "position": [
+                                                0,
+                                                0.06,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#124f49",
+                                                "roughness": 0.55
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "rim": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "torus",
+                                                "radius": 0.36,
+                                                "tube": 0.038,
+                                                "segments": 48
+                                            },
+                                            "position": [
+                                                0,
+                                                0.12,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true,
+                                            "rotation": [
+                                                -90,
+                                                0,
+                                                0
+                                            ]
+                                        },
+                                        "body": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.17,
+                                                "radiusBottom": 0.3,
+                                                "height": 0.58,
+                                                "segments": 40
+                                            },
+                                            "position": [
+                                                0,
+                                                0.41,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#1c9c8c",
+                                                "roughness": 0.4
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "collar": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "torus",
+                                                "radius": 0.19,
+                                                "tube": 0.04,
+                                                "segments": 40
+                                            },
+                                            "position": [
+                                                0,
+                                                0.7,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true,
+                                            "rotation": [
+                                                -90,
+                                                0,
+                                                0
+                                            ]
+                                        },
+                                        "shoulders": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.23,
+                                                "radiusBottom": 0.19,
+                                                "height": 0.08,
+                                                "segments": 40
+                                            },
+                                            "position": [
+                                                0,
+                                                0.78,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#93e6d9",
+                                                "roughness": 0.35
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "glow": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "sphere",
+                                                "radius": 0.12,
+                                                "segments": 32
+                                            },
+                                            "position": [
+                                                0,
+                                                0.96,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#86f5e6",
+                                                "emissive": "#86f5e6",
+                                                "roughness": 0.2
+                                            },
+                                            "castShadow": true,
+                                            "animate": {
+                                                "name": "pulse",
+                                                "duration": 2200,
+                                                "loop": true
+                                            }
+                                        },
+                                        "postN": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.017,
+                                                "radiusBottom": 0.017,
+                                                "height": 0.26,
+                                                "segments": 8
+                                            },
+                                            "position": [
+                                                0,
+                                                0.96,
+                                                -0.15
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "postS": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.017,
+                                                "radiusBottom": 0.017,
+                                                "height": 0.26,
+                                                "segments": 8
+                                            },
+                                            "position": [
+                                                0,
+                                                0.96,
+                                                0.15
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "postE": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.017,
+                                                "radiusBottom": 0.017,
+                                                "height": 0.26,
+                                                "segments": 8
+                                            },
+                                            "position": [
+                                                0.15,
+                                                0.96,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "postW": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.017,
+                                                "radiusBottom": 0.017,
+                                                "height": 0.26,
+                                                "segments": 8
+                                            },
+                                            "position": [
+                                                -0.15,
+                                                0.96,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "roof": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cone",
+                                                "radius": 0.22,
+                                                "height": 0.2,
+                                                "segments": 40
+                                            },
+                                            "position": [
+                                                0,
+                                                1.19,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "finial": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "sphere",
+                                                "radius": 0.045,
+                                                "segments": 16
+                                            },
+                                            "position": [
+                                                0,
+                                                1.32,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true
+                                        }
+                                    }
+                                },
+                                "t1": {
+                                    "component": "group3d",
+                                    "<-position": "$.data.game.board.pieces.t1.at",
+                                    "transition": {
+                                        "duration": "slow",
+                                        "easing": "standard"
+                                    },
+                                    "interactive": true,
+                                    "_label": "Teal Scout 1",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.data.game.input.pick",
+                                            "value": "t1"
+                                        }
+                                    },
+                                    "children": {
+                                        "base": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.29,
+                                                "radiusBottom": 0.33,
+                                                "height": 0.1,
+                                                "segments": 40
+                                            },
+                                            "position": [
+                                                0,
+                                                0.05,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#124f49",
+                                                "roughness": 0.55
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "rim": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "torus",
+                                                "radius": 0.3,
+                                                "tube": 0.03,
+                                                "segments": 40
+                                            },
+                                            "position": [
+                                                0,
+                                                0.1,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true,
+                                            "rotation": [
+                                                -90,
+                                                0,
+                                                0
+                                            ]
+                                        },
+                                        "body": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.13,
+                                                "radiusBottom": 0.23,
+                                                "height": 0.4,
+                                                "segments": 32
+                                            },
+                                            "position": [
+                                                0,
+                                                0.3,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#1c9c8c",
+                                                "roughness": 0.4
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "collar": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "torus",
+                                                "radius": 0.14,
+                                                "tube": 0.032,
+                                                "segments": 32
+                                            },
+                                            "position": [
+                                                0,
+                                                0.5,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true,
+                                            "rotation": [
+                                                -90,
+                                                0,
+                                                0
+                                            ]
+                                        },
+                                        "head": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "sphere",
+                                                "radius": 0.15,
+                                                "segments": 32
+                                            },
+                                            "position": [
+                                                0,
+                                                0.64,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#93e6d9",
+                                                "roughness": 0.35
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "crest": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cone",
+                                                "radius": 0.07,
+                                                "height": 0.16,
+                                                "segments": 24
+                                            },
+                                            "position": [
+                                                0,
+                                                0.84,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#124f49",
+                                                "roughness": 0.4
+                                            },
+                                            "castShadow": true
+                                        }
+                                    }
+                                },
+                                "t2": {
+                                    "component": "group3d",
+                                    "<-position": "$.data.game.board.pieces.t2.at",
+                                    "transition": {
+                                        "duration": "slow",
+                                        "easing": "standard"
+                                    },
+                                    "interactive": true,
+                                    "_label": "Teal Scout 2",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.data.game.input.pick",
+                                            "value": "t2"
+                                        }
+                                    },
+                                    "children": {
+                                        "base": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.29,
+                                                "radiusBottom": 0.33,
+                                                "height": 0.1,
+                                                "segments": 40
+                                            },
+                                            "position": [
+                                                0,
+                                                0.05,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#124f49",
+                                                "roughness": 0.55
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "rim": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "torus",
+                                                "radius": 0.3,
+                                                "tube": 0.03,
+                                                "segments": 40
+                                            },
+                                            "position": [
+                                                0,
+                                                0.1,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true,
+                                            "rotation": [
+                                                -90,
+                                                0,
+                                                0
+                                            ]
+                                        },
+                                        "body": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.13,
+                                                "radiusBottom": 0.23,
+                                                "height": 0.4,
+                                                "segments": 32
+                                            },
+                                            "position": [
+                                                0,
+                                                0.3,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#1c9c8c",
+                                                "roughness": 0.4
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "collar": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "torus",
+                                                "radius": 0.14,
+                                                "tube": 0.032,
+                                                "segments": 32
+                                            },
+                                            "position": [
+                                                0,
+                                                0.5,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true,
+                                            "rotation": [
+                                                -90,
+                                                0,
+                                                0
+                                            ]
+                                        },
+                                        "head": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "sphere",
+                                                "radius": 0.15,
+                                                "segments": 32
+                                            },
+                                            "position": [
+                                                0,
+                                                0.64,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#93e6d9",
+                                                "roughness": 0.35
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "crest": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cone",
+                                                "radius": 0.07,
+                                                "height": 0.16,
+                                                "segments": 24
+                                            },
+                                            "position": [
+                                                0,
+                                                0.84,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#124f49",
+                                                "roughness": 0.4
+                                            },
+                                            "castShadow": true
+                                        }
+                                    }
+                                },
+                                "t3": {
+                                    "component": "group3d",
+                                    "<-position": "$.data.game.board.pieces.t3.at",
+                                    "transition": {
+                                        "duration": "slow",
+                                        "easing": "standard"
+                                    },
+                                    "interactive": true,
+                                    "_label": "Teal Scout 3",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.data.game.input.pick",
+                                            "value": "t3"
+                                        }
+                                    },
+                                    "children": {
+                                        "base": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.29,
+                                                "radiusBottom": 0.33,
+                                                "height": 0.1,
+                                                "segments": 40
+                                            },
+                                            "position": [
+                                                0,
+                                                0.05,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#124f49",
+                                                "roughness": 0.55
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "rim": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "torus",
+                                                "radius": 0.3,
+                                                "tube": 0.03,
+                                                "segments": 40
+                                            },
+                                            "position": [
+                                                0,
+                                                0.1,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true,
+                                            "rotation": [
+                                                -90,
+                                                0,
+                                                0
+                                            ]
+                                        },
+                                        "body": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.13,
+                                                "radiusBottom": 0.23,
+                                                "height": 0.4,
+                                                "segments": 32
+                                            },
+                                            "position": [
+                                                0,
+                                                0.3,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#1c9c8c",
+                                                "roughness": 0.4
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "collar": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "torus",
+                                                "radius": 0.14,
+                                                "tube": 0.032,
+                                                "segments": 32
+                                            },
+                                            "position": [
+                                                0,
+                                                0.5,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true,
+                                            "rotation": [
+                                                -90,
+                                                0,
+                                                0
+                                            ]
+                                        },
+                                        "head": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "sphere",
+                                                "radius": 0.15,
+                                                "segments": 32
+                                            },
+                                            "position": [
+                                                0,
+                                                0.64,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#93e6d9",
+                                                "roughness": 0.35
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "crest": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cone",
+                                                "radius": 0.07,
+                                                "height": 0.16,
+                                                "segments": 24
+                                            },
+                                            "position": [
+                                                0,
+                                                0.84,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#124f49",
+                                                "roughness": 0.4
+                                            },
+                                            "castShadow": true
+                                        }
+                                    }
+                                },
+                                "t4": {
+                                    "component": "group3d",
+                                    "<-position": "$.data.game.board.pieces.t4.at",
+                                    "transition": {
+                                        "duration": "slow",
+                                        "easing": "standard"
+                                    },
+                                    "interactive": true,
+                                    "_label": "Teal Scout 4",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.data.game.input.pick",
+                                            "value": "t4"
+                                        }
+                                    },
+                                    "children": {
+                                        "base": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.29,
+                                                "radiusBottom": 0.33,
+                                                "height": 0.1,
+                                                "segments": 40
+                                            },
+                                            "position": [
+                                                0,
+                                                0.05,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#124f49",
+                                                "roughness": 0.55
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "rim": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "torus",
+                                                "radius": 0.3,
+                                                "tube": 0.03,
+                                                "segments": 40
+                                            },
+                                            "position": [
+                                                0,
+                                                0.1,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true,
+                                            "rotation": [
+                                                -90,
+                                                0,
+                                                0
+                                            ]
+                                        },
+                                        "body": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cylinder",
+                                                "radiusTop": 0.13,
+                                                "radiusBottom": 0.23,
+                                                "height": 0.4,
+                                                "segments": 32
+                                            },
+                                            "position": [
+                                                0,
+                                                0.3,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#1c9c8c",
+                                                "roughness": 0.4
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "collar": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "torus",
+                                                "radius": 0.14,
+                                                "tube": 0.032,
+                                                "segments": 32
+                                            },
+                                            "position": [
+                                                0,
+                                                0.5,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#c9a75a",
+                                                "metalness": 0.85,
+                                                "roughness": 0.3
+                                            },
+                                            "castShadow": true,
+                                            "rotation": [
+                                                -90,
+                                                0,
+                                                0
+                                            ]
+                                        },
+                                        "head": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "sphere",
+                                                "radius": 0.15,
+                                                "segments": 32
+                                            },
+                                            "position": [
+                                                0,
+                                                0.64,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#93e6d9",
+                                                "roughness": 0.35
+                                            },
+                                            "castShadow": true
+                                        },
+                                        "crest": {
+                                            "component": "mesh",
+                                            "geometry": {
+                                                "kind": "cone",
+                                                "radius": 0.07,
+                                                "height": 0.16,
+                                                "segments": 24
+                                            },
+                                            "position": [
+                                                0,
+                                                0.84,
+                                                0
+                                            ],
+                                            "material": {
+                                                "color": "#124f49",
+                                                "roughness": 0.4
+                                            },
+                                            "castShadow": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "side": {
+                    "component": "card",
+                    "placement": {
+                        "grow": 1
+                    },
+                    "_title": "The game",
+                    "layout": {
+                        "type": "column",
+                        "gap": "md"
+                    },
+                    "children": {
+                        "status": {
+                            "component": "panel",
+                            "padding": "none",
+                            "layout": {
+                                "type": "column",
+                                "gap": "sm"
+                            },
+                            "children": {
+                                "amberTurn": {
+                                    "component": "text",
+                                    "_text": "Amber to move",
+                                    "textRole": "title",
+                                    "<-hidden": "$.data.game.status.amberTurn"
+                                },
+                                "tealTurn": {
+                                    "component": "text",
+                                    "_text": "Teal to move",
+                                    "textRole": "title",
+                                    "<-hidden": "$.data.game.status.tealTurn"
+                                },
+                                "amberWon": {
+                                    "component": "text",
+                                    "_text": "Amber wins!",
+                                    "textRole": "title",
+                                    "tone": "success",
+                                    "<-hidden": "$.data.game.status.amberWon"
+                                },
+                                "tealWon": {
+                                    "component": "text",
+                                    "_text": "Teal wins!",
+                                    "textRole": "title",
+                                    "tone": "success",
+                                    "<-hidden": "$.data.game.status.tealWon"
+                                },
+                                "drawn": {
+                                    "component": "text",
+                                    "_text": "A draw",
+                                    "textRole": "title",
+                                    "<-hidden": "$.data.game.status.drawn"
+                                },
+                                "byBeacon": {
+                                    "component": "text",
+                                    "_text": "The Warden reached the enemy Beacon.",
+                                    "textRole": "caption",
+                                    "<-hidden": "$.data.game.status.byBeacon"
+                                },
+                                "byScouts": {
+                                    "component": "text",
+                                    "_text": "The enemy has no Scouts left.",
+                                    "textRole": "caption",
+                                    "<-hidden": "$.data.game.status.byScouts"
+                                },
+                                "byStuck": {
+                                    "component": "text",
+                                    "_text": "The enemy has no move left.",
+                                    "textRole": "caption",
+                                    "<-hidden": "$.data.game.status.byStuck"
+                                },
+                                "byLimit": {
+                                    "component": "text",
+                                    "_text": "60 moves played: the Scouts were counted.",
+                                    "textRole": "caption",
+                                    "<-hidden": "$.data.game.status.byLimit"
+                                }
+                            }
+                        },
+                        "counts": {
+                            "component": "panel",
+                            "padding": "none",
+                            "layout": {
+                                "type": "grid",
+                                "cols": 2,
+                                "gap": "sm"
+                            },
+                            "children": {
+                                "amberScouts": {
+                                    "component": "stat",
+                                    "_label": "Amber Scouts",
+                                    "<-value": "$.data.game.board.scouts.amber"
+                                },
+                                "tealScouts": {
+                                    "component": "stat",
+                                    "_label": "Teal Scouts",
+                                    "<-value": "$.data.game.board.scouts.teal"
+                                },
+                                "moves": {
+                                    "component": "stat",
+                                    "_label": "Moves played",
+                                    "<-value": "$.data.game.board.moves"
+                                },
+                                "last": {
+                                    "component": "stat",
+                                    "_label": "Last move",
+                                    "<-value": "$.data.game.board.last"
+                                }
+                            }
+                        },
+                        "newGame": {
+                            "component": "button",
+                            "icon": "refresh",
+                            "_title": "New game",
+                            "on": {
+                                "press": {
+                                    "command": "set",
+                                    "target": "$.data.game.input.reset",
+                                    "value": true
+                                }
+                            }
+                        },
+                        "rulesTitle": {
+                            "component": "text",
+                            "_text": "How to play",
+                            "textRole": "heading",
+                            "element": "h3"
+                        },
+                        "rules": {
+                            "component": "markdown",
+                            "headingOffset": 3,
+                            "_text": "**Goal.** Bring your Warden onto the enemy Beacon, the glowing tile in the middle of the far row.\n\n- **A turn** moves one of your pieces one step to an empty tile. Press a piece, then a green tile.\n- **Scouts** step straight: forward, back or sideways. They may not enter either Beacon.\n- **Wardens** step in any of the eight directions.\n- **Flanking.** After your move, an enemy Scout next to the piece you moved, with one of your pieces right behind it on the same line, is captured. Stepping between two enemies is safe. Wardens are never captured.\n- **You also win** when the enemy has no Scouts left or no move on its turn. After 60 moves the side with more Scouts wins; equal Scouts is a draw."
                         }
                     }
                 }

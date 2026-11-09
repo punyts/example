@@ -67,6 +67,205 @@
                     "loading": false
                 }
             ]
+        },
+        "ridgelineStatus": {
+            "inputs": {
+                "winner": {
+                    "path": "$.data.game.board.winner",
+                    "values": [
+                        "none",
+                        "amber",
+                        "teal",
+                        "draw"
+                    ]
+                },
+                "turn": {
+                    "path": "$.data.game.board.turn",
+                    "values": [
+                        "amber",
+                        "teal"
+                    ]
+                },
+                "reason": {
+                    "path": "$.data.game.board.reason",
+                    "values": [
+                        "beacon",
+                        "scouts",
+                        "stuck",
+                        "limit",
+                        "*"
+                    ]
+                }
+            },
+            "outputs": {
+                "amberTurn": "$.data.game.status.amberTurn",
+                "tealTurn": "$.data.game.status.tealTurn",
+                "amberWon": "$.data.game.status.amberWon",
+                "tealWon": "$.data.game.status.tealWon",
+                "drawn": "$.data.game.status.drawn",
+                "byBeacon": "$.data.game.status.byBeacon",
+                "byScouts": "$.data.game.status.byScouts",
+                "byStuck": "$.data.game.status.byStuck",
+                "byLimit": "$.data.game.status.byLimit"
+            },
+            "rows": [
+                {
+                    "winner": "none",
+                    "turn": "amber",
+                    "amberTurn": false,
+                    "tealTurn": true,
+                    "amberWon": true,
+                    "tealWon": true,
+                    "drawn": true,
+                    "byBeacon": true,
+                    "byScouts": true,
+                    "byStuck": true,
+                    "byLimit": true
+                },
+                {
+                    "winner": "none",
+                    "turn": "teal",
+                    "amberTurn": true,
+                    "tealTurn": false,
+                    "amberWon": true,
+                    "tealWon": true,
+                    "drawn": true,
+                    "byBeacon": true,
+                    "byScouts": true,
+                    "byStuck": true,
+                    "byLimit": true
+                },
+                {
+                    "winner": "amber",
+                    "reason": "beacon",
+                    "amberTurn": true,
+                    "tealTurn": true,
+                    "amberWon": false,
+                    "tealWon": true,
+                    "drawn": true,
+                    "byBeacon": false,
+                    "byScouts": true,
+                    "byStuck": true,
+                    "byLimit": true
+                },
+                {
+                    "winner": "amber",
+                    "reason": "scouts",
+                    "amberTurn": true,
+                    "tealTurn": true,
+                    "amberWon": false,
+                    "tealWon": true,
+                    "drawn": true,
+                    "byBeacon": true,
+                    "byScouts": false,
+                    "byStuck": true,
+                    "byLimit": true
+                },
+                {
+                    "winner": "amber",
+                    "reason": "stuck",
+                    "amberTurn": true,
+                    "tealTurn": true,
+                    "amberWon": false,
+                    "tealWon": true,
+                    "drawn": true,
+                    "byBeacon": true,
+                    "byScouts": true,
+                    "byStuck": false,
+                    "byLimit": true
+                },
+                {
+                    "winner": "amber",
+                    "reason": "limit",
+                    "amberTurn": true,
+                    "tealTurn": true,
+                    "amberWon": false,
+                    "tealWon": true,
+                    "drawn": true,
+                    "byBeacon": true,
+                    "byScouts": true,
+                    "byStuck": true,
+                    "byLimit": false
+                },
+                {
+                    "winner": "teal",
+                    "reason": "beacon",
+                    "amberTurn": true,
+                    "tealTurn": true,
+                    "amberWon": true,
+                    "tealWon": false,
+                    "drawn": true,
+                    "byBeacon": false,
+                    "byScouts": true,
+                    "byStuck": true,
+                    "byLimit": true
+                },
+                {
+                    "winner": "teal",
+                    "reason": "scouts",
+                    "amberTurn": true,
+                    "tealTurn": true,
+                    "amberWon": true,
+                    "tealWon": false,
+                    "drawn": true,
+                    "byBeacon": true,
+                    "byScouts": false,
+                    "byStuck": true,
+                    "byLimit": true
+                },
+                {
+                    "winner": "teal",
+                    "reason": "stuck",
+                    "amberTurn": true,
+                    "tealTurn": true,
+                    "amberWon": true,
+                    "tealWon": false,
+                    "drawn": true,
+                    "byBeacon": true,
+                    "byScouts": true,
+                    "byStuck": false,
+                    "byLimit": true
+                },
+                {
+                    "winner": "teal",
+                    "reason": "limit",
+                    "amberTurn": true,
+                    "tealTurn": true,
+                    "amberWon": true,
+                    "tealWon": false,
+                    "drawn": true,
+                    "byBeacon": true,
+                    "byScouts": true,
+                    "byStuck": true,
+                    "byLimit": false
+                },
+                {
+                    "winner": "draw",
+                    "amberTurn": true,
+                    "tealTurn": true,
+                    "amberWon": true,
+                    "tealWon": true,
+                    "drawn": false,
+                    "byBeacon": true,
+                    "byScouts": true,
+                    "byStuck": true,
+                    "byLimit": false
+                },
+                {
+                    "winner": "*",
+                    "turn": "*",
+                    "reason": "*",
+                    "amberTurn": true,
+                    "tealTurn": true,
+                    "amberWon": true,
+                    "tealWon": true,
+                    "drawn": true,
+                    "byBeacon": true,
+                    "byScouts": true,
+                    "byStuck": true,
+                    "byLimit": true
+                }
+            ]
         }
     },
     "rules": {
@@ -79,6 +278,57 @@
                     "command": "set",
                     "target": "$.data.archive.request.page",
                     "value": "{{ $trigger }}"
+                }
+            ]
+        },
+        "ridgelinePick": {
+            "when": {
+                "path": "$.data.game.input.pick"
+            },
+            "do": [
+                {
+                    "command": "set",
+                    "target": "$.data.game.board",
+                    "value": "{{ ridgelinePick($.data.game.board, $trigger) }}"
+                },
+                {
+                    "command": "set",
+                    "target": "$.data.game.input.pick",
+                    "value": ""
+                }
+            ]
+        },
+        "ridgelineMove": {
+            "when": {
+                "path": "$.data.game.input.to"
+            },
+            "do": [
+                {
+                    "command": "set",
+                    "target": "$.data.game.board",
+                    "value": "{{ ridgelineMove($.data.game.board, $trigger) }}"
+                },
+                {
+                    "command": "set",
+                    "target": "$.data.game.input.to",
+                    "value": ""
+                }
+            ]
+        },
+        "ridgelineNew": {
+            "when": {
+                "path": "$.data.game.input.reset"
+            },
+            "do": [
+                {
+                    "command": "set",
+                    "target": "$.data.game.board",
+                    "value": "{{ ridgelineNew($.data.game.board, $trigger) }}"
+                },
+                {
+                    "command": "set",
+                    "target": "$.data.game.input.reset",
+                    "value": false
                 }
             ]
         }
