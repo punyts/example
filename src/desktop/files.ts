@@ -5,7 +5,8 @@
  * the life of the page.
  *
  * `transferFile` and `readFile` are the StateUI hooks: `fileField` and `paintField` hand their files to the first,
- * `drawImage` (the Viewer) reads them back with the second.
+ * `drawImage` (the Viewer) reads them back with the second. `prune` removes the files the desktop no longer uses: the
+ * hooks never hear that an item was deleted, so the host asks after each save.
  */
 import { FileTransferError } from '@punyts/stateui-app';
 import type { FileData, ReadFile, TransferFile } from '@punyts/stateui-app';
@@ -25,6 +26,11 @@ export interface FileStore {
     loadMeta(): Promise<unknown>;
     /** Writes `desk.json` */
     saveMeta(value: unknown): Promise<void>;
+    /**
+     * Removes the stored files whose ids are not in `keep`, and returns their ids. A file stored in the last `graceMs`
+     * (30 s by default) stays: its reference may not have reached the data yet
+     */
+    prune(keep: ReadonlySet<string>, graceMs?: number): Promise<string[]>;
     /** Removes every file and `desk.json` (tests, and a reset) */
     clear(): Promise<void>;
 }
@@ -32,6 +38,7 @@ export interface FileStore {
 interface Backend {
     write(name: string, data: ArrayBuffer | string): Promise<void>;
     read(name: string): Promise<ArrayBuffer | undefined>;
+    remove(name: string): Promise<void>;
     clear(): Promise<void>;
 }
 
@@ -43,6 +50,9 @@ function memoryBackend(): Backend {
         },
         async read(name) {
             return files.get(name)?.slice(0);
+        },
+        async remove(name) {
+            files.delete(name);
         },
         async clear() {
             files.clear();
@@ -75,6 +85,9 @@ async function opfsBackend(folder: string): Promise<Backend | undefined> {
                     return undefined;
                 }
             },
+            async remove(name) {
+                await dir.removeEntry(name).catch(() => undefined);
+            },
             async clear() {
                 await root.removeEntry(folder, { recursive: true });
                 dir = await root.getDirectoryHandle(folder, { create: true });
@@ -105,6 +118,8 @@ export async function openFileStore(options: FileStoreOptions = {}): Promise<Fil
 
     // The name and type of each stored file, so `readFile` can answer with a full reference
     let types: Record<string, { name: string; type: string }> = {};
+    /** When each file of this page was stored, for the grace of `prune` */
+    const stored = new Map<string, number>();
     const saved = await store.read(TYPES);
     if (saved !== undefined) {
         try {
@@ -125,6 +140,7 @@ export async function openFileStore(options: FileStoreOptions = {}): Promise<Fil
             const quota = error instanceof DOMException && error.name === 'QuotaExceededError';
             throw new FileTransferError(quota ? 'quota' : 'offline', error instanceof Error ? error.message : 'The file could not be stored');
         }
+        stored.set(id, Date.now());
         types = { ...types, [id]: { name: file.name, type: file.type } };
         await store.write(TYPES, JSON.stringify(types));
         options.onProgress?.({ loaded: file.size, total: file.size });
@@ -156,8 +172,22 @@ export async function openFileStore(options: FileStoreOptions = {}): Promise<Fil
         async saveMeta(value) {
             await store.write(META, JSON.stringify(value));
         },
+        async prune(keep, graceMs = 30_000) {
+            const now = Date.now();
+            const removed = Object.keys(types).filter((id) => !keep.has(id) && now - (stored.get(id) ?? 0) >= graceMs);
+            if (removed.length === 0) return removed;
+            for (const id of removed) {
+                await store.remove(id);
+                stored.delete(id);
+            }
+            const left = new Set(removed);
+            types = Object.fromEntries(Object.entries(types).filter(([id]) => !left.has(id)));
+            await store.write(TYPES, JSON.stringify(types));
+            return removed;
+        },
         async clear() {
             types = {};
+            stored.clear();
             await store.clear();
         }
     };

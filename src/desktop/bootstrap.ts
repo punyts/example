@@ -2,12 +2,12 @@
  * Starts the Lumen desktop: opens the file store (OPFS), reads the saved items and preferences, mounts the desktop
  * document and connects what needs code:
  *
- * - **Placement.** A window's `placement` cannot be linked, so a bridge copies `$.data.desk.state.placement.<app>` (which
- *   `deskAct` derives) onto each window node.
  * - **Focus on press.** A panel raises no press event, so a pointer down anywhere in a window writes `focus <app>`.
- * - **Persistence.** The items and preferences are saved to `desk.json` a moment after they change.
- * - **Dark mode, the clock, sizes.** The dark switch sets the theme mode; a timer writes the clock; the desktop surface,
- *   the folder tree and the listing get their heights, which a document has no property for.
+ * - **Persistence.** The items and preferences are saved to `desk.json` a moment after they change. Then the stored
+ *   files nothing uses any more (a deleted picture or upload, an old Paint drawing) are removed from the file store, and
+ *   once at start for what an earlier page left.
+ * - **Dark mode, the clock, the height.** The dark switch sets the theme mode; a timer writes the clock; the desktop
+ *   surface gets its height, which a document has no property for. The windows' content fills them by `grow`.
  */
 import type { Store } from '@punyts/state';
 import { libraryFromCatalog, mountApp, registerMountStep } from '@punyts/stateui-app';
@@ -17,8 +17,8 @@ import { registerAll } from '@punyts/stateui-components/components';
 import icons from '../icons.json';
 import { RIDGELINE_FUNCTIONS } from '../ridgeline.ts';
 import { load3d } from '../warehouse.ts';
-import { APPS, DESK_FUNCTIONS } from './desk.ts';
-import type { AppId, Placement } from './desk.ts';
+import { APPS, DESK_FUNCTIONS, usedFileIds } from './desk.ts';
+import type { AppId } from './desk.ts';
 import { DESK_PATHS, deskData, desktopDocument } from './document.ts';
 import { openFileStore } from './files.ts';
 import type { FileStore, FileStoreOptions } from './files.ts';
@@ -40,6 +40,8 @@ export interface DesktopOptions extends FileStoreOptions {
     saveDelay?: number;
     /** The height of the desktop surface (the viewport less the taskbar by default) */
     surfaceHeight?: string;
+    /** How long a newly stored file is kept before it is removed when nothing uses it, in ms (30 s by default) */
+    pruneGrace?: number;
 }
 
 type PathElement = HTMLElement & { scope?: { basePath?: string } };
@@ -101,28 +103,12 @@ export async function startDesktop(host: HTMLElement, options: DesktopOptions = 
 
     // Sizes a document cannot give
     const sizes: Record<string, string> = {
-        [DESK_PATHS.surface]: options.surfaceHeight ?? 'calc(100dvh - 60px)',
-        [DESK_PATHS.folderTree]: '260px',
-        [DESK_PATHS.listing]: '260px'
+        [DESK_PATHS.surface]: options.surfaceHeight ?? 'calc(100dvh - 60px)'
     };
     for (const [path, height] of Object.entries(sizes)) {
         const element = elementAt(path);
         if (element) element.style.blockSize = height;
     }
-
-    // Placement: copy each window's derived placement onto its node
-    const written = new Map<AppId, string>();
-    const place = (): void => {
-        const all = live.get<Record<AppId, Placement>>('$.data.desk.state.placement');
-        for (const app of APPS) {
-            const placement = all?.[app];
-            if (placement === undefined) continue;
-            const text = JSON.stringify(placement);
-            if (written.get(app) === text) continue;
-            written.set(app, text);
-            live.set(`${DESK_PATHS.window(app)}.placement` as never, { ...placement } as never);
-        }
-    };
 
     // Focus on press: a pointer down in a window that is not in front brings it forward
     const focusers: [HTMLElement, (event: Event) => void][] = [];
@@ -149,6 +135,15 @@ export async function startDesktop(host: HTMLElement, options: DesktopOptions = 
     const snapshot = (): string =>
         JSON.stringify({ items: live.get('$.data.fs.items'), nextId: live.get('$.data.fs.nextId'), prefs: live.get('$.data.desk.prefs') });
     lastSaved = saved.items === undefined ? '' : snapshot();
+    // Removes the stored files that no item, no unsaved Paint picture and no upload in progress uses
+    const prune = async (): Promise<void> => {
+        const used = usedFileIds(live.get('$.data.fs.items'), live.get('$.data.paint.picture'), live.get('$.data.upload'));
+        try {
+            await files.prune(used, options.pruneGrace);
+        } catch (error) {
+            console.error('[lumen] unused files could not be removed:', error);
+        }
+    };
     const save = async (): Promise<void> => {
         pending = undefined;
         const text = snapshot();
@@ -158,21 +153,23 @@ export async function startDesktop(host: HTMLElement, options: DesktopOptions = 
             await files.saveMeta(JSON.parse(text));
         } catch (error) {
             console.error('[lumen] the desktop could not be saved:', error);
+            return;
         }
+        await prune();
     };
+    // Only against items that were read back: with no desk.json, every stored file would look unused
+    const firstPrune = saved.items === undefined ? Promise.resolve() : prune();
     const scheduleSave = (): void => {
         if (pending !== undefined) clearTimeout(pending);
         pending = setTimeout(() => void save(), saveDelay);
     };
 
     const bridges: [string | string[], () => void][] = [
-        [['$.data.desk.state', '$.data.desk.state.placement', '$.data.desk.state.$all'], place],
         [['$.data.desk.prefs', '$.data.desk.prefs.dark'], applyDark],
         [['$.data.fs', '$.data.fs.items', '$.data.fs.items.$all', '$.data.desk.prefs', '$.data.desk.prefs.$all'], scheduleSave]
     ];
     for (const [paths, listener] of bridges) live.on(paths as never, listener);
 
-    place();
     applyDark();
     live.set('$.data.desk.storage', files.kind === 'opfs'
         ? "Your files are kept in this browser's private file system (OPFS), so they are still here after a reload."
@@ -191,6 +188,7 @@ export async function startDesktop(host: HTMLElement, options: DesktopOptions = 
         elementAt,
         async flush() {
             if (pending !== undefined) clearTimeout(pending);
+            await firstPrune;
             await save();
         },
         dispose() {

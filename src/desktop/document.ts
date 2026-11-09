@@ -4,8 +4,8 @@
  * and `scripts/validate.ts` checks it as it checks Northwind Ops.
  *
  * One screen, `desk`: a column of the desktop surface (an `adhoc` layout of the wallpaper, the desktop icons and the
- * windows) and the taskbar. Each window's `hidden` links to the desk state; its `placement` is written by the host
- * from the same state (`bootstrap.ts`), because a placement cannot be linked. Every press writes an input under
+ * windows) and the taskbar. Each window's `hidden` and `placement` link to the desk state, so
+ * a window moves, stacks and hides when the state changes. Every press writes an input under
  * `$.data.input`, and the rules (`DESK_LOGIC`) answer it with the functions of `desk.ts`.
  */
 import type { AppDocument } from '@punyts/stateui-app/core';
@@ -22,8 +22,6 @@ export const DESK_PATHS = {
     surface: '$.screens.desk.children.surface',
     taskbar: '$.screens.desk.children.taskbar',
     window: (app: AppId): string => `$.screens.desk.children.surface.children.${app}`,
-    folderTree: '$.screens.desk.children.surface.children.files.children.browse.children.tree',
-    listing: '$.screens.desk.children.surface.children.files.children.browse.children.listing',
     deleteDialog: '$.screens.desk.children.surface.children.files.children.confirm'
 } as const;
 
@@ -90,13 +88,13 @@ const APP_WINDOW = {
 
 const START = emptyDesk();
 
-/** One window: the frame with its app's buttons wired to the desk input, its content and its first placement */
+/** One window: the frame with its app's buttons wired to the desk input, its content, and links to its state */
 function appWindow(app: AppId, layout: Json, children: Json): Json {
     return {
         component: 'appWindow',
         _title: TITLES[app],
         '<-hidden': `$.data.desk.state.hidden.${app}`,
-        placement: START.placement[app],
+        '<-placement': `$.data.desk.state.placement.${app}`,
         layout,
         children,
         actions: {
@@ -126,6 +124,7 @@ const FILES = appWindow('files', { type: 'column', gap: 'sm' }, {
     browse: {
         component: 'panel',
         padding: 'none',
+        placement: { grow: 1 },
         layout: { type: 'row', gap: 'sm', align: 'stretch' },
         children: {
             tree: {
@@ -215,6 +214,7 @@ const NOTES = appWindow('notes', { type: 'column', gap: 'sm' }, {
     split: {
         component: 'panel',
         padding: 'none',
+        placement: { grow: 1 },
         layout: { type: 'row', gap: 'md', align: 'stretch' },
         children: {
             text: { component: 'textarea', placement: { grow: 1 }, rows: 16, _label: 'Markdown', '<-value': '$.data.notes.text' },

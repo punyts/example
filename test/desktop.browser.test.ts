@@ -184,6 +184,24 @@ describe('Lumen desktop', () => {
         await until(() => Math.round(box().width) === 760);
     });
 
+    it('should grow the Files lists with the window when it is maximized', async () => {
+        // Arrange
+        await openApp('files');
+        const height = (path: string): number => elementAt(path).getBoundingClientRect().height;
+        const listing = `${FILES}.browse.children.listing`;
+        const before = { window: height(`${SURFACE}.files`), listing: height(listing) };
+
+        // Act
+        pressFrame('files', 'maximize');
+        await until(() => height(`${SURFACE}.files`) > before.window + 100);
+        await frame();
+
+        // Assert: the listing takes the height the window gained, and the tree matches it
+        const gained = height(`${SURFACE}.files`) - before.window;
+        expect(height(listing) - before.listing).toBeGreaterThan(gained - 2);
+        expect(Math.round(height(`${FILES}.browse.children.tree`))).toBe(Math.round(height(listing)));
+    });
+
     it('should close a window and its taskbar button', async () => {
         // Arrange
         await openApp('viewer');
@@ -260,6 +278,40 @@ describe('Lumen desktop', () => {
         const read = await desk.files.readFile(stored?.file?.id as string);
         expect(read.data.byteLength).toBe(file.size);
         expect(read.file.type).toBe('image/png');
+    });
+
+    it('should remove a deleted upload from OPFS', async () => {
+        // Arrange: an upload, stored and listed
+        await openApp('files');
+        const stored = await desk.files.transferFile(await pngFile('old.png'));
+        desk.store.set('$.data.upload', [stored] as never);
+        await until(() => named('old.png') !== undefined);
+        desk.store.set('$.data.fs.selected', (named('old.png') as FsItem).id);
+
+        // Act: delete it, then restart (the upload field is empty again, so nothing uses the file)
+        press(`${FILES}.edit.children.remove`);
+        await frame();
+        press(`${FILES}.confirm.footer.children.confirm`);
+        await until(() => named('old.png') === undefined);
+        await restart();
+        await desk.flush();
+
+        // Assert
+        await expect(desk.files.readFile(stored.id)).rejects.toMatchObject({ code: 'not_found' });
+    });
+
+    it('should keep a file stored a moment ago that nothing uses yet, and remove it after the grace', async () => {
+        // Arrange
+        const stored = await desk.files.transferFile(await pngFile('fresh.png'));
+
+        // Act
+        const kept = await desk.files.prune(new Set());
+        const removed = await desk.files.prune(new Set(), 0);
+
+        // Assert
+        expect(kept).toEqual([]);
+        expect(removed).toEqual([stored.id]);
+        await expect(desk.files.readFile(stored.id)).rejects.toMatchObject({ code: 'not_found' });
     });
 
     it('should save a Paint picture into Pictures and show it in the Viewer', async () => {

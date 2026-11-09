@@ -533,6 +533,25 @@ export function notesSaved(fs: unknown, draft: unknown, ask: unknown): NoteDraft
 const isFileRef = (value: unknown): value is FileRef =>
     value !== null && typeof value === 'object' && typeof (value as FileRef).id === 'string' && (value as FileRef).id !== '';
 
+/**
+ * The ids of the stored files these values still use: every file reference found in them, at any depth (the items, the
+ * Paint picture not saved yet, the uploads on their way in). The host removes the other files from the store
+ */
+export function usedFileIds(...values: unknown[]): Set<string> {
+    const used = new Set<string>();
+    const walk = (value: unknown): void => {
+        if (Array.isArray(value)) {
+            for (const entry of value) walk(entry);
+        } else if (value !== null && typeof value === 'object') {
+            // A file reference has a size; an item (which also has an id) does not
+            if (isFileRef(value) && typeof (value as FileRef).size === 'number') used.add(value.id);
+            for (const entry of Object.values(value)) walk(entry);
+        }
+    };
+    for (const value of values) walk(value);
+    return used;
+}
+
 /** Saves the Paint picture (a PNG file reference) into Pictures under `name`; nothing when nothing is drawn */
 export function fsSavePicture(fs: unknown, picture: unknown, name: unknown, now: unknown, ask: unknown): Fs {
     const state = readFs(fs);

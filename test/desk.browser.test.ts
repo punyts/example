@@ -21,6 +21,7 @@ import {
     notesLoad,
     notesSaved,
     seedItems,
+    usedFileIds,
     viewerLoad
 } from '../src/desktop/desk.ts';
 import type { Desk, Fs, FsItem } from '../src/desktop/desk.ts';
@@ -349,6 +350,18 @@ describe('the file system', () => {
         expect(item(fs, 'i1')?.kind).toBe('picture');
         expect(item(fs, 'i2')?.kind).toBe('file');
         expect(fs.selected).toBe('i2');
+    });
+
+    it('should find the file references still in use, and not the ids of items', () => {
+        // Arrange
+        const items = [{ id: 'i1', name: 'Picture.png', parent: 'pictures', kind: 'picture', file: png, modified: NOW }, { id: 'i2', name: 'Notes', parent: 'home', kind: 'folder', modified: NOW }];
+        const upload = [{ id: 'f9', name: 'up.txt', size: 2, type: 'text/plain' }];
+
+        // Act
+        const used = usedFileIds(items, null, upload, { id: 'f5', name: 'drawn.png', size: 9, type: 'image/png' });
+
+        // Assert
+        expect([...used].sort()).toEqual([png.id, 'f5', 'f9'].sort());
     });
 });
 
