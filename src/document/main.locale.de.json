@@ -948,6 +948,14 @@
                             }
                         }
                     }
+                },
+                "shift": {
+                    "_title": "Schichtnotizen",
+                    "children": {
+                        "notes": {
+                            "_label": "Übergabe an die nächste Schicht"
+                        }
+                    }
                 }
             }
         },

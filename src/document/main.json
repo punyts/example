@@ -2707,6 +2707,23 @@
                             }
                         }
                     }
+                },
+                "shift": {
+                    "component": "window",
+                    "_title": "Shift notes",
+                    "icon": "notes",
+                    "controls": [],
+                    "layout": {
+                        "type": "column",
+                        "gap": "sm"
+                    },
+                    "children": {
+                        "notes": {
+                            "component": "textareaField",
+                            "_label": "Handover for the next shift",
+                            "rows": 3
+                        }
+                    }
                 }
             }
         },

@@ -2,7 +2,6 @@
  * Starts the Lumen desktop: opens the file store (OPFS), reads the saved items and preferences, mounts the desktop
  * document and connects what needs code:
  *
- * - **Focus on press.** A panel raises no press event, so a pointer down anywhere in a window writes `focus <app>`.
  * - **Persistence.** The items and preferences are saved to `desk.json` a moment after they change. Then the stored
  *   files nothing uses any more (a deleted picture or upload, an old Paint drawing) are removed from the file store, and
  *   once at start for what an earlier page left.
@@ -17,8 +16,7 @@ import { registerAll } from '@punyts/stateui-components/components';
 import icons from '../icons.json';
 import { RIDGELINE_FUNCTIONS } from '../ridgeline.ts';
 import { load3d } from '../warehouse.ts';
-import { APPS, DESK_FUNCTIONS, usedFileIds } from './desk.ts';
-import type { AppId } from './desk.ts';
+import { DESK_FUNCTIONS, usedFileIds } from './desk.ts';
 import { DESK_PATHS, deskData, desktopDocument } from './document.ts';
 import { openFileStore } from './files.ts';
 import type { FileStore, FileStoreOptions } from './files.ts';
@@ -110,18 +108,6 @@ export async function startDesktop(host: HTMLElement, options: DesktopOptions = 
         if (element) element.style.blockSize = height;
     }
 
-    // Focus on press: a pointer down in a window that is not in front brings it forward
-    const focusers: [HTMLElement, (event: Event) => void][] = [];
-    for (const app of APPS) {
-        const element = elementAt(DESK_PATHS.window(app));
-        if (element === undefined) continue;
-        const listener = (): void => {
-            if (live.get('$.data.desk.state.active') !== app) live.set('$.data.input.desk', `focus ${app}`);
-        };
-        element.addEventListener('pointerdown', listener, { capture: true });
-        focusers.push([element, listener]);
-    }
-
     // Dark windows
     const applyDark = (): void => {
         const mode = live.get('$.data.desk.prefs.dark') === true ? 'dark' : 'light';
@@ -197,7 +183,6 @@ export async function startDesktop(host: HTMLElement, options: DesktopOptions = 
             clearInterval(clock);
             if (pending !== undefined) clearTimeout(pending);
             for (const [paths, listener] of bridges) live.off(paths as never, listener);
-            for (const [element, listener] of focusers) element.removeEventListener('pointerdown', listener, { capture: true });
             mounted.dispose();
             unregisterIcons();
             store = undefined;

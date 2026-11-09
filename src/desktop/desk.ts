@@ -4,7 +4,9 @@
  * the input so the same press works again (the pattern of Ridgeline).
  *
  * - The window manager (`deskAct`) keeps one record per app: open, minimized, snapped and stacked. It also derives what
- *   the document links to: which windows are hidden, each window's placement on the desktop surface and the taskbar.
+ *   the document links to: which windows are hidden, focused and maximized, each window's placement on the desktop
+ *   surface and the taskbar. A window the user drags or resizes writes its own placement (in pixels) and raises
+ *   `place <app>`, which reads that placement back into the free geometry.
  * - The file system (`fsAct` and friends) keeps item records: folders, notes, pictures and uploaded files. The bytes of
  *   a picture or an upload are in the file store (OPFS, `files.ts`); an item holds the file's reference.
  *
@@ -48,6 +50,10 @@ export interface Desk {
     /** The window in front, or '' when none is open */
     active: AppId | '';
     hidden: Record<AppId, boolean>;
+    /** The window in front, per app, for each window's `active` */
+    focused: Record<AppId, boolean>;
+    /** The maximized windows, for each window's `maximized` */
+    maximized: Record<AppId, boolean>;
     placement: Record<AppId, Placement>;
     taskbar: Record<AppId, TaskButton>;
 }
@@ -88,15 +94,19 @@ function placementOf(record: WindowRecord): Placement {
 /** Fills in what the document links to from the window records */
 function derive(windows: Record<AppId, WindowRecord>, active: AppId | ''): Desk {
     const hidden = {} as Record<AppId, boolean>;
+    const focused = {} as Record<AppId, boolean>;
+    const maximized = {} as Record<AppId, boolean>;
     const placement = {} as Record<AppId, Placement>;
     const taskbar = {} as Record<AppId, TaskButton>;
     for (const app of APPS) {
         const record = windows[app];
         hidden[app] = !record.open || record.minimized;
+        focused[app] = app === active;
+        maximized[app] = record.snap === 'max';
         placement[app] = placementOf(record);
         taskbar[app] = { hidden: !record.open, variant: app === active ? 'soft' : 'ghost' };
     }
-    return { windows, active, hidden, placement, taskbar };
+    return { windows, active, hidden, focused, maximized, placement, taskbar };
 }
 
 /** A desk with every window closed */
@@ -129,6 +139,23 @@ function frontmost(windows: Record<AppId, WindowRecord>): AppId | '' {
     return best;
 }
 
+/** A whole number of pixels from a placement field such as `"120px"`; undefined for a percentage or anything else */
+function pixels(value: unknown): number | undefined {
+    const match = typeof value === 'string' ? /^(-?\d+(?:\.\d+)?)px$/.exec(value) : null;
+    return match ? Math.round(Number(match[1])) : undefined;
+}
+
+/** The free geometry of a placement the window wrote in pixels; undefined when a field is not in pixels */
+function placedGeometry(desk: unknown, app: AppId): Pick<WindowRecord, 'x' | 'y' | 'width' | 'height'> | undefined {
+    const placement = desk !== null && typeof desk === 'object' ? (desk as { placement?: Record<string, Partial<Record<keyof Placement, unknown>>> }).placement?.[app] : undefined;
+    const x = pixels(placement?.x);
+    const y = pixels(placement?.y);
+    const width = pixels(placement?.width);
+    const height = pixels(placement?.height);
+    if (x === undefined || y === undefined || width === undefined || height === undefined) return undefined;
+    return { x, y, width, height };
+}
+
 /** Reads a desk from state, tolerating a missing or partial one */
 function readDesk(value: unknown): Record<AppId, WindowRecord> {
     const windows = {} as Record<AppId, WindowRecord>;
@@ -140,7 +167,9 @@ function readDesk(value: unknown): Record<AppId, WindowRecord> {
 /**
  * Applies one window command to the desk: `open <app>`, `close <app>`, `focus <app>`, `minimize <app>`,
  * `task <app>` (a taskbar press: restore, bring to the front, or minimize the front window), `maximize <app>` (toggles
- * between maximized and free) and `snap <app> <free|left|right|max>`. Anything else returns the desk unchanged
+ * between maximized and free), `snap <app> <free|left|right|max>` and `place <app>` (the window was dragged or
+ * resized: its placement, in pixels, becomes its free geometry and it is no longer snapped). Anything else returns the
+ * desk unchanged
  */
 export function deskAct(desk: unknown, command: unknown): Desk {
     let windows = readDesk(desk);
@@ -184,6 +213,12 @@ export function deskAct(desk: unknown, command: unknown): Desk {
             set({ snap: arg as Snap, minimized: false });
             windows = restack(windows, app);
             break;
+        case 'place': {
+            const geometry = placedGeometry(desk, app);
+            if (!record.open || geometry === undefined) return current;
+            set({ ...geometry, snap: 'free' });
+            break;
+        }
         default:
             return current;
     }

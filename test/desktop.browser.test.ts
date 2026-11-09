@@ -58,7 +58,27 @@ function press(path: string): void {
 }
 
 /** Presses a window's frame button: snapLeft, snapRight, minimize, maximize or close */
-const pressFrame = (app: AppId, button: string): void => press(`${SURFACE}.${app}.actions.children.${button}`);
+function pressFrame(app: AppId, button: string): void {
+    const control = elementAt(`${SURFACE}.${app}`).shadowRoot?.querySelector<HTMLElement>(`[data-control="${button}"]`);
+    if (!control) throw new Error(`no ${button} button on ${app}`);
+    control.click();
+}
+
+/** Drags a window part (its title, or a resize grip) by dx and dy with pointer events */
+function dragWindow(app: AppId, selector: string, dx: number, dy: number): void {
+    const part = elementAt(`${SURFACE}.${app}`).shadowRoot?.querySelector<HTMLElement>(selector);
+    if (!part) throw new Error(`no ${selector} on ${app}`);
+    const rect = part.getBoundingClientRect();
+    const x = rect.left + Math.min(20, rect.width / 2);
+    const y = rect.top + rect.height / 2;
+    const fire = (type: string, at: number): void => {
+        part.dispatchEvent(new PointerEvent(type, { bubbles: true, composed: true, pointerId: 1, button: 0, buttons: type === 'pointerup' ? 0 : 1, clientX: x + dx * at, clientY: y + dy * at }));
+    };
+    fire('pointerdown', 0);
+    fire('pointermove', 0.5);
+    fire('pointermove', 1);
+    fire('pointerup', 1);
+}
 
 function typeInto(path: string, value: string): void {
     const input = elementAt(path).shadowRoot?.querySelector<HTMLInputElement | HTMLTextAreaElement>('input, textarea');
@@ -200,6 +220,62 @@ describe('Lumen desktop', () => {
         const gained = height(`${SURFACE}.files`) - before.window;
         expect(height(listing) - before.listing).toBeGreaterThan(gained - 2);
         expect(Math.round(height(`${FILES}.browse.children.tree`))).toBe(Math.round(height(listing)));
+    });
+
+    it('should move a window by its title bar and keep where it was dropped in the desk state', async () => {
+        // Arrange
+        await openApp('notes');
+        const surface = origin();
+        const box = (): DOMRect => elementAt(`${SURFACE}.notes`).getBoundingClientRect();
+
+        // Act
+        dragWindow('notes', '.title', 100, 50);
+        await until(() => desk.store.get('$.data.desk.state.windows.notes.x') === 310);
+
+        // Assert
+        expect(desk.store.get('$.data.desk.state.windows.notes')).toMatchObject({ x: 310, y: 110, width: 760, height: 520, snap: 'free' });
+        expect(Math.round(box().left - surface.left)).toBe(310);
+        expect(Math.round(box().top - surface.top)).toBe(110);
+        expect(runErrors()).toEqual([]);
+    });
+
+    it('should free a snapped window that is dragged, and resize a window by its corner', async () => {
+        // Arrange
+        await openApp('settings');
+        const surface = origin();
+        pressFrame('settings', 'snapLeft');
+        await until(() => desk.store.get('$.data.desk.state.windows.settings.snap') === 'left');
+
+        // Act
+        dragWindow('settings', '.title', 200, 40);
+        await until(() => desk.store.get('$.data.desk.state.windows.settings.snap') === 'free');
+        dragWindow('settings', '.corner', -100, -200);
+        await until(() => desk.store.get('$.data.desk.state.windows.settings.height') !== Math.round(surface.height));
+
+        // Assert: it kept the size of the half it left, then shrank by the corner
+        expect(desk.store.get('$.data.desk.state.windows.settings')).toMatchObject({
+            x: 200,
+            y: 40,
+            width: Math.round(surface.width / 2) - 100,
+            height: Math.round(surface.height) - 200
+        });
+        expect(desk.store.get('$.data.desk.state.maximized.settings')).toBe(false);
+    });
+
+    it('should mark the front window active and show a maximized one as maximized', async () => {
+        // Arrange
+        await openApp('files');
+        await openApp('notes');
+        const attribute = (app: AppId, name: string): boolean => elementAt(`${SURFACE}.${app}`).hasAttribute(name);
+
+        // Act
+        pressFrame('notes', 'maximize');
+        await until(() => attribute('notes', 'maximized'));
+
+        // Assert
+        expect(attribute('notes', 'active')).toBe(true);
+        expect(attribute('files', 'active')).toBe(false);
+        expect(elementAt(`${SURFACE}.notes`).shadowRoot?.querySelector('[data-control="maximize"]')?.getAttribute('aria-label')).toBe('Restore');
     });
 
     it('should close a window and its taskbar button', async () => {

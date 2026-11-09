@@ -125,6 +125,42 @@ describe('deskAct', () => {
         expect(desk.placement.files).toEqual({ ...placement, z: 1 });
     });
 
+    it('should derive the focused and maximized window of each app', () => {
+        // Arrange and Act
+        const desk = run('open files', 'open notes', 'maximize files');
+
+        // Assert
+        expect(desk.focused).toEqual({ files: true, notes: false, paint: false, viewer: false, ridgeline: false, settings: false });
+        expect(desk.maximized.files).toBe(true);
+        expect(desk.maximized.notes).toBe(false);
+    });
+
+    it('should read a placement the window wrote in pixels into its free geometry, and free a snapped window', () => {
+        // Arrange
+        const snapped = run('open notes', 'snap notes left');
+        const dragged = { ...snapped, placement: { ...snapped.placement, notes: { x: '40px', y: '30px', width: '500px', height: '400px', z: 1 } } };
+
+        // Act
+        const placed = deskAct(dragged, 'place notes');
+
+        // Assert
+        expect(placed.windows.notes).toMatchObject({ snap: 'free', x: 40, y: 30, width: 500, height: 400, z: 1 });
+        expect(placed.placement.notes).toEqual({ x: '40px', y: '30px', width: '500px', height: '400px', z: 1 });
+    });
+
+    it('should ignore a place of a closed window or of a placement not in pixels', () => {
+        // Arrange
+        const snapped = run('open notes', 'snap notes left');
+
+        // Act
+        const percent = deskAct(snapped, 'place notes');
+        const closed = deskAct(run(), 'place paint');
+
+        // Assert
+        expect(percent.windows.notes.snap).toBe('left');
+        expect(closed.windows.paint.open).toBe(false);
+    });
+
     it('should toggle maximize and go back to the free geometry', () => {
         // Arrange and Act
         const max = run('open paint', 'maximize paint');

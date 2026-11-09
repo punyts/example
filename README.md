@@ -60,7 +60,7 @@ npm run icons      # regenerate src/icons.json after adding an icon to the docum
 | `src/desktop/desk.ts` | Lumen's pure functions: the window manager (`deskAct`), the file system (`fsAct`, `fsListing`, `fsPick`, saving notes and pictures, uploads), the viewer and the wallpaper paints; `DESK_FUNCTIONS` goes to `mountApp` as expression functions |
 | `src/desktop/files.ts` | `openFileStore`: the file store in OPFS (a folder, `lumen` by default), with `transferFile`, `readFile`, `prune` and `desk.json`; it falls back to memory where OPFS is missing |
 | `src/desktop/document.ts` | The Lumen document: the window component, the six windows, the wallpaper, the taskbar, the toasts and the rules |
-| `src/desktop/bootstrap.ts` | `startDesktop`: mount, focus on press, dark mode, the clock, the surface height, saving and removing unused files |
+| `src/desktop/bootstrap.ts` | `startDesktop`: mount, dark mode, the clock, the surface height, saving and removing unused files |
 | `src/desktop/main.ts` | Entry of `desktop.html` |
 | `scripts/validate-desktop.ts` | Part of `npm run validate`: validates the Lumen document |
 | `test/desk.browser.test.ts` | Tests of the window manager, the file system and the wallpaper functions |
@@ -209,16 +209,17 @@ The file system is kept in the browser's private file system (OPFS) and nothing 
 through `transferFile` and `readFile` into a folder (`lumen` by default). The items, the next id and the preferences are
 kept in `desk.json`, so files, notes and settings are still there after a reload.
 
-The document (`src/desktop/document.ts`) is built in TypeScript because the six windows share one composed component,
-`appWindow`. It is a panel with a toolbar of frame buttons. Every button writes a command, such as `"open files"` or
-`"snap notes left"`, to one input. A rule then sets the desk state to `deskAct(state, command)`. Each window links its `hidden` flag and its
-whole `placement` (`"<-placement"`, with `z` for the stacking order) to that state, and each task button takes its
-look from it. The file system works the same way with `fsAct`. Each rule's function is a pure function in `desk.ts`, and `desk.browser.test.ts` tests them without a browser
+The document (`src/desktop/document.ts`) is built in TypeScript because the six windows share one shape: a library
+`window` with all five frame buttons. Each of its events writes a command, such as `"open files"`, `"focus files"`
+(`activate`) or `"snap notes left"`, to one input. A rule then sets the desk state to `deskAct(state, command)`. Each
+window links its `hidden`, `active` and `maximized` flags and its whole `placement` (`"<-placement"`, with `z` for
+the stacking order) to that state, and each task button takes its look from it. A window dragged by its title bar or
+resized by its edge writes its own placement in pixels through that link and raises `move` or `resize`; the command
+`"place notes"` reads the placement back into the window's free geometry, so a snapped window that is dragged is free. The file system works the same way with `fsAct`. Each rule's function is a pure function in `desk.ts`, and `desk.browser.test.ts` tests them without a browser
 page.
 
 ### Where Lumen needs code
 
-- **Focus on press.** A panel raises no press event, so a pointer down in a window that is behind writes `focus <app>`.
 - **Opening a file.** The listing's `activate` event emits `fs.open`, and the handler writes the item id to
   `$.data.input.open`. An `on` value is taken as it is written (a `{{ }}` in it is not evaluated), so the Open button
   writes `selected`, and the rule turns that into the selected id with `fsPick`.
@@ -230,8 +231,8 @@ page.
   This covers deleted pictures and uploads and old Paint drawings. It also runs once at start. A file stored in the last
   30 seconds is kept, because its reference may not be in the data yet.
 
-Not built yet: dragging and resizing windows (stage 2), and the camera and microphone (stage 3). The plan is
-`docs/design/stateui-desktop-stage-1.md` in the root repo.
+Not built yet: the camera and microphone (stage 3). The plans are `docs/design/stateui-desktop-stage-1.md` and
+`stateui-desktop-stage-2.md` in the root repo.
 
 ## Notes
 

@@ -1,11 +1,12 @@
 /**
- * The Lumen desktop document. It is built in code rather than written as JSON because six windows share one frame
- * (the composed `appWindow`) and differ only in their app, title and buttons; what it builds is plain JSON all the same,
- * and `scripts/validate.ts` checks it as it checks Northwind Ops.
+ * The Lumen desktop document. It is built in code rather than written as JSON because six windows share one shape (a
+ * library `window` wired to the desk) and differ only in their app, title and content; what it builds is plain JSON all
+ * the same, and `scripts/validate.ts` checks it as it checks Northwind Ops.
  *
  * One screen, `desk`: a column of the desktop surface (an `adhoc` layout of the wallpaper, the desktop icons and the
- * windows) and the taskbar. Each window's `hidden` and `placement` link to the desk state, so
- * a window moves, stacks and hides when the state changes. Every press writes an input under
+ * windows) and the taskbar. Each window's `hidden`, `placement`, `active` and `maximized` link to the desk state, so
+ * a window moves, stacks and hides when the state changes; a window the user drags or resizes writes its placement
+ * itself and raises `move` or `resize`, which the desk reads back with `place <app>`. Every press writes an input under
  * `$.data.input`, and the rules (`DESK_LOGIC`) answer it with the functions of `desk.ts`.
  */
 import type { AppDocument } from '@punyts/stateui-app/core';
@@ -58,56 +59,35 @@ const button = (title: string, icon: string, press: Json | Json[], extra: Json =
 const ghost = (title: string, icon: string, press: Json | Json[]): Json =>
     button(title, icon, press, { variant: 'ghost', size: 'sm', iconPosition: 'only', tone: 'neutral' });
 
-/** The frame every window shares: a raised panel whose title row holds the window buttons */
-const APP_WINDOW = {
-    exposes: {
-        _title: 'Window title',
-        'actions.children.snapLeft.on.press': 'What the snap-left button does',
-        'actions.children.snapRight.on.press': 'What the snap-right button does',
-        'actions.children.minimize.on.press': 'What the minimize button does',
-        'actions.children.maximize.on.press': 'What the maximize button does',
-        'actions.children.close.on.press': 'What the close button does'
-    },
-    component: 'panel',
-    bordered: true,
-    elevation: 'raised',
-    padding: 'sm',
-    _title: 'Window',
-    actions: {
-        component: 'toolbar',
-        align: 'end',
-        children: {
-            snapLeft: { component: 'button', variant: 'ghost', size: 'sm', tone: 'neutral', iconPosition: 'only', icon: 'layout-sidebar', _title: 'Snap to the left half' },
-            snapRight: { component: 'button', variant: 'ghost', size: 'sm', tone: 'neutral', iconPosition: 'only', icon: 'layout-sidebar-right', _title: 'Snap to the right half' },
-            minimize: { component: 'button', variant: 'ghost', size: 'sm', tone: 'neutral', iconPosition: 'only', icon: 'minus', _title: 'Minimize' },
-            maximize: { component: 'button', variant: 'ghost', size: 'sm', tone: 'neutral', iconPosition: 'only', icon: 'square', _title: 'Maximize' },
-            close: { component: 'button', variant: 'ghost', size: 'sm', tone: 'neutral', iconPosition: 'only', icon: 'x', _title: 'Close' }
-        }
-    }
-};
-
-const START = emptyDesk();
-
-/** One window: the frame with its app's buttons wired to the desk input, its content, and links to its state */
+/** One window: a library `window` whose events write the desk input, its content, and links to its state */
 function appWindow(app: AppId, layout: Json, children: Json): Json {
     return {
-        component: 'appWindow',
+        component: 'window',
         _title: TITLES[app],
+        icon: APP_ICONS[app],
+        controls: ['snapLeft', 'snapRight', 'minimize', 'maximize', 'close'],
+        _snapLeftLabel: 'Snap to the left half',
+        _snapRightLabel: 'Snap to the right half',
         '<-hidden': `$.data.desk.state.hidden.${app}`,
         '<-placement': `$.data.desk.state.placement.${app}`,
+        '<-active': `$.data.desk.state.focused.${app}`,
+        '<-maximized': `$.data.desk.state.maximized.${app}`,
         layout,
         children,
-        actions: {
-            children: {
-                snapLeft: { on: { press: desk(`snap ${app} left`) } },
-                snapRight: { on: { press: desk(`snap ${app} right`) } },
-                minimize: { on: { press: desk(`minimize ${app}`) } },
-                maximize: { on: { press: desk(`maximize ${app}`) } },
-                close: { on: { press: desk(`close ${app}`) } }
-            }
+        on: {
+            activate: desk(`focus ${app}`),
+            move: desk(`place ${app}`),
+            resize: desk(`place ${app}`),
+            snapLeft: desk(`snap ${app} left`),
+            snapRight: desk(`snap ${app} right`),
+            minimize: desk(`minimize ${app}`),
+            maximize: desk(`maximize ${app}`),
+            close: desk(`close ${app}`)
         }
     };
 }
+
+const START = emptyDesk();
 
 const fsInput = (command: string): Json => set('$.data.input.fs', command);
 
@@ -481,7 +461,6 @@ export function desktopDocument(data: Json = deskData()): AppDocument {
         app: APP,
         start: 'desk',
         screens: { desk: { root: SCREEN } },
-        composed: { appWindow: APP_WINDOW },
         logic: DESK_LOGIC
     } as unknown as AppDocument;
 }
