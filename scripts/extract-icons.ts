@@ -1,5 +1,5 @@
 /**
- * Writes src/icons.json: the path data of every icon the app document names that is not in the library's compiled core
+ * Writes src/icons.json: the path data of every icon the app documents name that is not in the library's compiled core
  * set. bootstrap.ts puts it into `$.runtime.icons` before the first render, so the browser never loads the 2 MB
  * icons.json. Run it again after adding an icon to the document:
  *
@@ -9,13 +9,17 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { CORE_ICON_NAMES, ICON_ALIASES } from '@punyts/stateui-components';
 import type { IconsFile } from '@punyts/stateui-components';
+import { ITEM_ICONS } from '../src/desktop/desk.ts';
+import { desktopDocument } from '../src/desktop/document.ts';
 
 const iconsPath = fileURLToPath(import.meta.resolve('@punyts/stateui-components/icons.json'));
 const treePaths = ['app.json', 'main.json'].map((name) => fileURLToPath(new URL(`../src/document/${name}`, import.meta.url)));
 const outPath = fileURLToPath(new URL('../src/icons.json', import.meta.url));
 
 const file = JSON.parse(readFileSync(iconsPath, 'utf8')) as IconsFile;
-const trees: unknown[] = treePaths.map((path) => JSON.parse(readFileSync(path, 'utf8')));
+// Northwind Ops and the Lumen desktop (desktop.html) share the file
+const desktop = desktopDocument();
+const trees: unknown[] = [...treePaths.map((path) => JSON.parse(readFileSync(path, 'utf8'))), desktop.app, desktop.screens, desktop.composed];
 
 /** Every value of an `icon` or (icon component) `name` key in the tree */
 function collect(value: unknown, names: Set<string>): void {
@@ -32,6 +36,8 @@ function collect(value: unknown, names: Set<string>): void {
 
 const names = new Set<string>();
 collect(trees, names);
+// Icons a document names in data rather than in a node: the kinds of the desktop's file items
+for (const name of Object.values(ITEM_ICONS)) names.add(name);
 const core = new Set(CORE_ICON_NAMES);
 const aliases = ICON_ALIASES as Readonly<Record<string, string>>;
 const out: Record<string, { outline: readonly unknown[]; filled?: readonly unknown[] }> = {};

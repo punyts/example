@@ -9,7 +9,7 @@
         "build": "tsc --noEmit -p tsconfig.json && vite build",
         "preview": "vite preview",
         "typecheck": "tsc --noEmit -p tsconfig.json",
-        "validate": "node scripts/validate.ts",
+        "validate": "node scripts/validate.ts && node scripts/validate-desktop.ts",
         "icons": "node scripts/extract-icons.ts",
         "test": "vitest run"
     },

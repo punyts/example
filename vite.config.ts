@@ -22,6 +22,8 @@ export default defineConfig({
     },
     build: {
         target: 'es2022',
-        chunkSizeWarningLimit: 2000
+        chunkSizeWarningLimit: 2000,
+        // Two pages: Northwind Ops and the Lumen desktop
+        rollupOptions: { input: { main: resolve(here, 'index.html'), desktop: resolve(here, 'desktop.html') } }
     }
 });

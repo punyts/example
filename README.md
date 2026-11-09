@@ -19,9 +19,9 @@ Build the libraries first, then start the example:
 (cd libraries/stateui-components && npm run build)
 
 cd libraries/example
-npm run dev        # Vite dev server
+npm run dev        # Vite dev server: / is Northwind Ops, /desktop.html is the Lumen desktop
 npm run typecheck  # tsc --noEmit
-npm run validate   # validateDocument over the app document; exits 1 on errors
+npm run validate   # validateDocument over the app document and the Lumen document; exits 1 on errors
 npm run build      # typecheck + vite build into dist/
 npm test           # Vitest browser mode (Chromium through Playwright)
 npm run icons      # regenerate src/icons.json after adding an icon to the document
@@ -56,6 +56,15 @@ npm run icons      # regenerate src/icons.json after adding an icon to the docum
 | `test/app.browser.test.ts` | Browser tests of the running app, the catalog coverage test and a smoke test per section in English and German |
 | `test/views.browser.test.ts` | Tests of the seed data and the view helpers |
 | `test/ridgeline.browser.test.ts` | Tests of the Ridgeline rules: start, steps, picking, flanking, the ways to win, the move limit |
+| `desktop.html` | The page of the Lumen desktop: the `#desktop` host, the full height of the window |
+| `src/desktop/desk.ts` | Lumen's pure functions: the window manager (`deskAct`), the file system (`fsAct`, `fsListing`, `fsPick`, saving notes and pictures, uploads), the viewer and the wallpaper paints; `DESK_FUNCTIONS` goes to `mountApp` as expression functions |
+| `src/desktop/files.ts` | `openFileStore`: the file store in OPFS (a folder, `lumen` by default), with `transferFile`, `readFile` and `desk.json`; it falls back to memory where OPFS is missing |
+| `src/desktop/document.ts` | The Lumen document: the window component, the six windows, the wallpaper, the taskbar, the toasts and the rules |
+| `src/desktop/bootstrap.ts` | `startDesktop`: mount, placement bridge, focus on press, dark mode, the clock, sizes and saving |
+| `src/desktop/main.ts` | Entry of `desktop.html` |
+| `scripts/validate-desktop.ts` | Part of `npm run validate`: validates the Lumen document |
+| `test/desk.browser.test.ts` | Tests of the window manager, the file system and the wallpaper functions |
+| `test/desktop.browser.test.ts` | Browser tests of the running desktop, each on its own OPFS folder |
 
 ## Feature table
 
@@ -181,6 +190,46 @@ listens to them ("bridges") and turns them into calls:
 
 The same request slots serve the app itself: the search box emits `orders.jump`, and the handler writes
 `$.data.requests.jumpTo`.
+
+## Lumen, the desktop
+
+`desktop.html` is a second app in the example: **Lumen**, a desktop in the browser with its own look. It has a wallpaper
+with icons, windows you can stack, snap, maximize and minimize, a taskbar with a launcher, task buttons and a clock, and
+six apps:
+
+- **Files**: a folder tree and a listing. You can make folders and notes, rename and delete items, upload files and open
+  them.
+- **Notes**: Markdown with a live preview.
+- **Paint**: a `paintField`. A drawing is saved as a PNG in Pictures.
+- **Viewer**: shows a picture.
+- **Ridgeline**: the board game, in a window.
+- **Settings**: the wallpaper (dawn, dusk or meadow), dark windows, and where the files are kept.
+
+The file system is kept in the browser's private file system (OPFS) and nothing goes to `localStorage`. File bytes go
+through `transferFile` and `readFile` into a folder (`lumen` by default). The items, the next id and the preferences are
+kept in `desk.json`, so files, notes and settings are still there after a reload.
+
+The document (`src/desktop/document.ts`) is built in TypeScript because the six windows share one composed component,
+`appWindow`. It is a panel with a toolbar of frame buttons. Every button writes a command, such as `"open files"` or
+`"snap notes left"`, to one input. A rule then sets the desk state to `deskAct(state, command)`, and that state gives
+each window its `hidden` flag and its `placement` (with `z`, the stacking order), and each task button its look. The file system works the same way with
+`fsAct`. Each rule's function is a pure function in `desk.ts`, and `desk.browser.test.ts` tests them without a browser
+page.
+
+### Where Lumen needs code
+
+- **Placement.** A placement cannot be linked, so `bootstrap.ts` copies `$.data.desk.state.placement.<app>` onto each
+  window node when it changes.
+- **Focus on press.** A panel raises no press event, so a pointer down in a window that is behind writes `focus <app>`.
+- **Opening a file.** The listing's `activate` event emits `fs.open`, and the handler writes the item id to
+  `$.data.input.open`. An `on` value is taken as it is written (a `{{ }}` in it is not evaluated), so the Open button
+  writes `selected`, and the rule turns that into the selected id with `fsPick`.
+- **Dark windows, the clock, sizes, saving.** The switch sets `$.theme.active.mode`, a timer writes the clock, and the
+  surface, the folder tree and the listing get their heights after mount. `desk.json` is written a moment after the
+  items or preferences change.
+
+Not built yet: dragging and resizing windows (stage 2), and the camera and microphone (stage 3). The plan is
+`docs/design/stateui-desktop-stage-1.md` in the root repo.
 
 ## Notes
 
