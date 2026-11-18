@@ -38,6 +38,10 @@
                 "_title": "Einstellungen gespeichert",
                 "_text": "Ihr Profil ist aktuell."
             },
+            "deviceConfirmed": {
+                "_title": "Gerät bestätigt",
+                "_text": "Dieser Browser kann sich jetzt anmelden."
+            },
             "noteSaved": {
                 "_title": "Notiz gespeichert",
                 "_text": "Nur Ihr Team kann sie sehen."

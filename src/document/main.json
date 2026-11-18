@@ -933,6 +933,12 @@
                                                 "component": "badge",
                                                 "tone": "neutral",
                                                 "<-_text": "$.data.detail.label"
+                                            },
+                                            "priority": {
+                                                "component": "chip",
+                                                "size": "sm",
+                                                "icon": "truck",
+                                                "<-_text": "$.data.detail.priority"
                                             }
                                         }
                                     },
@@ -1060,6 +1066,13 @@
                                         "component": "progress",
                                         "_label": "Fulfilment",
                                         "<-value": "$.data.detail.progress"
+                                    },
+                                    "events": {
+                                        "component": "timeline",
+                                        "appearance": "compact",
+                                        "_label": "Order events",
+                                        "_empty": "No events yet",
+                                        "<-entries": "$.data.detail.timeline"
                                     },
                                     "dates": {
                                         "component": "descriptionList",
@@ -1815,6 +1828,13 @@
                             "component": "text",
                             "element": "p",
                             "_text": "Every customer row is a template node; $row links point each recycled slot at its record."
+                        },
+                        "team": {
+                            "component": "avatarGroup",
+                            "size": "sm",
+                            "max": 4,
+                            "_label": "Account team",
+                            "<-people": "$.data.team"
                         },
                         "rule": {
                             "component": "divider"
@@ -5360,6 +5380,19 @@
                                 ]
                             }
                         },
+                        "followUp": {
+                            "component": "toggleButton",
+                            "size": "sm",
+                            "icon": "flag",
+                            "_text": "Follow up",
+                            "<-pressed": "$.data.support.followUp"
+                        },
+                        "rating": {
+                            "component": "rating",
+                            "size": "sm",
+                            "_label": "Rate this conversation",
+                            "<-value": "$.data.support.rating"
+                        },
                         "note": {
                             "component": "textarea",
                             "rows": 3,
@@ -5556,6 +5589,34 @@
                                 }
                             }
                         },
+                        "export": {
+                            "component": "disclosure",
+                            "icon": "code",
+                            "_title": "Export format",
+                            "_summary": "One order as JSON",
+                            "children": {
+                                "sample": {
+                                    "component": "codeBlock",
+                                    "language": "json",
+                                    "_label": "An exported order",
+                                    "code": "{\n  \"id\": \"o1042\",\n  \"customer\": \"Ada Andersen\",\n  \"product\": \"Sir Rodney's Marmalade\",\n  \"quantity\": 12,\n  \"status\": \"shipped\",\n  \"priority\": \"express\"\n}"
+                                }
+                            }
+                        },
+                        "jump": {
+                            "component": "button",
+                            "variant": "soft",
+                            "icon": "command",
+                            "_title": "Go to a section",
+                            "on": {
+                                "press": [
+                                    {
+                                        "command": "open",
+                                        "target": "$.screens.main.children.help.children.palette"
+                                    }
+                                ]
+                            }
+                        },
                         "contact": {
                             "component": "button",
                             "icon": "mail",
@@ -5567,6 +5628,43 @@
                                         "target": "$.screens.main.children.help.children.contactDialog"
                                     }
                                 ]
+                            }
+                        }
+                    }
+                },
+                "tips": {
+                    "component": "card",
+                    "_title": "Tips",
+                    "children": {
+                        "tips": {
+                            "component": "carousel",
+                            "loop": true,
+                            "_label": "Tips",
+                            "children": {
+                                "board": {
+                                    "component": "text",
+                                    "element": "p",
+                                    "placement": {
+                                        "_slide": "Board"
+                                    },
+                                    "_text": "Drag a card on the Fulfilment board to move an order to the next step."
+                                },
+                                "search": {
+                                    "component": "text",
+                                    "element": "p",
+                                    "placement": {
+                                        "_slide": "Search"
+                                    },
+                                    "_text": "Type an order number in the Orders search box to jump straight to it."
+                                },
+                                "language": {
+                                    "component": "text",
+                                    "element": "p",
+                                    "placement": {
+                                        "_slide": "Language"
+                                    },
+                                    "_text": "Switch between English and German under Settings, General."
+                                }
                             }
                         }
                     }
@@ -5615,6 +5713,74 @@
                                 }
                             }
                         }
+                    }
+                },
+                "palette": {
+                    "component": "commandPalette",
+                    "_title": "Go to a section",
+                    "_placeholder": "Type a section name",
+                    "commands": {
+                        "dashboard": {
+                            "_label": "Dashboard",
+                            "icon": "layout-dashboard",
+                            "group": "Sections",
+                            "keywords": [
+                                "home",
+                                "overview"
+                            ]
+                        },
+                        "orders": {
+                            "_label": "Orders",
+                            "icon": "receipt",
+                            "group": "Sections",
+                            "keywords": [
+                                "list",
+                                "order"
+                            ]
+                        },
+                        "customers": {
+                            "_label": "Customers",
+                            "icon": "users",
+                            "group": "Sections",
+                            "keywords": [
+                                "people"
+                            ]
+                        },
+                        "products": {
+                            "_label": "Products",
+                            "icon": "box",
+                            "group": "Sections",
+                            "keywords": [
+                                "stock",
+                                "catalogue"
+                            ]
+                        },
+                        "support": {
+                            "_label": "Support",
+                            "icon": "messages",
+                            "group": "Sections",
+                            "keywords": [
+                                "chat",
+                                "help desk"
+                            ]
+                        },
+                        "settings": {
+                            "_label": "Settings",
+                            "icon": "settings",
+                            "group": "Sections",
+                            "keywords": [
+                                "preferences",
+                                "profile"
+                            ]
+                        }
+                    },
+                    "on": {
+                        "run": [
+                            {
+                                "command": "emit",
+                                "target": "nav.goto"
+                            }
+                        ]
                     }
                 }
             }
@@ -5796,6 +5962,28 @@
                                             }
                                         }
                                     }
+                                },
+                                "device": {
+                                    "component": "card",
+                                    "_title": "Confirm this device",
+                                    "_subtitle": "Enter the six-digit code from the sign-in email",
+                                    "children": {
+                                        "code": {
+                                            "component": "pinField",
+                                            "length": 6,
+                                            "_label": "Device code",
+                                            "<-value": "$.data.device.code",
+                                            "on": {
+                                                "complete": [
+                                                    {
+                                                        "command": "show",
+                                                        "target": "$.app.toasts",
+                                                        "value": "deviceConfirmed"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         },
@@ -5905,23 +6093,12 @@
                                                     "_text": "Send at"
                                                 },
                                                 "pick": {
-                                                    "component": "select",
+                                                    "component": "timeField",
                                                     "size": "sm",
+                                                    "step": 900,
+                                                    "width": "auto",
+                                                    "titlePosition": "hidden",
                                                     "_label": "Time of the summary",
-                                                    "options": {
-                                                        "06:00": {
-                                                            "_label": "06:00"
-                                                        },
-                                                        "08:00": {
-                                                            "_label": "08:00"
-                                                        },
-                                                        "12:00": {
-                                                            "_label": "12:00"
-                                                        },
-                                                        "17:00": {
-                                                            "_label": "17:00"
-                                                        }
-                                                    },
                                                     "<-value": "$.data.prefs.digestTime"
                                                 }
                                             }
@@ -6036,6 +6213,18 @@
                                                 }
                                             },
                                             "<-value": "$.data.prefs.accent"
+                                        },
+                                        "custom": {
+                                            "component": "colorField",
+                                            "_label": "Custom accent",
+                                            "_help": "Overrides the choice above while set",
+                                            "swatches": [
+                                                "#1d4ed8",
+                                                "#0f766e",
+                                                "#7c3aed",
+                                                "#b45309"
+                                            ],
+                                            "<-value": "$.data.prefs.accentColor"
                                         }
                                     }
                                 }

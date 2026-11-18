@@ -48,7 +48,8 @@
         "step": "",
         "completed": [],
         "extras": "",
-        "attachment": ""
+        "attachment": "",
+        "timeline": {}
     },
     "draft": {
         "customer": "",
@@ -60,6 +61,9 @@
         "express": false,
         "confirmed": false,
         "notes": ""
+    },
+    "device": {
+        "code": ""
     },
     "stats": {
         "revenue": 0,

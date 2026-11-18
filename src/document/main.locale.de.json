@@ -438,6 +438,10 @@
                                     "progress": {
                                         "_label": "Abwicklung"
                                     },
+                                    "events": {
+                                        "_label": "Ereignisse der Bestellung",
+                                        "_empty": "Noch keine Ereignisse"
+                                    },
                                     "dates": {
                                         "items": {
                                             "created": {
@@ -613,6 +617,9 @@
                     "children": {
                         "text": {
                             "_text": "Jede Kundenzeile ist ein Vorlagenknoten; $row-Links verbinden jeden wiederverwendeten Platz mit seinem Datensatz."
+                        },
+                        "team": {
+                            "_label": "Kundenbetreuung"
                         },
                         "orders": {
                             "_text": "Zu den Bestellungen"
@@ -1245,6 +1252,12 @@
                         "topics": {
                             "_label": "Worum es in dieser Unterhaltung geht"
                         },
+                        "followUp": {
+                            "_text": "Nachfassen"
+                        },
+                        "rating": {
+                            "_label": "Diese Unterhaltung bewerten"
+                        },
                         "note": {
                             "_label": "Interne Notiz",
                             "_placeholder": "Interne Notiz, der Kunde sieht sie nicht"
@@ -1345,8 +1358,48 @@
                                 }
                             }
                         },
+                        "export": {
+                            "_title": "Exportformat",
+                            "_summary": "Eine Bestellung als JSON",
+                            "children": {
+                                "sample": {
+                                    "_label": "Eine exportierte Bestellung"
+                                }
+                            }
+                        },
+                        "jump": {
+                            "_title": "Zu einem Bereich"
+                        },
                         "contact": {
                             "_title": "Support kontaktieren"
+                        }
+                    }
+                },
+                "tips": {
+                    "_title": "Tipps",
+                    "children": {
+                        "tips": {
+                            "_label": "Tipps",
+                            "children": {
+                                "board": {
+                                    "placement": {
+                                        "_slide": "Board"
+                                    },
+                                    "_text": "Ziehen Sie eine Karte auf dem Board „Auslieferung“, um eine Bestellung zum nächsten Schritt zu bringen."
+                                },
+                                "search": {
+                                    "placement": {
+                                        "_slide": "Suche"
+                                    },
+                                    "_text": "Geben Sie eine Bestellnummer in die Suche unter „Bestellungen“ ein, um direkt zu ihr zu springen."
+                                },
+                                "language": {
+                                    "placement": {
+                                        "_slide": "Sprache"
+                                    },
+                                    "_text": "Wechseln Sie unter Einstellungen, Allgemein zwischen Englisch und Deutsch."
+                                }
+                            }
                         }
                     }
                 },
@@ -1363,6 +1416,30 @@
                             "send": {
                                 "_title": "Nachricht senden"
                             }
+                        }
+                    }
+                },
+                "palette": {
+                    "_title": "Zu einem Bereich",
+                    "_placeholder": "Namen eines Bereichs eingeben",
+                    "commands": {
+                        "dashboard": {
+                            "_label": "Übersicht"
+                        },
+                        "orders": {
+                            "_label": "Bestellungen"
+                        },
+                        "customers": {
+                            "_label": "Kunden"
+                        },
+                        "products": {
+                            "_label": "Produkte"
+                        },
+                        "support": {
+                            "_label": "Support"
+                        },
+                        "settings": {
+                            "_label": "Einstellungen"
                         }
                     }
                 }
@@ -1411,6 +1488,15 @@
                                     "children": {
                                         "language": {
                                             "_label": "Sprache"
+                                        }
+                                    }
+                                },
+                                "device": {
+                                    "_title": "Dieses Gerät bestätigen",
+                                    "_subtitle": "Geben Sie den sechsstelligen Code aus der Anmelde-E-Mail ein",
+                                    "children": {
+                                        "code": {
+                                            "_label": "Gerätecode"
                                         }
                                     }
                                 }
@@ -1575,6 +1661,10 @@
                                                     "_label": "Bernstein #b45309"
                                                 }
                                             }
+                                        },
+                                        "custom": {
+                                            "_label": "Eigene Akzentfarbe",
+                                            "_help": "Ersetzt die Auswahl oben, solange sie gesetzt ist"
                                         }
                                     }
                                 }

@@ -17,7 +17,7 @@ import type { ArchiveApi } from './archive.ts';
 import { appDocument } from './document/index.ts';
 import icons from './icons.json';
 import { bindSections, showSection } from './sections.ts';
-import { CATEGORIES, CUSTOMER_REPLY, STEPS, completedSteps, emptyProductDraft, ordersByStatus, recentOrders, revenueByMonth, seedData, topCustomers } from './seed.ts';
+import { CATEGORIES, CUSTOMER_REPLY, STEPS, completedSteps, emptyProductDraft, orderTimeline, ordersByStatus, recentOrders, revenueByMonth, seedData, topCustomers } from './seed.ts';
 import type { Category, Delivery, Message, Product } from './seed.ts';
 import { categoryTrail, filterDeliveries, pageOf, productsInCategory } from './views.ts';
 import { load3d, readFile } from './warehouse.ts';
@@ -195,7 +195,7 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
         const index = indexOf(id);
         if (index < 0 || !store) return;
         const order = store.get<Order>(`$.data.orders.${index}`);
-        store.replace('$.data.detail', { ...(JSON.parse(JSON.stringify(order)) as Order), step: order.status, completed: completedSteps(order.status) });
+        store.replace('$.data.detail', { ...(JSON.parse(JSON.stringify(order)) as Order), step: order.status, completed: completedSteps(order.status), timeline: orderTimeline(order) });
     };
 
     const setStatus = (id: string, status: OrderStatus, tone: Order['statusTone'], progress: number): void => {
@@ -203,7 +203,10 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
         if (index < 0 || !store) return;
         const patch = { status, statusTone: tone, progress };
         store.apply(`$.data.orders.${index}`, patch);
-        if (store.get<string>('$.data.detail.id') === id) store.apply('$.data.detail', { ...patch, step: status, completed: completedSteps(status) });
+        if (store.get<string>('$.data.detail.id') === id) {
+            store.apply('$.data.detail', { ...patch, step: status, completed: completedSteps(status) });
+            store.replace('$.data.detail.timeline', orderTimeline({ status, created: store.get<string>('$.data.detail.created'), shipped: store.get<string>('$.data.detail.shipped') }));
+        }
         refreshStats();
     };
 
@@ -569,7 +572,13 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
     };
     const onAccent = (_path: string, value: unknown): void => {
         const token = ACCENTS[String(value)];
-        if (token) live.set('$.theme.tokens.color.accent.base', token);
+        if (token && live.get('$.data.prefs.accentColor') === '') live.set('$.theme.tokens.color.accent.base', token);
+    };
+    /** A custom accent colour wins over the chosen one while set; clearing it restores the chosen one */
+    const onAccentColor = (_path: string, value: unknown): void => {
+        const color = typeof value === 'string' ? value : '';
+        if (/^#[0-9a-fA-F]{6}$/.test(color)) live.set('$.theme.tokens.color.accent.base', color);
+        else if (color === '') onAccent('', live.get('$.data.prefs.accent'));
     };
     const onDensity = (_path: string, value: unknown): void => {
         for (const name of Object.keys(live.get<Record<string, unknown>>('$.screens.main.children'))) {
@@ -598,6 +607,7 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
         ['$.data.prefs.motion', mirror('$.theme.active.motion')],
         ['$.data.prefs.density', onDensity],
         ['$.data.prefs.accent', onAccent],
+        ['$.data.prefs.accentColor', onAccentColor],
         ['$.data.requests.toast', onToast],
         ['$.data.requests.jumpTo', onJump],
         [['$.data.deliveries.range.start', '$.data.deliveries.range.end'], onRange],

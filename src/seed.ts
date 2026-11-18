@@ -197,6 +197,35 @@ export function recentOrders(orders: readonly Order[], count = 6): RecentOrder[]
 /** The fulfilment steps in order; the order drawer's stepper shows them */
 export const STEPS: readonly OrderStatus[] = ['pending', 'paid', 'packed', 'shipped', 'delivered'];
 
+/** The titles of the order events the drawer's timeline shows */
+const EVENT_TITLES: Readonly<Record<OrderStatus, string>> = {
+    pending: 'Order placed',
+    paid: 'Payment received',
+    packed: 'Packed',
+    shipped: 'Shipped',
+    delivered: 'Delivered',
+    cancelled: 'Cancelled'
+};
+
+export interface TimelineEntry {
+    title: string;
+    time: string;
+    tone: string;
+}
+
+/** The events an order has reached, newest first, keyed by step: the drawer's timeline */
+export function orderTimeline(order: { status: string; created: string; shipped: string }): Record<string, TimelineEntry> {
+    const status = order.status as OrderStatus;
+    const reached: OrderStatus[] = status === 'cancelled' ? ['pending', 'cancelled'] : STEPS.slice(0, STEPS.indexOf(status) + 1);
+    const entries: Record<string, TimelineEntry> = {};
+    for (const step of [...reached].reverse()) {
+        const time = step === 'pending' ? order.created : step === 'shipped' ? order.shipped : '';
+        const tone = step === 'cancelled' ? 'danger' : step === status && step !== 'delivered' ? 'accent' : 'success';
+        entries[step] = { title: EVENT_TITLES[step], time, tone };
+    }
+    return entries;
+}
+
 /** The steps before `status`, which the drawer's stepper marks as completed */
 export function completedSteps(status: string): string[] {
     const index = STEPS.indexOf(status as OrderStatus);
@@ -271,6 +300,11 @@ export function supportTopics(): Record<string, { text: string }> {
     };
 }
 
+/** The people who look after the customers; the Customers section shows them as an avatar group */
+export function accountTeam(): { name: string }[] {
+    return [{ name: 'Dana Whitfield' }, { name: 'Ravi Iyer' }, { name: 'Mia Keller' }, { name: 'Tom Okafor' }, { name: 'Lena Sørensen' }];
+}
+
 /** The reply a customer "types" after the agent writes; bootstrap.ts streams it into one record chunk by chunk */
 export const CUSTOMER_REPLY =
     'Thanks, that was quick. I sent the photo to **support@northwind.example**.\n\n- Jar broken: *1 of 12*\n- Rest of the box: fine';
@@ -311,6 +345,8 @@ export interface Preferences {
     notify: { shipped: boolean; cancelled: boolean; express: boolean };
     digest: { daily: boolean; weekly: boolean };
     digestTime: string;
+    /** A custom accent colour (`#rrggbb`) that overrides `accent` while set */
+    accentColor: string;
 }
 
 export function defaultPreferences(): Preferences {
@@ -324,7 +360,8 @@ export function defaultPreferences(): Preferences {
         density: 'comfortable',
         notify: { shipped: true, cancelled: true, express: false },
         digest: { daily: true, weekly: false },
-        digestTime: '08:00'
+        digestTime: '08:00',
+        accentColor: ''
     };
 }
 
@@ -341,7 +378,8 @@ export function seedData(orders: readonly Order[], customers: Readonly<Record<st
         products: { all: products, draft: emptyProductDraft() },
         catalog: { category: '', items: products, selected: '', trail: { catalog: { _label: 'Catalog' } } },
         deliveries: { all: deliveries, shown: deliveries, rows: deliveries.slice(0, 6), range: { start: '', end: '' }, page: 1, pageSize: 6, total: deliveries.length, dayText: '' },
-        support: { history: generateHistory(), macros: generateMacros(), macro: (generateMacros()[0] as Macro).body, note: '', reason: '', details: '', topics: supportTopics() },
+        support: { history: generateHistory(), macros: generateMacros(), macro: (generateMacros()[0] as Macro).body, note: '', reason: '', details: '', topics: supportTopics(), followUp: false, rating: 0 },
+        team: accountTeam(),
         chat: { messages: generateChat() },
         charts: { byMonth: revenueByMonth(orders), byStatus: ordersByStatus(orders) },
         recent: recentOrders(orders),

@@ -52,6 +52,11 @@
                 "_title": "Settings saved",
                 "_text": "Your profile is up to date."
             },
+            "deviceConfirmed": {
+                "tone": "success",
+                "_title": "Device confirmed",
+                "_text": "This browser can now sign in."
+            },
             "noteSaved": {
                 "tone": "success",
                 "_title": "Note saved",
