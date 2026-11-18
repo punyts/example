@@ -262,6 +262,15 @@ export function generateMacros(): Macro[] {
     ];
 }
 
+/** What the live conversation is about, shown as removable chips; a removed chip is deleted from the data by bootstrap.ts */
+export function supportTopics(): Record<string, { text: string }> {
+    return {
+        damaged: { text: 'Damaged item' },
+        marmalade: { text: 'Marmalade' },
+        replacement: { text: 'Replacement' }
+    };
+}
+
 /** The reply a customer "types" after the agent writes; bootstrap.ts streams it into one record chunk by chunk */
 export const CUSTOMER_REPLY =
     'Thanks, that was quick. I sent the photo to **support@northwind.example**.\n\n- Jar broken: *1 of 12*\n- Rest of the box: fine';
@@ -332,7 +341,7 @@ export function seedData(orders: readonly Order[], customers: Readonly<Record<st
         products: { all: products, draft: emptyProductDraft() },
         catalog: { category: '', items: products, selected: '', trail: { catalog: { _label: 'Catalog' } } },
         deliveries: { all: deliveries, shown: deliveries, rows: deliveries.slice(0, 6), range: { start: '', end: '' }, page: 1, pageSize: 6, total: deliveries.length, dayText: '' },
-        support: { history: generateHistory(), macros: generateMacros(), macro: (generateMacros()[0] as Macro).body, note: '', reason: '', details: '' },
+        support: { history: generateHistory(), macros: generateMacros(), macro: (generateMacros()[0] as Macro).body, note: '', reason: '', details: '', topics: supportTopics() },
         chat: { messages: generateChat() },
         charts: { byMonth: revenueByMonth(orders), byStatus: ordersByStatus(orders) },
         recent: recentOrders(orders),

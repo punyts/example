@@ -1242,6 +1242,9 @@
                 "side": {
                     "_title": "Eskalieren und Notiz",
                     "children": {
+                        "topics": {
+                            "_label": "Worum es in dieser Unterhaltung geht"
+                        },
                         "note": {
                             "_label": "Interne Notiz",
                             "_placeholder": "Interne Notiz, der Kunde sieht sie nicht"

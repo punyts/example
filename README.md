@@ -10,15 +10,15 @@ Next to the app runs an **agent console**: plain HTML outside the StateUI host w
 
 ## Run it
 
-The example uses the packages hoisted into the root `node_modules` of the ai-minion repo; it has no install of its own.
-Build the libraries first, then start the example:
+The example is an npm workspace of the punyts workspace and uses the packages hoisted into the workspace root's
+`node_modules`; it has no install of its own. Build the libraries first (`npm run setup` on a fresh clone, `npm run build`
+after a change), then start the example:
 
 ```sh
-# from the repo root
-(cd libraries/stateui-app && npm run build)
-(cd libraries/stateui-components && npm run build)
+# from the workspace root
+node bin/workspace.mjs run build core expression state state-sync stateui stateui-3d stateui-app stateui-components
 
-cd libraries/example
+cd example
 npm run dev        # Vite dev server: / is Northwind Ops, /desktop.html is the Lumen desktop
 npm run typecheck  # tsc --noEmit
 npm run validate   # validateDocument over the app document and the Lumen document; exits 1 on errors
@@ -233,7 +233,7 @@ page.
   30 seconds is kept, because its reference may not be in the data yet.
 
 Not built yet: the camera and microphone (stage 3). The plans are `docs/design/stateui-desktop-stage-1.md` and
-`stateui-desktop-stage-2.md` in the root repo.
+`docs/design/stateui-desktop-stage-2.md` in the punyts workspace.
 
 ## Notes
 

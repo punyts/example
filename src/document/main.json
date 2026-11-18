@@ -5346,6 +5346,20 @@
                         "gap": "sm"
                     },
                     "children": {
+                        "topics": {
+                            "component": "chipList",
+                            "size": "sm",
+                            "_label": "What this conversation is about",
+                            "<-items": "$.data.support.topics",
+                            "on": {
+                                "remove": [
+                                    {
+                                        "command": "emit",
+                                        "target": "support.topic"
+                                    }
+                                ]
+                            }
+                        },
                         "note": {
                             "component": "textarea",
                             "rows": 3,

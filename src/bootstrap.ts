@@ -444,6 +444,10 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
                 streamReply();
                 break;
             }
+            case 'support.topic':
+                // The chip list raises the key of the chip to remove; the data is the app's to change
+                if (typeof payload === 'string' && payload !== '') store.delete(`$.data.support.topics.${payload}`);
+                break;
             case 'support.note':
                 store.set('$.data.support.note', '');
                 break;
