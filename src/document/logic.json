@@ -2,7 +2,7 @@
     "effects": {
         "fetchArchive": {
             "request": "$.data.archive.request",
-            "run": "archive.fetch",
+            "run": "$.functions.host.archiveFetch",
             "status": "$.data.archive.status",
             "records": {
                 "into": "$.data.archive.records",
@@ -17,7 +17,7 @@
             "inputs": {
                 "amount": "$.data.archive.records.{id}.total"
             },
-            "run": "money.format",
+            "run": "$.functions.host.moneyFormat",
             "outputs": {
                 "text": "$.data.archive.records.{id}.totalText"
             }
@@ -289,7 +289,7 @@
                 {
                     "command": "set",
                     "target": "$.data.game.board",
-                    "value": "{{ ridgelinePick($.data.game.board, $trigger) }}"
+                    "value": "{{ $.functions.host.ridgelinePick($.data.game.board, $trigger) }}"
                 },
                 {
                     "command": "set",
@@ -306,7 +306,7 @@
                 {
                     "command": "set",
                     "target": "$.data.game.board",
-                    "value": "{{ ridgelineMove($.data.game.board, $trigger) }}"
+                    "value": "{{ $.functions.host.ridgelineMove($.data.game.board, $trigger) }}"
                 },
                 {
                     "command": "set",
@@ -323,7 +323,7 @@
                 {
                     "command": "set",
                     "target": "$.data.game.board",
-                    "value": "{{ ridgelineNew($.data.game.board, $trigger) }}"
+                    "value": "{{ $.functions.host.ridgelineNew($.data.game.board, $trigger) }}"
                 },
                 {
                     "command": "set",

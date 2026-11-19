@@ -2231,6 +2231,17 @@
                             }
                         }
                     }
+                },
+                "map": {
+                    "component": "treeDiagram",
+                    "key": "id",
+                    "parentField": "parentId",
+                    "labelField": "label",
+                    "columns": 2,
+                    "spacing": "sm",
+                    "<-nodes": "$.data.categories",
+                    "<-selected": "$.data.catalog.category",
+                    "_label": "Category map"
                 }
             }
         },

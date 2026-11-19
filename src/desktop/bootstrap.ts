@@ -9,14 +9,15 @@
  *   takes its height from its placement, and the windows' content fills them by `grow`.
  */
 import type { Store } from '@punyts/state';
-import { libraryFromCatalog, mountApp, registerMountStep } from '@punyts/stateui-app';
-import type { AppState, BuildError, LogicExpressionFunction } from '@punyts/stateui-app';
+import { hostCatalog, libraryFromCatalog, mountApp, registerMountStep } from '@punyts/stateui-app';
+import type { AppState, BuildError } from '@punyts/stateui-app';
 import catalog from '@punyts/stateui-components/catalog.json';
 import { registerAll } from '@punyts/stateui-components/components';
+import { COMPONENT_FUNCTIONS } from '@punyts/stateui-components/functions';
 import icons from '../icons.json';
-import { RIDGELINE_FUNCTIONS } from '../ridgeline.ts';
+import { RIDGELINE_HOST_FUNCTIONS } from '../ridgeline.ts';
 import { load3d } from '../warehouse.ts';
-import { DESK_FUNCTIONS, usedFileIds } from './desk.ts';
+import { DESK_HOST_FUNCTIONS, usedFileIds } from './desk.ts';
 import { deskData, desktopDocument } from './document.ts';
 import { openFileStore } from './files.ts';
 import type { FileStore, FileStoreOptions } from './files.ts';
@@ -87,7 +88,7 @@ export async function startDesktop(host: HTMLElement, options: DesktopOptions = 
         document,
         library,
         { onEmit, onError, transferFile: files.transferFile, readFile: files.readFile, load3d },
-        { logicFunctions: { expressions: { ...(DESK_FUNCTIONS as unknown as Record<string, LogicExpressionFunction>), ...RIDGELINE_FUNCTIONS } } }
+        { functions: [COMPONENT_FUNCTIONS, hostCatalog({ ...DESK_HOST_FUNCTIONS, ...RIDGELINE_HOST_FUNCTIONS })] }
     );
     if (!mounted.store) {
         unregisterIcons();

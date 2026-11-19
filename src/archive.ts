@@ -1,11 +1,11 @@
 /**
  * The order archive: a fake paged API behind the archive section's effect, and the compute function that formats
- * money. The document holds the logic (`app.json` `logic`): an effect `fetchArchive` that asks `archive.fetch` for the
+ * money. The document holds the logic (`app.json` `logic`): an effect `fetchArchive` that asks `$.functions.host.archiveFetch` for the
  * page in `$.data.archive.request`, merges the records into `$.data.archive.records` by `id` and shows them in the
- * section's record list; a compute unit that writes each record's `totalText` with `money.format`; and a table that
+ * section's record list; a compute unit that writes each record's `totalText` with `$.functions.host.moneyFormat`; and a table that
  * turns the effect's status into a badge. The code here only answers requests, like a server would
  */
-import type { JsonValue, LogicEffectAnswer, LogicFunctions } from '@punyts/stateui-app';
+import type { HostFunction, JsonValue, LogicComputeFunction, LogicEffectAnswer, LogicEffectFunction } from '@punyts/stateui-app';
 import { formatMoney } from './data.ts';
 import type { Order } from './data.ts';
 
@@ -16,8 +16,8 @@ export const ARCHIVE_SIZE = 95;
 const DEFAULT_PAGE_SIZE = 10;
 
 export interface ArchiveApi {
-    /** The functions `mountApp` gets as `logicFunctions` */
-    readonly functions: LogicFunctions;
+    /** The host functions it answers with, for `hostCatalog` */
+    readonly functions: Readonly<Record<string, HostFunction>>;
     /** Every request the API was asked, in order */
     readonly requests: JsonValue[];
     /** How many requests a newer one aborted */
@@ -38,11 +38,17 @@ export function createArchiveApi(orders: readonly Order[], delay: number): Archi
         aborted: 0,
         delay,
         functions: {
-            compute: {
-                'money.format': (inputs) => ({ text: typeof inputs['amount'] === 'number' ? formatMoney(inputs['amount']) : '' })
+            moneyFormat: {
+                id: '94fd2552-5b10-4dc7-8b77-b2961992ae7f',
+                kind: 'compute',
+                summary: 'Formats { amount } as money in { text }',
+                code: ((inputs) => ({ text: typeof inputs['amount'] === 'number' ? formatMoney(inputs['amount']) : '' })) as LogicComputeFunction
             },
-            effects: {
-                'archive.fetch': (request, { signal }) => {
+            archiveFetch: {
+                id: 'edf0b4d2-f22d-44be-bd9b-4fbefb47b869',
+                kind: 'effect',
+                summary: 'Answers a page { page, size } of the order archive',
+                code: ((request, { signal }) => {
                     api.requests.push(request);
                     const query = (request ?? {}) as { page?: number; size?: number };
                     const size = Math.max(1, query.size ?? DEFAULT_PAGE_SIZE);
@@ -56,7 +62,7 @@ export function createArchiveApi(orders: readonly Order[], delay: number): Archi
                             reject(new Error('aborted'));
                         });
                     });
-                }
+                }) as LogicEffectFunction
             }
         }
     };

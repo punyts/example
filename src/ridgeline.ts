@@ -1,7 +1,7 @@
 /**
  * Ridgeline, a two-player board game on a 5 × 5 ridge, played in the 3D scene of the Ridgeline section. The rules live
- * here as pure functions over a JSON game state; the app registers three of them as logic expression functions
- * (`ridgelineNew`, `ridgelinePick`, `ridgelineMove`) and the document's rules call them when a piece or a tile is
+ * here as pure functions over a JSON game state; the app gives three of them to its host catalog as expression functions
+ * (`$.functions.host.ridgelineNew`, `ridgelinePick`, `ridgelineMove`) and the document's rules call them when a piece or a tile is
  * pressed. The state carries what the scene shows: each piece's position, the tile colours, the halo under the picked
  * piece and the counts.
  *
@@ -16,7 +16,7 @@
  * - You win when your Warden stands on the enemy Beacon, when the enemy has no Scouts left, or when the enemy has no
  *   move on its turn. After 60 moves the side with more Scouts wins; equal Scouts is a draw.
  */
-import type { JsonValue } from '@punyts/stateui-app';
+import type { FunctionCode, HostFunction, JsonValue } from '@punyts/stateui-app';
 
 export type Side = 'amber' | 'teal';
 export type Kind = 'warden' | 'scout';
@@ -236,7 +236,7 @@ export function move(state: RidgelineState, id: string): RidgelineState {
     return dress(next);
 }
 
-/** The game rules as logic expression functions, for `mountApp`'s `logicFunctions.expressions` */
+/** The game rules as logic expression functions */
 export const RIDGELINE_FUNCTIONS = {
     /** A new game when `ask` is `true` (the New game button); the rule that calls it writes `false` back, which keeps the game */
     ridgelineNew: (state: JsonValue, ask: JsonValue): JsonValue => (ask === true ? (newGame() as unknown as JsonValue) : state),
@@ -245,3 +245,10 @@ export const RIDGELINE_FUNCTIONS = {
     ridgelineMove: (state: JsonValue, id: JsonValue): JsonValue =>
         (isState(state) && typeof id === 'string' && id !== '' ? move(state, id) : state) as unknown as JsonValue
 } as const;
+
+/** The game rules as the host's functions, each at `$.functions.host.<name>`, for `hostCatalog` */
+export const RIDGELINE_HOST_FUNCTIONS: Readonly<Record<string, HostFunction>> = {
+    ridgelineNew: { id: 'fd95dfb3-b7da-4355-86a5-92e8ba385e4a', kind: 'expression', summary: 'A new Ridgeline game when asked, else the game as it is', code: RIDGELINE_FUNCTIONS.ridgelineNew as FunctionCode },
+    ridgelinePick: { id: '9dd9ad4f-e6c2-46fd-b4cf-d4c23776f72f', kind: 'expression', summary: 'The Ridgeline game with the pressed piece picked', code: RIDGELINE_FUNCTIONS.ridgelinePick as FunctionCode },
+    ridgelineMove: { id: '4610be04-912b-4ff3-a26d-1c3a96e8db2a', kind: 'expression', summary: 'The Ridgeline game after the picked piece moves to the pressed tile', code: RIDGELINE_FUNCTIONS.ridgelineMove as FunctionCode }
+};

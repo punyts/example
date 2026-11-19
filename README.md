@@ -44,8 +44,8 @@ npm run icons      # regenerate src/icons.json after adding an icon to the docum
 | `src/seed.ts` | Seeded smaller data sets (products, categories, deliveries, support threads, chart figures) and `seedData`, which puts them into the document's data |
 | `src/views.ts` | Pure helpers: deliveries in a date range, one page of a list, products of a category, the breadcrumb trail |
 | `src/sections.ts` | `showSection`: shows one section and hides the others (the console, the breadcrumb handler and the tests use it) |
-| `src/archive.ts` | The fake archive API behind the archive effect (`archive.fetch`, paged, aborts on a newer request) and the `money.format` compute function, passed to `mountApp` as `logicFunctions` |
-| `src/ridgeline.ts` | The rules of Ridgeline as pure functions over a JSON game state, and `RIDGELINE_FUNCTIONS` (`ridgelineNew`, `ridgelinePick`, `ridgelineMove`), passed to `mountApp` as logic expression functions |
+| `src/archive.ts` | The fake archive API behind the archive effect (`$.functions.host.archiveFetch`, paged, aborts on a newer request) and the `$.functions.host.moneyFormat` compute function, given to `mountApp` in a `hostCatalog` beside `COMPONENT_FUNCTIONS` |
+| `src/ridgeline.ts` | The rules of Ridgeline as pure functions over a JSON game state, and `RIDGELINE_HOST_FUNCTIONS` (`ridgelineNew`, `ridgelinePick`, `ridgelineMove`), expression functions of the host catalog that the rules call by path |
 | `src/warehouse.ts` | The Warehouse files and the `readFile` and `load3d` hooks that serve them |
 | `src/assets/` | The dock picture (PNG) and the pallet model (GLB) of the Warehouse section |
 | `src/console.ts` | The agent console: store writes and a live JSON excerpt of the store |
@@ -99,7 +99,7 @@ The app document places every component of the catalog (the test fixtures `order
 | Deliveries (`deliveries`) | `calendar` of planned deliveries, `dateRangeField` filter, `list` of the deliveries in the range, `pagination`, `badge` |
 | Customers (`customers`) | `recordList`, `card`, `image`, `link`, `avatarGroup` (the account team, `$.data.team`) |
 | Products (`products`) | `tabs` with `crudTable` (add, edit with `numberField` and `selectField`, delete with `confirmDialog` and `formDialog`), a stock `table` with `input`, `select`, `checkbox` and `switch` in its cells, and a `recordGrid` gallery |
-| Catalog (`catalog`) | `breadcrumb` (the path to the category), `splitPane` with a `tree` of categories and a `masterDetail` of the products in the category |
+| Catalog (`catalog`) | `breadcrumb` (the path to the category), `splitPane` with a `tree` of categories and a `masterDetail` of the products in the category, and a `treeDiagram` map of the categories that selects one as the tree does |
 | Warehouse (`warehouse`) | A `drawing` floor plan with every 2D shape (`rect`, `circle`, `ellipse`, `line`, `polyline`, `polygon`, `path`, `drawText`, `drawGroup`, a `drawImage` of a stored file and a `drawRepeat` of the bins), a `scene3d` of the racks (`camera`, `light`, `mesh`, `group3d`, a `repeat3d` of the racks, a `label3d` and a `model` from a GLB file) and a `paintField` sketch pad |
 | Ridgeline (`ridgeline`) | A two-player board game (below): a `scene3d` with a `repeat3d` of 25 tiles, ten `group3d` pieces built from `mesh` primitives that glide with `transition`, pulsing Beacon and selection rings (`animate`), `label3d` side names and coordinates; `stat` counters, a `button` and the rules in `markdown` |
 | New order (`desk`) | `wizard` (with `stepper`, `tabs` and `form` steps): `comboboxField`, `radioField`, `dateField`, `selectField`, `numberField`, `sliderField`, `multiSelectField`, `switchField`, `fileField`, `descriptionList`, `checkField` |

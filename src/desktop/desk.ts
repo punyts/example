@@ -1,6 +1,6 @@
 /**
- * The logic of the Lumen desktop as pure functions over JSON state. The host registers them as expression functions
- * (`DESK_FUNCTIONS`), and the rules in `document.ts` call them when a press writes one of the desk's inputs, then clear
+ * The logic of the Lumen desktop as pure functions over JSON state. The host gives them to its catalog as expression functions
+ * (`DESK_HOST_FUNCTIONS`, each at `$.functions.host.<name>`), and the rules in `document.ts` call them when a press writes one of the desk's inputs, then clear
  * the input so the same press works again (the pattern of Ridgeline).
  *
  * - The window manager (`deskAct`) keeps one record per app: open, minimized, snapped and stacked. It also derives what
@@ -12,6 +12,7 @@
  *
  * A function never reads the clock: the rules pass `now()` in.
  */
+import type { FunctionCode, HostFunction } from '@punyts/stateui-app';
 
 export const APPS = ['files', 'notes', 'paint', 'viewer', 'ridgeline', 'settings'] as const;
 export type AppId = (typeof APPS)[number];
@@ -660,7 +661,7 @@ export function deskWallpaper(name: unknown): Record<string, Gradient> {
     };
 }
 
-/** The functions the host registers as expression functions */
+/** The desk's logic as expression functions */
 export const DESK_FUNCTIONS = {
     deskAct,
     deskWallpaper,
@@ -677,3 +678,29 @@ export const DESK_FUNCTIONS = {
     notesSaved,
     viewerLoad
 } as const;
+
+/** Each desk function's GUID and summary */
+const DESK_ENTRIES: Record<keyof typeof DESK_FUNCTIONS, [string, string]> = {
+    deskAct: ['4b88f55e-4c52-43ce-9ccd-3c8e68050cef', 'The desk after a window command: open, close, minimize, snap, focus, place'],
+    deskWallpaper: ['54cf12bf-3dd4-404c-af55-cda072b6cd0c', 'The paints of a wallpaper drawing'],
+    fsAct: ['a876296d-bbae-4528-906a-a26ed41a2c64', 'The file system after a command: new folder, rename, delete, up'],
+    fsEnter: ['f8e02a83-74a9-4799-a88d-fc99a8e56672', 'Opens an item from the listing: a folder becomes the open folder'],
+    fsView: ['69e5da2a-b1a6-4fbe-a666-20aae508edb5', 'Fills in the listing, the tree and the path'],
+    fsListing: ['6df4d29d-7ddd-4aaf-9321-bfa9c302b59d', 'The items of a folder, folders first, then by name'],
+    fsPath: ['f1987659-0d2a-474c-b547-fb1e3e94c13b', 'The path of a folder, as "Home / Documents"'],
+    fsOpenCommand: ['3fe5e351-5c4a-4a9b-93db-56c2de08219e', 'The window command that shows an item'],
+    fsSaveNote: ['c9ae7277-0578-49aa-8150-1e7600cf6c48', 'Saves the note editor as a note'],
+    fsSavePicture: ['91d91b4b-f77c-4b4f-a46b-0f78520aa28c', 'Saves the Paint picture into Pictures'],
+    fsUpload: ['541bc2e2-b46a-4fc3-98ef-164dc8c689e3', 'Adds uploaded files to the open folder'],
+    notesLoad: ['322c56f7-b1c1-49a4-8fed-e4d094503689', 'The note editor showing a note'],
+    notesSaved: ['45afb93c-90e8-4bf3-aa75-da59f9ecc1d1', 'The note editor after a save'],
+    viewerLoad: ['ce683d84-c64e-4a5e-aef2-5d0b52833e30', 'The Viewer showing a picture']
+};
+
+/** The desk's logic as the host's functions, each at `$.functions.host.<name>`, for `hostCatalog` */
+export const DESK_HOST_FUNCTIONS: Readonly<Record<string, HostFunction>> = Object.fromEntries(
+    Object.entries(DESK_ENTRIES).map(([name, [id, summary]]) => [
+        name,
+        { id, kind: 'expression', summary, code: DESK_FUNCTIONS[name as keyof typeof DESK_FUNCTIONS] as unknown as FunctionCode }
+    ])
+);

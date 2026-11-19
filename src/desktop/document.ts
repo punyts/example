@@ -401,30 +401,30 @@ const ridgelineRules = northwindLogic.rules as unknown as Record<string, Json>;
 
 export const DESK_LOGIC = {
     rules: {
-        desk: answer('desk', [set('$.data.desk.state', '{{ deskAct($.data.desk.state, $trigger) }}')]),
-        fs: answer('fs', [set('$.data.fs', '{{ fsAct($.data.fs, $trigger, now()) }}')]),
+        desk: answer('desk', [set('$.data.desk.state', '{{ $.functions.host.deskAct($.data.desk.state, $trigger) }}')]),
+        fs: answer('fs', [set('$.data.fs', '{{ $.functions.host.fsAct($.data.fs, $trigger, now()) }}')]),
         open: answer('open', [
-            set('$.data.notes', '{{ notesLoad($.data.notes, $.data.fs.items, $trigger) }}'),
-            set('$.data.viewer', '{{ viewerLoad($.data.viewer, $.data.fs.items, $trigger) }}'),
-            set('$.data.fs', '{{ fsEnter($.data.fs, $trigger) }}'),
-            set(input('desk'), '{{ fsOpenCommand($.data.fs.items, $trigger) }}')
+            set('$.data.notes', '{{ $.functions.host.notesLoad($.data.notes, $.data.fs.items, $trigger) }}'),
+            set('$.data.viewer', '{{ $.functions.host.viewerLoad($.data.viewer, $.data.fs.items, $trigger) }}'),
+            set('$.data.fs', '{{ $.functions.host.fsEnter($.data.fs, $trigger) }}'),
+            set(input('desk'), '{{ $.functions.host.fsOpenCommand($.data.fs.items, $trigger) }}')
         ]),
         note: answer('note', [
-            set('$.data.fs', '{{ fsSaveNote($.data.fs, $.data.notes, now(), $trigger) }}'),
-            set('$.data.notes', '{{ notesSaved($.data.fs, $.data.notes, $trigger) }}')
+            set('$.data.fs', '{{ $.functions.host.fsSaveNote($.data.fs, $.data.notes, now(), $trigger) }}'),
+            set('$.data.notes', '{{ $.functions.host.notesSaved($.data.fs, $.data.notes, $trigger) }}')
         ]),
-        picture: answer('picture', [set('$.data.fs', '{{ fsSavePicture($.data.fs, $.data.paint.picture, $.data.paint.name, now(), $trigger) }}')]),
+        picture: answer('picture', [set('$.data.fs', '{{ $.functions.host.fsSavePicture($.data.fs, $.data.paint.picture, $.data.paint.name, now(), $trigger) }}')]),
         folder: {
             when: { path: '$.data.fs.folder' },
-            do: [set('$.data.fs.listing', '{{ fsListing($.data.fs.items, $trigger) }}'), set('$.data.fs.path', '{{ fsPath($.data.fs.items, $trigger) }}')]
+            do: [set('$.data.fs.listing', '{{ $.functions.host.fsListing($.data.fs.items, $trigger) }}'), set('$.data.fs.path', '{{ $.functions.host.fsPath($.data.fs.items, $trigger) }}')]
         },
         upload: {
             when: { path: '$.data.upload' },
-            do: [set('$.data.fs', '{{ fsUpload($.data.fs, $trigger, now()) }}')]
+            do: [set('$.data.fs', '{{ $.functions.host.fsUpload($.data.fs, $trigger, now()) }}')]
         },
         wallpaper: {
             when: { path: '$.data.desk.prefs.wallpaper' },
-            do: [set('$.data.desk.paints', '{{ deskWallpaper($trigger) }}')]
+            do: [set('$.data.desk.paints', '{{ $.functions.host.deskWallpaper($trigger) }}')]
         },
         ridgelinePick: ridgelineRules['ridgelinePick'],
         ridgelineMove: ridgelineRules['ridgelineMove'],

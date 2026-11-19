@@ -5,14 +5,15 @@
  * browser test calls it for each test
  */
 import type { Store } from '@punyts/state';
-import { FileTransferError, libraryFromCatalog, mountApp, registerLocaleStep, registerMountStep } from '@punyts/stateui-app';
+import { FileTransferError, hostCatalog, libraryFromCatalog, mountApp, registerLocaleStep, registerMountStep } from '@punyts/stateui-app';
 import type { AppDocument, AppState, BuildError, ComponentLibrary, ComponentOverlays, JsonObject, LocaleStepHandle, TransferFile } from '@punyts/stateui-app';
 import catalog from '@punyts/stateui-components/catalog.json';
 import { registerAll } from '@punyts/stateui-components/components';
+import { COMPONENT_FUNCTIONS } from '@punyts/stateui-components/functions';
 import { PRODUCTS, STATUS_PROGRESS, STATUS_TONES, computeStats, generateCustomers, generateOrders, makeOrder } from './data.ts';
 import type { Customer, Order, OrderStatus } from './data.ts';
 import { createArchiveApi } from './archive.ts';
-import { RIDGELINE_FUNCTIONS } from './ridgeline.ts';
+import { RIDGELINE_HOST_FUNCTIONS } from './ridgeline.ts';
 import type { ArchiveApi } from './archive.ts';
 import { appDocument } from './document/index.ts';
 import icons from './icons.json';
@@ -513,7 +514,7 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
         }
     };
 
-    const mounted = mountApp(host, document, library, { onEmit, onError, transferFile, readFile, load3d }, { logicFunctions: { ...archive.functions, expressions: { ...archive.functions.expressions, ...RIDGELINE_FUNCTIONS } } });
+    const mounted = mountApp(host, document, library, { onEmit, onError, transferFile, readFile, load3d }, { functions: [COMPONENT_FUNCTIONS, hostCatalog({ ...archive.functions, ...RIDGELINE_HOST_FUNCTIONS })] });
     if (!mounted.store) {
         locale.unregister();
         unregisterData();
