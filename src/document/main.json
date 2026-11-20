@@ -2252,6 +2252,13 @@
                             }
                         }
                     }
+                },
+                "lumen": {
+                    "component": "embeddedApp",
+                    "app": "lumen",
+                    "width": 360,
+                    "height": 240,
+                    "_label": "Lumen, shown here when the page has an app host"
                 }
             }
         },
