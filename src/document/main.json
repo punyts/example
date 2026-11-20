@@ -2233,15 +2233,25 @@
                     }
                 },
                 "map": {
-                    "component": "treeDiagram",
-                    "key": "id",
-                    "parentField": "parentId",
-                    "labelField": "label",
-                    "columns": 2,
-                    "spacing": "sm",
-                    "<-nodes": "$.data.categories",
-                    "<-selected": "$.data.catalog.category",
-                    "_label": "Category map"
+                    "component": "viewport",
+                    "grid": true,
+                    "_label": "Category map canvas",
+                    "content": {
+                        "component": "treeDiagram",
+                        "key": "id",
+                        "parentField": "parentId",
+                        "columns": 2,
+                        "spacing": "sm",
+                        "<-nodes": "$.data.categories",
+                        "<-selected": "$.data.catalog.category",
+                        "_label": "Category map",
+                        "on": {
+                            "select": {
+                                "command": "lookAt",
+                                "target": "$parent"
+                            }
+                        }
+                    }
                 }
             }
         },
