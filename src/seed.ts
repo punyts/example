@@ -398,6 +398,8 @@ export interface Preferences {
     accentColor: string;
     /** The profile picture: at most one file reference `{ id, name, size, type }`, cropped to a square */
     photo: unknown[];
+    /** The home depot's region: a key of the region tree on the general settings form */
+    region: string;
 }
 
 export function defaultPreferences(): Preferences {
@@ -414,7 +416,8 @@ export function defaultPreferences(): Preferences {
         digestTime: '08:00',
         pauseUntil: '',
         accentColor: '',
-        photo: []
+        photo: [],
+        region: 'west-seattle'
     };
 }
 

@@ -1833,6 +1833,41 @@
                             "_label": "Delivery pages",
                             "_previous": "Previous",
                             "_next": "Next"
+                        },
+                        "depots": {
+                            "component": "map",
+                            "tiles": "/map-tiles/{z}/{x}/{y}.png",
+                            "lat": 42,
+                            "lng": -100,
+                            "zoom": 2,
+                            "maxZoom": 3,
+                            "markers": {
+                                "seattle": {
+                                    "lat": 47.61,
+                                    "lng": -122.33,
+                                    "_label": "Seattle depot"
+                                },
+                                "denver": {
+                                    "lat": 39.74,
+                                    "lng": -104.99,
+                                    "_label": "Denver depot"
+                                },
+                                "chicago": {
+                                    "lat": 41.88,
+                                    "lng": -87.63,
+                                    "_label": "Chicago depot"
+                                },
+                                "atlanta": {
+                                    "lat": 33.75,
+                                    "lng": -84.39,
+                                    "_label": "Atlanta depot"
+                                }
+                            },
+                            "_label": "Depots",
+                            "_attribution": "Sample tiles: a graticule",
+                            "placement": {
+                                "height": "240px"
+                            }
                         }
                     }
                 }
@@ -6262,6 +6297,63 @@
                                             "maxSize": 5242880,
                                             "crop": "1:1",
                                             "<-value": "$.data.prefs.photo"
+                                        },
+                                        "region": {
+                                            "component": "treeSelectField",
+                                            "_label": "Home depot",
+                                            "_help": "Orders ship from this depot by default",
+                                            "options": [
+                                                {
+                                                    "id": "west",
+                                                    "label": "West"
+                                                },
+                                                {
+                                                    "id": "west-seattle",
+                                                    "label": "Seattle",
+                                                    "parentId": "west"
+                                                },
+                                                {
+                                                    "id": "west-portland",
+                                                    "label": "Portland",
+                                                    "parentId": "west"
+                                                },
+                                                {
+                                                    "id": "west-oakland",
+                                                    "label": "Oakland",
+                                                    "parentId": "west"
+                                                },
+                                                {
+                                                    "id": "central",
+                                                    "label": "Central"
+                                                },
+                                                {
+                                                    "id": "central-denver",
+                                                    "label": "Denver",
+                                                    "parentId": "central"
+                                                },
+                                                {
+                                                    "id": "central-chicago",
+                                                    "label": "Chicago",
+                                                    "parentId": "central"
+                                                },
+                                                {
+                                                    "id": "east",
+                                                    "label": "East"
+                                                },
+                                                {
+                                                    "id": "east-boston",
+                                                    "label": "Boston",
+                                                    "parentId": "east"
+                                                },
+                                                {
+                                                    "id": "east-atlanta",
+                                                    "label": "Atlanta",
+                                                    "parentId": "east"
+                                                }
+                                            ],
+                                            "showPath": true,
+                                            "leafOnly": true,
+                                            "<-value": "$.data.prefs.region"
                                         }
                                     },
                                     "actions": {

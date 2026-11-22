@@ -758,6 +758,24 @@
                             "_label": "Lieferseiten",
                             "_previous": "Zurück",
                             "_next": "Weiter"
+                        },
+                        "depots": {
+                            "_label": "Lager",
+                            "_attribution": "Beispielkacheln: ein Gradnetz",
+                            "markers": {
+                                "seattle": {
+                                    "_label": "Lager Seattle"
+                                },
+                                "denver": {
+                                    "_label": "Lager Denver"
+                                },
+                                "chicago": {
+                                    "_label": "Lager Chicago"
+                                },
+                                "atlanta": {
+                                    "_label": "Lager Atlanta"
+                                }
+                            }
                         }
                     }
                 }
@@ -1564,6 +1582,12 @@
                                             "_label": "Profilbild",
                                             "_help": "Wird vor dem Speichern quadratisch zugeschnitten",
                                             "_choose": "Bild wählen"
+                                        },
+                                        "region": {
+                                            "_label": "Heimatlager",
+                                            "_help": "Bestellungen werden standardmäßig von diesem Lager versandt",
+                                            "_placeholder": "Auswählen",
+                                            "_empty": "Keine Optionen"
                                         }
                                     },
                                     "actions": {
