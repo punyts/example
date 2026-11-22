@@ -18,7 +18,7 @@ import type { ArchiveApi } from './archive.ts';
 import { appDocument } from './document/index.ts';
 import icons from './icons.json';
 import { bindSections, showSection } from './sections.ts';
-import { CATEGORIES, CUSTOMER_REPLY, STEPS, completedSteps, emptyProductDraft, orderTimeline, ordersByStatus, recentOrders, revenueByMonth, seedData, topCustomers } from './seed.ts';
+import { ASSISTANT_STEPS, CATEGORIES, CUSTOMER_REPLY, STEPS, completedSteps, emptyProductDraft, orderTimeline, ordersByStatus, recentOrders, revenueByMonth, seedData, topCustomers } from './seed.ts';
 import type { Category, Delivery, Message, Product } from './seed.ts';
 import { categoryTrail, filterDeliveries, pageOf, productsInCategory } from './views.ts';
 import { load3d, readFile } from './warehouse.ts';
@@ -314,17 +314,48 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
         const live = store as Store<AppState>;
         const at = live.get<Message[]>('$.data.chat.messages').length;
         live.set(`$.data.chat.messages.${at}`, { id: `r${++chatCount}`, author: 'Ada Andersen', text: '', time: 'Now', streaming: true });
+        live.set('$.data.chat.streaming', true);
+        chatStopped = false;
         const pieces = CUSTOMER_REPLY.split(/(?<=\s)/);
         const step = Math.ceil(pieces.length / 6);
         const interval = Math.max(10, Math.round(fakeDelay / 3));
         let shown = 0;
         const next = (): void => {
-            shown = Math.min(pieces.length, shown + step);
+            shown = chatStopped ? shown : Math.min(pieces.length, shown + step);
             live.set(`$.data.chat.messages.${at}.text`, pieces.slice(0, shown).join(''));
-            if (shown >= pieces.length) live.set(`$.data.chat.messages.${at}.streaming`, false);
-            else later(next, interval);
+            if (chatStopped || shown >= pieces.length) {
+                live.set(`$.data.chat.messages.${at}.streaming`, false);
+                live.set('$.data.chat.streaming', false);
+            } else later(next, interval);
         };
         later(next, interval);
+    };
+    let chatStopped = false;
+
+    // The assistant card: a question resets the steps and runs them one by one, then proposes the refund again
+    let assistantRun = 0;
+    const runAssistant = (): void => {
+        const live = store as Store<AppState>;
+        const run = ++assistantRun;
+        const interval = Math.max(10, Math.round(fakeDelay / 2));
+        live.set('$.data.assistant.busy', true);
+        live.set('$.data.assistant.refund', 'pending');
+        for (const step of ASSISTANT_STEPS) live.set(`$.data.assistant.steps.${step.key}.status`, 'pending');
+        let index = 0;
+        const next = (): void => {
+            if (run !== assistantRun) return;
+            const previous = ASSISTANT_STEPS[index - 1];
+            if (previous) live.set(`$.data.assistant.steps.${previous.key}.status`, 'done');
+            const step = ASSISTANT_STEPS[index];
+            if (!step) {
+                live.set('$.data.assistant.busy', false);
+                return;
+            }
+            live.set(`$.data.assistant.steps.${step.key}.status`, 'running');
+            index += 1;
+            later(next, interval);
+        };
+        next();
     };
 
     // The simulated file host: nothing leaves the browser tab; the reference is a local id
@@ -442,12 +473,26 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
                 store.set('$.data.catalog.category', payload === 'catalog' ? '' : String(payload));
                 break;
             case 'chat.send': {
-                const text = typeof payload === 'string' ? payload.trim() : '';
+                const sent = payload as { text?: unknown } | null;
+                const text = typeof sent?.text === 'string' ? sent.text.trim() : '';
                 if (text === '') break;
                 store.set(`$.data.chat.messages.${store.get<Message[]>('$.data.chat.messages').length}`, { id: `u${++chatCount}`, author: 'Dana (Northwind)', text, time: 'Now' });
                 streamReply();
                 break;
             }
+            case 'chat.stop':
+                chatStopped = true;
+                break;
+            case 'assistant.ask':
+                runAssistant();
+                break;
+            case 'assistant.stop':
+                assistantRun += 1;
+                store.set('$.data.assistant.busy', false);
+                break;
+            case 'assistant.refund':
+                toast('refundApproved');
+                break;
             case 'support.topic':
                 // The chip list raises the key of the chip to remove; the data is the app's to change
                 if (typeof payload === 'string' && payload !== '') store.delete(`$.data.support.topics.${payload}`);

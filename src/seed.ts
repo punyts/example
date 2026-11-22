@@ -262,6 +262,27 @@ export function generateHistory(): Message[] {
     ];
 }
 
+/** The steps the assistant takes when asked, in order; bootstrap.ts runs them one by one */
+export const ASSISTANT_STEPS: readonly { key: string; label: string; detail: string }[] = [
+    { key: 'order', label: 'Find the order', detail: 'NW-10248, shipped on Monday' },
+    { key: 'carrier', label: 'Check the carrier report', detail: 'The box was reported damaged at the depot' },
+    { key: 'policy', label: 'Read the refund policy', detail: 'Damaged goods are refunded in full' },
+    { key: 'propose', label: 'Propose a refund', detail: '$24.00 to the card on file' }
+];
+
+/** The assistant card: its steps (all done at first), the sources it cites, the refund it proposes and whether it runs */
+export function assistantSeed(): { steps: Record<string, { _label: string; status: string; _detail: string }>; sources: Record<string, { _title: string; url: string; _excerpt: string }>; refund: string; busy: boolean } {
+    return {
+        steps: Object.fromEntries(ASSISTANT_STEPS.map((step) => [step.key, { _label: step.label, status: 'done', _detail: step.detail }])),
+        sources: {
+            policy: { _title: 'Refunds and returns', url: 'https://northwind.example/help/refunds', _excerpt: 'Items that arrive damaged are refunded in full within five days.' },
+            carrier: { _title: 'Carrier incident report', url: 'https://northwind.example/carriers/incidents', _excerpt: 'One parcel to Berlin was reported damaged at the depot.' }
+        },
+        refund: 'pending',
+        busy: false
+    };
+}
+
 /** The live conversation that `chatView` shows; replies the support agent types are appended by bootstrap.ts */
 export function generateChat(): Message[] {
     return [
@@ -380,7 +401,8 @@ export function seedData(orders: readonly Order[], customers: Readonly<Record<st
         deliveries: { all: deliveries, shown: deliveries, rows: deliveries.slice(0, 6), range: { start: '', end: '' }, page: 1, pageSize: 6, total: deliveries.length, dayText: '' },
         support: { history: generateHistory(), macros: generateMacros(), macro: (generateMacros()[0] as Macro).body, note: '', reason: '', details: '', topics: supportTopics(), followUp: false, rating: 0 },
         team: accountTeam(),
-        chat: { messages: generateChat() },
+        chat: { messages: generateChat(), streaming: false },
+        assistant: assistantSeed(),
         charts: { byMonth: revenueByMonth(orders), byStatus: ordersByStatus(orders) },
         recent: recentOrders(orders),
         topCustomers: topCustomers(orders, customers),

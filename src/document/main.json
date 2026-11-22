@@ -5348,19 +5348,83 @@
                                     "<-records": "$.data.chat.messages"
                                 },
                                 "composer": {
-                                    "children": {
-                                        "input": {
-                                            "_label": "Message",
-                                            "_placeholder": "Write a reply"
+                                    "_placeholder": "Write a reply",
+                                    "<-streaming": "$.data.chat.streaming",
+                                    "suggestions": {
+                                        "photo": {
+                                            "_label": "Ask for a photo",
+                                            "_prompt": "Could you send a photo of the damaged box?"
                                         },
-                                        "send": {
-                                            "_title": "Send"
+                                        "refund": {
+                                            "_label": "Offer a refund",
+                                            "_prompt": "I can refund the damaged items today."
                                         }
                                     }
                                 }
                             },
                             "placement": {
                                 "height": "420px"
+                            }
+                        }
+                    }
+                },
+                "assistant": {
+                    "component": "card",
+                    "_title": "Assistant",
+                    "_subtitle": "Ask the assistant to look into the order",
+                    "layout": {
+                        "type": "column",
+                        "gap": "sm"
+                    },
+                    "children": {
+                        "steps": {
+                            "component": "steps",
+                            "_title": "Looking into the order",
+                            "<-items": "$.data.assistant.steps",
+                            "open": true
+                        },
+                        "sources": {
+                            "component": "sources",
+                            "<-items": "$.data.assistant.sources"
+                        },
+                        "refund": {
+                            "component": "actionConfirm",
+                            "_title": "Refund the damaged items?",
+                            "_description": "The assistant proposes a refund to the customer's card.",
+                            "tone": "danger",
+                            "<-status": "$.data.assistant.refund",
+                            "details": {
+                                "order": {
+                                    "_label": "Order",
+                                    "_value": "NW-10248"
+                                },
+                                "amount": {
+                                    "_label": "Amount",
+                                    "_value": "$24.00"
+                                }
+                            },
+                            "on": {
+                                "approve": {
+                                    "command": "emit",
+                                    "target": "assistant.refund"
+                                }
+                            }
+                        },
+                        "ask": {
+                            "component": "composer",
+                            "_label": "Ask the assistant",
+                            "_placeholder": "Ask the assistant",
+                            "attach": false,
+                            "<-streaming": "$.data.assistant.busy",
+                            "on": {
+                                "send": {
+                                    "command": "emit",
+                                    "target": "assistant.ask"
+                                },
+                                "stop": {
+                                    "command": "emit",
+                                    "target": "assistant.stop"
+                                }
                             }
                         }
                     }

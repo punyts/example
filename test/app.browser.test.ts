@@ -550,9 +550,9 @@ describe('Northwind Ops new sections', () => {
     it('should stream the customer reply into one chat message after the agent sends one', async () => {
         // Arrange
         await showSection('support');
-        const input = `${PATHS.chat}.children.composer.children.input`;
+        const input = `${PATHS.chat}.children.composer`;
         const before = app.store.get<Message[]>('$.data.chat.messages').length;
-        typeInto(input, 'Please send the photo');
+        app.store.set(`${input}.value`, 'Please send the photo');
         await frame();
 
         // Act
@@ -565,6 +565,27 @@ describe('Northwind Ops new sections', () => {
         expect(messages[before]?.text).toBe('Please send the photo');
         expect(messages[before + 1]?.author).toBe('Ada Andersen');
         expect(messages[before + 1]?.text).toContain('support@northwind.example');
+        expect(app.store.get('$.data.chat.streaming')).toBe(false);
+        expect(runErrors()).toEqual([]);
+    });
+
+    it('should run the assistant\'s steps when it is asked and record an approved refund', async () => {
+        // Arrange
+        await showSection('support');
+        const card = '$.screens.main.children.support.children.assistant.children';
+        app.store.set(`${card}.ask.value`, 'What happened to order NW-10248?');
+        await frame();
+
+        // Act
+        app.command(`${card}.ask`, 'send');
+        await until(() => app.store.get('$.data.assistant.busy') === true);
+        await until(() => app.store.get('$.data.assistant.busy') === false);
+        elementAt(`${card}.refund`).shadowRoot?.querySelector<HTMLElement>('.approve')?.click();
+        await frame();
+
+        // Assert
+        expect(['order', 'carrier', 'policy', 'propose'].map((key) => app.store.get(`$.data.assistant.steps.${key}.status`))).toEqual(['done', 'done', 'done', 'done']);
+        expect(app.store.get('$.data.assistant.refund')).toBe('approved');
         expect(runErrors()).toEqual([]);
     });
 

@@ -67,6 +67,11 @@
                 "_title": "Product saved",
                 "_text": "The catalogue is up to date."
             },
+            "refundApproved": {
+                "tone": "success",
+                "_title": "Refund approved",
+                "_text": "The customer gets $24.00 back on their card."
+            },
             "productDeleted": {
                 "tone": "warning",
                 "_title": "Product deleted",

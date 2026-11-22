@@ -50,6 +50,10 @@
                 "_title": "Produkt gespeichert",
                 "_text": "Der Katalog ist aktuell."
             },
+            "refundApproved": {
+                "_title": "Erstattung genehmigt",
+                "_text": "Der Kunde erhält 24,00 $ auf seine Karte zurück."
+            },
             "productDeleted": {
                 "_title": "Produkt gelöscht",
                 "_text": "Es ist nicht mehr im Katalog."

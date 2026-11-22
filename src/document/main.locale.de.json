@@ -1221,18 +1221,30 @@
                         "view": {
                             "children": {
                                 "composer": {
-                                    "children": {
-                                        "input": {
-                                            "_label": "Nachricht",
-                                            "_placeholder": "Antwort schreiben"
-                                        },
-                                        "send": {
-                                            "_title": "Senden"
-                                        }
+                                    "_placeholder": "Antwort schreiben",
+                                    "suggestions": {
+                                        "photo": { "_label": "Um ein Foto bitten", "_prompt": "Könnten Sie ein Foto des beschädigten Kartons senden?" },
+                                        "refund": { "_label": "Erstattung anbieten", "_prompt": "Ich kann die beschädigten Artikel heute erstatten." }
                                     }
                                 }
                             }
                         }
+                    }
+                },
+                "assistant": {
+                    "_title": "Assistent",
+                    "_subtitle": "Lassen Sie den Assistenten die Bestellung prüfen",
+                    "children": {
+                        "steps": { "_title": "Bestellung wird geprüft" },
+                        "refund": {
+                            "_title": "Beschädigte Artikel erstatten?",
+                            "_description": "Der Assistent schlägt eine Erstattung auf die Karte des Kunden vor.",
+                            "details": {
+                                "order": { "_label": "Bestellung" },
+                                "amount": { "_label": "Betrag" }
+                            }
+                        },
+                        "ask": { "_label": "Den Assistenten fragen", "_placeholder": "Den Assistenten fragen" }
                     }
                 },
                 "history": {
