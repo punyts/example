@@ -6403,6 +6403,48 @@
                                             "dismissible": false,
                                             "_title": "Order shipped",
                                             "_text": "Order #4 left the warehouse."
+                                        },
+                                        "sender": {
+                                            "component": "toolbar",
+                                            "align": "between",
+                                            "children": {
+                                                "name": {
+                                                    "component": "editableText",
+                                                    "_label": "Sender name",
+                                                    "required": true,
+                                                    "value": "Northwind Ops"
+                                                },
+                                                "help": {
+                                                    "component": "infoTip",
+                                                    "_label": "About the sender",
+                                                    "_text": "The name customers see on every notification."
+                                                }
+                                            }
+                                        },
+                                        "send": {
+                                            "component": "buttonGroup",
+                                            "split": true,
+                                            "_label": "Send a test",
+                                            "actions": {
+                                                "email": { "_label": "Send a test email" },
+                                                "sms": { "_label": "Send a test text" },
+                                                "both": { "_label": "Send both" }
+                                            },
+                                            "on": { "action": { "command": "show", "target": "$.app.toasts", "value": "testSent" } }
+                                        },
+                                        "tourStart": {
+                                            "component": "button",
+                                            "variant": "ghost",
+                                            "_title": "Show me around",
+                                            "on": { "press": { "command": "start", "target": "$.screens.main.children.settings.children.sections.children.notifications.children.preview.children.tour" } }
+                                        },
+                                        "tour": {
+                                            "component": "tour",
+                                            "steps": {
+                                                "pause": { "target": "$.screens.main.children.settings.children.sections.children.notifications.children.digest.children.pause", "_title": "Pause for a while", "_text": "Pick a time and notifications stop until then." },
+                                                "sender": { "target": "$.screens.main.children.settings.children.sections.children.notifications.children.preview.children.sender", "_title": "Name the sender", "_text": "Press the name to change it." },
+                                                "send": { "target": "$.screens.main.children.settings.children.sections.children.notifications.children.preview.children.send", "side": "top", "_title": "Try it", "_text": "Send yourself a test notification." }
+                                            }
                                         }
                                     }
                                 }

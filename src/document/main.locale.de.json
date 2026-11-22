@@ -1644,6 +1644,28 @@
                                         "sample": {
                                             "_title": "Bestellung versandt",
                                             "_text": "Bestellung #4 hat das Lager verlassen."
+                                        },
+                                        "sender": {
+                                            "children": {
+                                                "name": { "_label": "Absendername" },
+                                                "help": { "_label": "Zum Absender", "_text": "Der Name, den Kunden bei jeder Benachrichtigung sehen." }
+                                            }
+                                        },
+                                        "send": {
+                                            "_label": "Test senden",
+                                            "actions": {
+                                                "email": { "_label": "Test-E-Mail senden" },
+                                                "sms": { "_label": "Test-SMS senden" },
+                                                "both": { "_label": "Beides senden" }
+                                            }
+                                        },
+                                        "tourStart": { "_title": "Rundgang starten" },
+                                        "tour": {
+                                            "steps": {
+                                                "pause": { "_title": "Eine Pause einlegen", "_text": "Wählen Sie eine Zeit, bis dahin ruhen die Benachrichtigungen." },
+                                                "sender": { "_title": "Den Absender benennen", "_text": "Drücken Sie auf den Namen, um ihn zu ändern." },
+                                                "send": { "_title": "Ausprobieren", "_text": "Senden Sie sich eine Testbenachrichtigung." }
+                                            }
                                         }
                                     }
                                 }

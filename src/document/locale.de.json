@@ -22,6 +22,10 @@
                 "_title": "So funktioniert es",
                 "_text": "Schaltflächen schreiben in den Store; Komponenten folgen den Daten."
             },
+            "testSent": {
+                "_title": "Test gesendet",
+                "_text": "Nicht wirklich: Dies ist eine Demo."
+            },
             "signedOut": {
                 "_title": "Abgemeldet",
                 "_text": "Nicht wirklich: Dies ist eine Demo."

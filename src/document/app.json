@@ -32,6 +32,11 @@
                 "_title": "How it works",
                 "_text": "Buttons write to the store; components follow the data."
             },
+            "testSent": {
+                "tone": "success",
+                "_title": "Test sent",
+                "_text": "Not really: this is a demo."
+            },
             "signedOut": {
                 "tone": "neutral",
                 "_title": "Signed out",
