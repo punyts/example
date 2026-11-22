@@ -5394,6 +5394,71 @@
                         "gap": "sm"
                     },
                     "children": {
+                        "profile": {
+                            "component": "richText",
+                            "headingOffset": 3,
+                            "value": {
+                                "blocks": {
+                                    "bAbout": {
+                                        "order": "V",
+                                        "type": "heading",
+                                        "level": 1,
+                                        "runs": [
+                                            {
+                                                "text": "Customer profile"
+                                            }
+                                        ]
+                                    },
+                                    "bPlan": {
+                                        "order": "Z",
+                                        "type": "paragraph",
+                                        "runs": [
+                                            {
+                                                "text": "On the "
+                                            },
+                                            {
+                                                "text": "Business",
+                                                "marks": [
+                                                    "bold"
+                                                ]
+                                            },
+                                            {
+                                                "text": " plan since 2023. Prefers email; see the "
+                                            },
+                                            {
+                                                "text": "account page",
+                                                "link": "#customers"
+                                            },
+                                            {
+                                                "text": "."
+                                            }
+                                        ]
+                                    },
+                                    "bCheckA": {
+                                        "order": "d",
+                                        "type": "check",
+                                        "indent": 0,
+                                        "checked": true,
+                                        "runs": [
+                                            {
+                                                "text": "Invoice address confirmed"
+                                            }
+                                        ]
+                                    },
+                                    "bCheckB": {
+                                        "order": "h",
+                                        "type": "check",
+                                        "indent": 0,
+                                        "checked": false,
+                                        "runs": [
+                                            {
+                                                "text": "Renewal call booked"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        },
                         "topics": {
                             "component": "chipList",
                             "size": "sm",
