@@ -548,6 +548,65 @@
                                 }
                             }
                         },
+                        "load": {
+                            "component": "card",
+                            "_title": "Warehouse load",
+                            "layout": {
+                                "type": "column",
+                                "gap": "sm"
+                            },
+                            "children": {
+                                "meter": {
+                                    "component": "meter",
+                                    "_label": "Open orders",
+                                    "format": "percent",
+                                    "fractionDigits": 0,
+                                    "max": 1,
+                                    "low": 0.3,
+                                    "high": 0.6,
+                                    "optimum": 0,
+                                    "<-value": "$.data.charts.openRatio"
+                                },
+                                "trend": {
+                                    "component": "sparkline",
+                                    "type": "area",
+                                    "_label": "Orders per month",
+                                    "<-values": "$.data.charts.monthlyOrders"
+                                }
+                            }
+                        },
+                        "weekdayChart": {
+                            "component": "card",
+                            "_title": "Orders by weekday",
+                            "layout": {
+                                "type": "column",
+                                "gap": "sm"
+                            },
+                            "children": {
+                                "chart": {
+                                    "component": "chart",
+                                    "type": "heatmap",
+                                    "x": "label",
+                                    "legend": "none",
+                                    "<-records": "$.data.charts.byWeekday",
+                                    "_title": "Orders by weekday and channel",
+                                    "series": {
+                                        "web": {
+                                            "field": "web",
+                                            "_label": "Web"
+                                        },
+                                        "phone": {
+                                            "field": "phone",
+                                            "_label": "Phone"
+                                        },
+                                        "marketplace": {
+                                            "field": "marketplace",
+                                            "_label": "Marketplace"
+                                        }
+                                    }
+                                }
+                            }
+                        },
                         "recent": {
                             "component": "card",
                             "_title": "Latest orders",

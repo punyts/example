@@ -18,7 +18,7 @@ import type { ArchiveApi } from './archive.ts';
 import { appDocument } from './document/index.ts';
 import icons from './icons.json';
 import { bindSections, showSection } from './sections.ts';
-import { ASSISTANT_STEPS, CATEGORIES, CUSTOMER_REPLY, STEPS, completedSteps, emptyProductDraft, orderTimeline, ordersByStatus, recentOrders, revenueByMonth, seedData, topCustomers } from './seed.ts';
+import { ASSISTANT_STEPS, CATEGORIES, CUSTOMER_REPLY, STEPS, completedSteps, emptyProductDraft, openRatio, orderTimeline, ordersByStatus, ordersByWeekday, recentOrders, revenueByMonth, seedData, topCustomers } from './seed.ts';
 import type { Category, Delivery, Message, Product } from './seed.ts';
 import { categoryTrail, filterDeliveries, pageOf, productsInCategory } from './views.ts';
 import { load3d, readFile } from './warehouse.ts';
@@ -187,6 +187,9 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
             const list = orderList();
             store.set('$.data.charts.byMonth', revenueByMonth(list));
             store.set('$.data.charts.byStatus', ordersByStatus(list));
+            store.set('$.data.charts.byWeekday', ordersByWeekday(list));
+            store.set('$.data.charts.monthlyOrders', revenueByMonth(list).map((point) => point.orders));
+            store.set('$.data.charts.openRatio', openRatio(list));
             store.set('$.data.recent', recentOrders(list));
             store.set('$.data.topCustomers', topCustomers(list, customers));
         });

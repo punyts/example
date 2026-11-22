@@ -183,6 +183,32 @@ export function ordersByStatus(orders: readonly Order[]): StatusPoint[] {
     return (Object.keys(STATUS_LABELS) as OrderStatus[]).map((status) => ({ id: status, label: STATUS_LABELS[status], count: counts.get(status) ?? 0 }));
 }
 
+const WEEKDAYS: readonly { id: string; label: string }[] = [
+    { id: 'mon', label: 'Mon' },
+    { id: 'tue', label: 'Tue' },
+    { id: 'wed', label: 'Wed' },
+    { id: 'thu', label: 'Thu' },
+    { id: 'fri', label: 'Fri' },
+    { id: 'sat', label: 'Sat' },
+    { id: 'sun', label: 'Sun' }
+];
+
+/** Order count per weekday and channel, a record per weekday from Monday, for the heatmap */
+export function ordersByWeekday(orders: readonly Order[]): { id: string; label: string; web: number; phone: number; marketplace: number }[] {
+    const rows = WEEKDAYS.map((day) => ({ ...day, web: 0, phone: 0, marketplace: 0 }));
+    for (const order of orders) {
+        const row = rows[(new Date(`${order.created.slice(0, 10)}T00:00:00Z`).getUTCDay() + 6) % 7];
+        if (row && (order.channel === 'web' || order.channel === 'phone' || order.channel === 'marketplace')) row[order.channel]++;
+    }
+    return rows;
+}
+
+/** The share of orders still open (pending, paid or packed) as a share from 0 to 1, the warehouse load the meter shows */
+export function openRatio(orders: readonly Order[]): number {
+    const open = orders.filter((order) => order.status === 'pending' || order.status === 'paid' || order.status === 'packed').length;
+    return orders.length === 0 ? 0 : Math.round((open / orders.length) * 100) / 100;
+}
+
 /** The latest `count` orders as one-line records for the dashboard list */
 export function recentOrders(orders: readonly Order[], count = 6): RecentOrder[] {
     return orders
@@ -403,7 +429,13 @@ export function seedData(orders: readonly Order[], customers: Readonly<Record<st
         team: accountTeam(),
         chat: { messages: generateChat(), streaming: false },
         assistant: assistantSeed(),
-        charts: { byMonth: revenueByMonth(orders), byStatus: ordersByStatus(orders) },
+        charts: {
+            byMonth: revenueByMonth(orders),
+            byStatus: ordersByStatus(orders),
+            byWeekday: ordersByWeekday(orders),
+            monthlyOrders: revenueByMonth(orders).map((point) => point.orders),
+            openRatio: openRatio(orders)
+        },
         recent: recentOrders(orders),
         topCustomers: topCustomers(orders, customers),
         prefs: defaultPreferences(),

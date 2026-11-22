@@ -297,6 +297,36 @@
                                     }
                                 }
                             }
+                        },
+                        "load": {
+                            "_title": "Lagerauslastung",
+                            "children": {
+                                "meter": {
+                                    "_label": "Offene Bestellungen"
+                                },
+                                "trend": {
+                                    "_label": "Bestellungen pro Monat"
+                                }
+                            }
+                        },
+                        "weekdayChart": {
+                            "_title": "Bestellungen nach Wochentag",
+                            "children": {
+                                "chart": {
+                                    "_title": "Bestellungen nach Wochentag und Kanal",
+                                    "series": {
+                                        "web": {
+                                            "_label": "Web"
+                                        },
+                                        "phone": {
+                                            "_label": "Telefon"
+                                        },
+                                        "marketplace": {
+                                            "_label": "Marktplatz"
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -1223,8 +1253,14 @@
                                 "composer": {
                                     "_placeholder": "Antwort schreiben",
                                     "suggestions": {
-                                        "photo": { "_label": "Um ein Foto bitten", "_prompt": "Könnten Sie ein Foto des beschädigten Kartons senden?" },
-                                        "refund": { "_label": "Erstattung anbieten", "_prompt": "Ich kann die beschädigten Artikel heute erstatten." }
+                                        "photo": {
+                                            "_label": "Um ein Foto bitten",
+                                            "_prompt": "Könnten Sie ein Foto des beschädigten Kartons senden?"
+                                        },
+                                        "refund": {
+                                            "_label": "Erstattung anbieten",
+                                            "_prompt": "Ich kann die beschädigten Artikel heute erstatten."
+                                        }
                                     }
                                 }
                             }
@@ -1235,16 +1271,25 @@
                     "_title": "Assistent",
                     "_subtitle": "Lassen Sie den Assistenten die Bestellung prüfen",
                     "children": {
-                        "steps": { "_title": "Bestellung wird geprüft" },
+                        "steps": {
+                            "_title": "Bestellung wird geprüft"
+                        },
                         "refund": {
                             "_title": "Beschädigte Artikel erstatten?",
                             "_description": "Der Assistent schlägt eine Erstattung auf die Karte des Kunden vor.",
                             "details": {
-                                "order": { "_label": "Bestellung" },
-                                "amount": { "_label": "Betrag" }
+                                "order": {
+                                    "_label": "Bestellung"
+                                },
+                                "amount": {
+                                    "_label": "Betrag"
+                                }
                             }
                         },
-                        "ask": { "_label": "Den Assistenten fragen", "_placeholder": "Den Assistenten fragen" }
+                        "ask": {
+                            "_label": "Den Assistenten fragen",
+                            "_placeholder": "Den Assistenten fragen"
+                        }
                     }
                 },
                 "history": {
