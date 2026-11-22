@@ -2059,12 +2059,14 @@
                             },
                             "striped": true,
                             "key": "id",
+                            "groupBy": "lifecycle",
                             "<-items": "$.data.products.all",
                             "columns": {
                                 "name": {
                                     "_title": "Product",
                                     "field": "name",
                                     "width": "2fr",
+                                    "filter": "text",
                                     "edit": "text",
                                     "required": true,
                                     "maxLength": 60
@@ -2085,6 +2087,7 @@
                                     "_title": "Lifecycle",
                                     "field": "lifecycle",
                                     "width": "160px",
+                                    "filter": "select",
                                     "edit": "select",
                                     "required": true,
                                     "options": {
