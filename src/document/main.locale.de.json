@@ -652,6 +652,22 @@
                         "_alt": "Logo von Northwind Ops"
                     },
                     "children": {
+                        "photos": {
+                            "_title": "Lagerfotos ansehen"
+                        },
+                        "gallery": {
+                            "_label": "Lagerfotos",
+                            "images": {
+                                "dock": {
+                                    "_alt": "Die Laderampe im Morgengrauen",
+                                    "_caption": "Rampe 3, von der die Expressbestellungen abgehen"
+                                },
+                                "aisle": {
+                                    "_alt": "Ein langer Gang mit Regalen",
+                                    "_caption": "Gang C, Trockenwaren"
+                                }
+                            }
+                        },
                         "text": {
                             "_text": "Jede Kundenzeile ist ein Vorlagenknoten; $row-Links verbinden jeden wiederverwendeten Platz mit seinem Datensatz."
                         },
@@ -1461,6 +1477,15 @@
                         }
                     }
                 },
+                "video": {
+                    "_title": "Beispielclip",
+                    "_subtitle": "mediaPlayer spielt Video von einer https-Adresse mit eigenen Bedienelementen",
+                    "children": {
+                        "clip": {
+                            "_label": "Eine Blüte öffnet sich"
+                        }
+                    }
+                },
                 "contactDialog": {
                     "_title": "Support kontaktieren",
                     "body": {
@@ -1534,6 +1559,11 @@
                                         },
                                         "email": {
                                             "_label": "E-Mail-Adresse"
+                                        },
+                                        "photo": {
+                                            "_label": "Profilbild",
+                                            "_help": "Wird vor dem Speichern quadratisch zugeschnitten",
+                                            "_choose": "Bild wählen"
                                         }
                                     },
                                     "actions": {
@@ -1546,6 +1576,15 @@
                                     "children": {
                                         "language": {
                                             "_label": "Sprache"
+                                        }
+                                    }
+                                },
+                                "phone": {
+                                    "_title": "Auf dem Telefon öffnen",
+                                    "_subtitle": "Scannen Sie den Code, um Northwind Ops auf einem Telefon zu öffnen",
+                                    "children": {
+                                        "code": {
+                                            "_label": "Code, der Northwind Ops öffnet"
                                         }
                                     }
                                 },

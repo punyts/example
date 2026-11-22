@@ -1903,6 +1903,34 @@
                         "gap": "sm"
                     },
                     "children": {
+                        "photos": {
+                            "component": "button",
+                            "variant": "soft",
+                            "icon": "maximize",
+                            "_title": "View the warehouse photos",
+                            "on": {
+                                "press": {
+                                    "command": "open",
+                                    "target": "$.screens.main.children.customers.children.about.children.gallery"
+                                }
+                            }
+                        },
+                        "gallery": {
+                            "component": "lightbox",
+                            "_label": "Warehouse photos",
+                            "images": {
+                                "dock": {
+                                    "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAC0CAIAAABqhmJGAAAELUlEQVR42u3TV3LVdRyH4e8OCCcnyclJ2JI0KRJAEBCC1EBEsaOIHVTsvWJHEcGOvaJYsFy6BhfguIX/xe/mM/PMPDt4561Fl/wNhKpFl/wFhDIwRA+8+E8glIEhe+A/gFC1aPFFIFRNL7kIhKrpJb8DoQwM2QP/BoSq6SW/AqFqeumvQKiaXvoLEMrAkD3wBSBUTS+7AISq6WU/A6FqetlPQCgDQ/LAU8vOA6Fqavl5IFRNLf8RCFVTy38AQhkYoge+9HsglIEhe+DvgFA1dem3QCgDQ/TAK74BQhkYkgcervgaCFXDFV8BoWq48isgVA1XfgmEMjBkD/wFEKqGKz8HQtVw1edAqBqu+gwIZWDIHvgcEKqGq88BoWq4+lMgVE2u/gQIZWCIHviyj4FQBobsgT8CQtXkZR8CoQwM0QOv+QAIZWDIHvh9IFRNrjkLhKrJmbNAqJqcOQOEqsHMGSBUDWbeA0LVYOY0EKoGa08DoWqw9l0glIEhe+BTQKgarDsFhKrBuneAUDVY9zYQysCQPfBJIFQN1p8EQtXE+reAUDWx/k0glIEheuDL3wBCGRiyB34dCFUTl78GhDIwRA+84VUglIEhe+BXgFA1seEEEKomNp4AQtX4xpeBUAaG7IFfAkLV+MYXgVA1fsWLQKgav+IFIJSBIXvg54FQNb7peSBUjW96DghV45ueBUIZGJIHHtv0DBCqxjY/A4Sqsc1PA6FqbPNTQCgDQ/TAW54EQhkYsgd+AghVY1seB0IZGKIHvvIxIJSBIXvgR4FQ1b/yESBU9bc+AoSq/taHgVAGhuyBHwJCVX/rcSBU9bcdB0JVf9uDQCgDQ/bADwChqj/7QCv//Psf0EWr6ao/e38rqkDngdtMV/3ZY62oAp0HbjNdjc4ea0UV6KjVdDU6e7QVVaDzwG2mq9HtR1tRBboO3Gi6Gt1+XyuqQOeB20xXo9vvbUUV6Dxwm+kMDNEDX3VPK6pA14EbTWdgyB747lZUgc4Dt5muRq+6qxVVoPPAbaYzMEQPvOPOVlSBrgM3ms7AkDxwb8cdragCHbWarno7jrSiCnQeuM101dt5pBVVoOvAjaar3s7bW1EFOg/cZjoDQ/bAh1tRBToP3Ga66u063Ioq0HXgRtNVb9dtragCnQduM131dt3aiirQeeA20xkYsgc+1Ioq0HngNtNVb/ehVlSBrgM3mq56u29pRRXoPHCb6Wrh7ptbUQU6ajWdgSF64D03AaEMDNkD3wiEqoV7bgBCGRiiB957PRDKwJA98HVAqFq49yAQqhbOHQRC1cjctUAoA0P2wNcAoWpk7gAQqkb2HQBC1ci+q4FQBobsgeeBUDWyfx4IVSP79wOhamT/PiCUgSF74DkgVC2YnwNC1YL5vUCoWjC/BwhlYIge+OrdQCgDQ/bAu4BQ/wM4qFzMNw1yKgAAAABJRU5ErkJggg==",
+                                    "_alt": "The loading dock at dawn",
+                                    "_caption": "Dock 3, where the express orders leave"
+                                },
+                                "aisle": {
+                                    "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAC0CAIAAABqhmJGAAACxklEQVR42u3TWU6UURSF0TsDKIHhKKKgYoMNNthggw2K6KMFJYqzc0C+G6bwn+QmNztZyRrB3vna0o/vQKhmAogO+BsQSsAgYEDAQDXgYyCUgEHAwJiA58dAqLY0/wqEEjAIGBgU8BEQSsCQHPDy/AgIJWDIDvgLEErAIGBAwEA14M9AKAGDgIFBAR8CoQQMAgbGBHxyCIRqyyefgFACBgEDAgaqAX8EQgkYBAwMCvgDEErAIGBAwEA14PdAKAGDgAEBA9WAD4BQAobkgGenB0CoNjt9B4QSMAgYEDBQDfgtEErAIGBgUMBvgFACBgEDAgaqAb8GQgkYBAwIGKgGvA+EEjBEB7zYB0K12eIVEErAIGBAwEA14JdAKAGDgAEBA9WAXwChBAwCBoYEfGnxHAglYBAwIGCgGvAeEErAEB3wzz0glIAhO+BnQCgBg4CBQQE/BUIJGAQMCBioBvwECCVgEDAgYKAa8GMglIBBwMCggHeBUAKG6IDPdoFQAobsgB8BoQQMAgYEDNQCXjl7CIQSMAgYGBTwAyCUgEHAgICBasD3gVACBgEDAgaqAe8AodrKrx0glIAhO+B7vfz/9xeYold0AgYBCxgEDAKuBny3F6/A5ID7RCdgELCAQcAg4GrAd3rxCkwOuE90AgYBCxgGBXy7F6/A5ID7RCdgELCAQcAg4GrA2714BSYH3Ce6tvp7uxevwES9ohMwZAd8qxevwOSA+0QnYBCwgEHAIOBqwDd78QpMDrhPdAIGAQsYBAwCrgZ8oxevwOSA+0QnYBCwgGFQwFu9eAUmB9wnOgGDgIERBAzZAW8Codrq+SYQSsAgYGBQwNeBUAIGAQODAr4GhBIwCBgQMFANeAMIJWBIDnjtfAMIJWDIDvgqEErAIGBgUMDrQKi29mcdCCVgEDAwKOArQCgBg4ABAQPVgC8DoQQMwS4AwSJfgwd1A3cAAAAASUVORK5CYII=",
+                                    "_alt": "A long aisle of shelves",
+                                    "_caption": "Aisle C, dry goods"
+                                }
+                            }
+                        },
                         "text": {
                             "component": "text",
                             "element": "p",
@@ -5949,6 +5977,18 @@
                         }
                     }
                 },
+                "video": {
+                    "component": "card",
+                    "_title": "Sample clip",
+                    "_subtitle": "mediaPlayer plays video from an https URL with its own controls",
+                    "children": {
+                        "clip": {
+                            "component": "mediaPlayer",
+                            "src": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+                            "_label": "A flower opening"
+                        }
+                    }
+                },
                 "contactDialog": {
                     "component": "modal",
                     "width": "sm",
@@ -6208,6 +6248,20 @@
                                             "_label": "Email address",
                                             "pattern": "email",
                                             "<-value": "$.data.prefs.email"
+                                        },
+                                        "photo": {
+                                            "component": "fileField",
+                                            "_label": "Profile picture",
+                                            "_help": "Cropped to a square before it is saved",
+                                            "_choose": "Choose a picture",
+                                            "accept": [
+                                                "image/png",
+                                                "image/jpeg",
+                                                "image/webp"
+                                            ],
+                                            "maxSize": 5242880,
+                                            "crop": "1:1",
+                                            "<-value": "$.data.prefs.photo"
                                         }
                                     },
                                     "actions": {
@@ -6240,6 +6294,18 @@
                                                     "_label": "Deutsch"
                                                 }
                                             }
+                                        }
+                                    }
+                                },
+                                "phone": {
+                                    "component": "card",
+                                    "_title": "Open on your phone",
+                                    "_subtitle": "Scan the code to open Northwind Ops on a phone",
+                                    "children": {
+                                        "code": {
+                                            "component": "qrCode",
+                                            "value": "https://northwind.example/ops",
+                                            "_label": "Code that opens Northwind Ops"
                                         }
                                     }
                                 },

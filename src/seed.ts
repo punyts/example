@@ -396,6 +396,8 @@ export interface Preferences {
     pauseUntil: string;
     /** A custom accent colour (`#rrggbb`) that overrides `accent` while set */
     accentColor: string;
+    /** The profile picture: at most one file reference `{ id, name, size, type }`, cropped to a square */
+    photo: unknown[];
 }
 
 export function defaultPreferences(): Preferences {
@@ -411,7 +413,8 @@ export function defaultPreferences(): Preferences {
         digest: { daily: true, weekly: false },
         digestTime: '08:00',
         pauseUntil: '',
-        accentColor: ''
+        accentColor: '',
+        photo: []
     };
 }
 
