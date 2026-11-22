@@ -5514,6 +5514,50 @@
                                 ]
                             }
                         },
+                        "handover": {
+                            "component": "richTextField",
+                            "_label": "Handover",
+                            "toolbar": "compact",
+                            "rows": 3,
+                            "maxLength": 600,
+                            "_placeholder": "Steps for the next shift",
+                            "_help": "Type - or [] and a space to start a list",
+                            "value": {
+                                "blocks": {
+                                    "bCall": {
+                                        "order": "V",
+                                        "type": "check",
+                                        "indent": 0,
+                                        "checked": true,
+                                        "runs": [
+                                            {
+                                                "text": "Call the carrier"
+                                            }
+                                        ]
+                                    },
+                                    "bRefund": {
+                                        "order": "X",
+                                        "type": "check",
+                                        "indent": 0,
+                                        "checked": false,
+                                        "runs": [
+                                            {
+                                                "text": "Offer a "
+                                            },
+                                            {
+                                                "text": "partial",
+                                                "marks": [
+                                                    "bold"
+                                                ]
+                                            },
+                                            {
+                                                "text": " refund"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        },
                         "rule": {
                             "component": "divider",
                             "_label": "Escalation"
