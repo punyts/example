@@ -261,6 +261,13 @@
                             "_title": "Wichtigste Kunden",
                             "_subtitle": "Nach Umsatz, ohne stornierte Bestellungen",
                             "children": {
+                                "bulk": {
+                                    "actions": {
+                                        "message": {
+                                            "_label": "Nachricht"
+                                        }
+                                    }
+                                },
                                 "table": {
                                     "_empty": "Noch keine Kunden",
                                     "columns": {
@@ -813,26 +820,20 @@
                                 },
                                 "lifecycle": {
                                     "_title": "Lebenszyklus",
-                                    "cell": {
-                                        "_label": "Lebenszyklus",
-                                        "options": {
-                                            "active": {
-                                                "_label": "Aktiv"
-                                            },
-                                            "seasonal": {
-                                                "_label": "Saisonal"
-                                            },
-                                            "discontinued": {
-                                                "_label": "Eingestellt"
-                                            }
+                                    "options": {
+                                        "active": {
+                                            "_label": "Aktiv"
+                                        },
+                                        "seasonal": {
+                                            "_label": "Saisonal"
+                                        },
+                                        "discontinued": {
+                                            "_label": "Eingestellt"
                                         }
                                     }
                                 },
                                 "reorder": {
-                                    "_title": "Nachbestellen",
-                                    "cell": {
-                                        "_label": "Nachbestellen"
-                                    }
+                                    "_title": "Nachbestellen"
                                 },
                                 "visible": {
                                     "_title": "Im Shop",

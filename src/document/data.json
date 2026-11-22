@@ -28,6 +28,7 @@
         "jumpTo": ""
     },
     "selectedOrder": "",
+    "pickedCustomers": [],
     "detail": {
         "id": "",
         "label": "",

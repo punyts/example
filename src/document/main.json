@@ -588,16 +588,36 @@
                                 "gap": "sm"
                             },
                             "children": {
+                                "bulk": {
+                                    "component": "actionBar",
+                                    "<-selected": "$.data.pickedCustomers",
+                                    "actions": {
+                                        "message": {
+                                            "_label": "Message",
+                                            "icon": "mail"
+                                        }
+                                    },
+                                    "on": {
+                                        "clear": {
+                                            "command": "clearSelection",
+                                            "target": "^topCustomers.children.table"
+                                        }
+                                    }
+                                },
                                 "table": {
                                     "component": "table",
                                     "striped": true,
+                                    "resizable": true,
+                                    "selectable": "multi",
+                                    "<-selected": "$.data.pickedCustomers",
                                     "<-items": "$.data.topCustomers",
                                     "_empty": "No customers yet",
                                     "columns": {
                                         "name": {
                                             "_title": "Customer",
                                             "field": "name",
-                                            "width": "2fr",
+                                            "width": "200px",
+                                            "pin": "start",
                                             "sortable": true
                                         },
                                         "city": {
@@ -2044,7 +2064,10 @@
                                 "name": {
                                     "_title": "Product",
                                     "field": "name",
-                                    "width": "2fr"
+                                    "width": "2fr",
+                                    "edit": "text",
+                                    "required": true,
+                                    "maxLength": 60
                                 },
                                 "stock": {
                                     "_title": "Units in stock",
@@ -2060,34 +2083,28 @@
                                 },
                                 "lifecycle": {
                                     "_title": "Lifecycle",
+                                    "field": "lifecycle",
                                     "width": "160px",
-                                    "cell": {
-                                        "component": "select",
-                                        "size": "sm",
-                                        "_label": "Lifecycle",
-                                        "options": {
-                                            "active": {
-                                                "_label": "Active"
-                                            },
-                                            "seasonal": {
-                                                "_label": "Seasonal"
-                                            },
-                                            "discontinued": {
-                                                "_label": "Discontinued"
-                                            }
+                                    "edit": "select",
+                                    "required": true,
+                                    "options": {
+                                        "active": {
+                                            "_label": "Active"
                                         },
-                                        "<-value": "$row.lifecycle"
+                                        "seasonal": {
+                                            "_label": "Seasonal"
+                                        },
+                                        "discontinued": {
+                                            "_label": "Discontinued"
+                                        }
                                     }
                                 },
                                 "reorder": {
                                     "_title": "Reorder",
+                                    "field": "reorder",
                                     "width": "110px",
                                     "align": "center",
-                                    "cell": {
-                                        "component": "checkbox",
-                                        "_label": "Reorder",
-                                        "<-checked": "$row.reorder"
-                                    }
+                                    "edit": "check"
                                 },
                                 "visible": {
                                     "_title": "In the shop",
