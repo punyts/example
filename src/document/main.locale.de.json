@@ -1630,6 +1630,10 @@
                                                     "_label": "Uhrzeit der Zusammenfassung"
                                                 }
                                             }
+                                        },
+                                        "pause": {
+                                            "_label": "Benachrichtigungen pausieren bis",
+                                            "_help": "Leer lässt sie an"
                                         }
                                     }
                                 },

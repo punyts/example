@@ -392,6 +392,8 @@ export interface Preferences {
     notify: { shipped: boolean; cancelled: boolean; express: boolean };
     digest: { daily: boolean; weekly: boolean };
     digestTime: string;
+    /** When notifications resume, an ISO date-time with an offset; empty while they are on */
+    pauseUntil: string;
     /** A custom accent colour (`#rrggbb`) that overrides `accent` while set */
     accentColor: string;
 }
@@ -408,6 +410,7 @@ export function defaultPreferences(): Preferences {
         notify: { shipped: true, cancelled: true, express: false },
         digest: { daily: true, weekly: false },
         digestTime: '08:00',
+        pauseUntil: '',
         accentColor: ''
     };
 }

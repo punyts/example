@@ -6382,6 +6382,13 @@
                                                     "<-value": "$.data.prefs.digestTime"
                                                 }
                                             }
+                                        },
+                                        "pause": {
+                                            "component": "dateTimeField",
+                                            "timeZone": "America/Los_Angeles",
+                                            "_label": "Pause notifications until",
+                                            "_help": "Empty keeps them on",
+                                            "<-value": "$.data.prefs.pauseUntil"
                                         }
                                     }
                                 },
