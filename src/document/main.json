@@ -5728,6 +5728,14 @@
                             "maxLength": 600,
                             "_placeholder": "Steps for the next shift",
                             "_help": "Type - or [] and a space to start a list",
+                            "commentAuthor": { "id": "lead", "label": "Shift lead" },
+                            "comments": {
+                                "cPartial": {
+                                    "author": { "id": "agent2", "label": "Sam" },
+                                    "text": "Partial means up to 30 percent; more needs a manager.",
+                                    "at": "2026-11-20T16:40:00.000Z"
+                                }
+                            },
                             "value": {
                                 "blocks": {
                                     "bCall": {
@@ -5754,7 +5762,8 @@
                                                 "text": "partial",
                                                 "marks": [
                                                     "bold"
-                                                ]
+                                                ],
+                                                "comments": ["cPartial"]
                                             },
                                             {
                                                 "text": " refund"
