@@ -251,7 +251,7 @@ describe('Lumen desktop', () => {
         // Act
         dragWindow('settings', '.title', 200, 40);
         await until(() => desk.store.get('$.data.desk.state.windows.settings.snap') === 'free');
-        dragWindow('settings', '.corner', -100, -200);
+        dragWindow('settings', '.corner-se', -100, -200);
         await until(() => desk.store.get('$.data.desk.state.windows.settings.height') !== Math.round(surface.height));
 
         // Assert: it kept the size of the half it left, then shrank by the corner
