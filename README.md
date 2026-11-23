@@ -35,7 +35,7 @@ npm run icons      # regenerate src/icons.json after adding an icon to the docum
 | `src/document/app.json` | The app node (`$.app`): the document title and the toasts |
 | `src/document/main.json` | The root of the one screen, `main` (`$.screens.main`): header, menu, sections, lists, dialogs, `on` entries |
 | `src/document/data.json` | The initial `$.data`: view flags, draft, stats, request slots, the archive's request, records and page |
-| `src/document/logic.json` | The document's logic: the archive effect, its compute unit, its status table and the pager rule; the Ridgeline rules and its status table |
+| `src/document/logic.json` | The document's logic: the archive effect, its compute unit, its status table and the pager rule; the Ridgeline rules and its status table; the Orchard machine and rules |
 | `src/document/locale.de.json` | German text of the app node (the toasts) |
 | `src/document/main.locale.de.json` | German text for everything the screen `main` writes itself |
 | `src/document/index.ts` | Assembles the app document (locale, theme, data, the app node, the screen `main`, logic, locales) |
@@ -102,6 +102,7 @@ The app document places every component of the catalog (the test fixtures `order
 | Catalog (`catalog`) | `breadcrumb` (the path to the category), `splitPane` with a `tree` of categories and a `masterDetail` of the products in the category, and a `treeDiagram` map of the categories that selects one as the tree does |
 | Warehouse (`warehouse`) | A `drawing` floor plan with every 2D shape (`rect`, `circle`, `ellipse`, `line`, `polyline`, `polygon`, `path`, `drawText`, `drawGroup`, a `drawImage` of a stored file and a `drawRepeat` of the bins), a `scene3d` of the racks (`camera`, `light`, `mesh`, `group3d`, a `repeat3d` of the racks, a `label3d` and a `model` from a GLB file) and a `paintField` sketch pad |
 | Ridgeline (`ridgeline`) | A two-player board game (below): a `scene3d` with a `repeat3d` of 25 tiles, ten `group3d` pieces built from `mesh` primitives that glide with `transition`, pulsing Beacon and selection rings (`animate`), `label3d` side names and coordinates; `stat` counters, a `button` and the rules in `markdown` |
+| Orchard (`orchard`) | A short real-time game (below): a `scene3d` that `play`s, a basket `mesh` the arrow keys move, a `repeat3d` of falling apples, `stat` counters, `button`s and the rules in `markdown` |
 | New order (`desk`) | `wizard` (with `stepper`, `tabs` and `form` steps): `comboboxField`, `radioField`, `dateField`, `selectField`, `numberField`, `sliderField`, `multiSelectField`, `switchField`, `fileField`, `descriptionList`, `checkField` |
 | Support (`support`) | `chatView` (live, the customer's reply streams in), `messageList` (an earlier thread), `markdown` (a canned reply), `select`, `textarea`, `form` with `selectField` and `textareaField` (escalation), `divider`, `chipList` (the conversation's topics; `remove` deletes one), `toggleButton` (follow up) and `rating` (the conversation) |
 | Help (`help`) | `accordion` of `disclosure` entries, stand-alone `disclosure` entries with `markdown` and a `codeBlock` (the export format), `modal` (contact support), `carousel` of tips, `commandPalette` (go to a section; `run` emits `nav.goto`) |
@@ -166,6 +167,22 @@ Three rules in `logic.json` (`ridgelinePick`, `ridgelineMove`, `ridgelineNew`) e
 expression function from `src/ridgeline.ts` and clear their input, so the same press works again. The table
 `ridgelineStatus` turns the winner, the turn and the reason into the hidden flags of the localized status lines. The
 scene links each piece's `position` and each tile's `material` to the state; the pieces glide with `transition`.
+
+### Orchard, the real-time game
+
+Apples fall one at a time onto a strip of grass; the basket catches them. Press Start or pause, then hold the left
+and right arrow keys with the scene focused. A caught apple scores a point; five on the grass end the round, and New
+round clears it.
+
+How it is built (docs/design/stateui-game-loop.md in the workspace): the scene's `play` is linked to
+`$.data.orchard.play`, so the button toggles `running`. The basket is a solid `body` with a `control` for each arrow
+key and `bounds` that keep it on the grass; the grass is a solid body that stands still; each apple is a copy of the
+`fruit` `repeat3d`, a falling solid sphere whose `position` and `velocity` are linked to its record in
+`$.data.orchard.fruit`. The scene moves them itself and writes the state only when they meet or stop. In `logic.json`
+the machine `orchardDrop` adds an apple every 1.5 s while the round runs (`after` on a transition back to its own
+state), the rules `orchardCatch` and `orchardMiss` hear the basket's and the grass's `contact` at its `$.raised` path,
+count it and delete the apple's record, `orchardOver` stops the round at the fifth miss, and `orchardReset` clears it.
+Tests: `test/app.browser.test.ts` ("Northwind Ops Orchard").
 
 ## The agent console
 

@@ -331,6 +331,147 @@
                     "value": false
                 }
             ]
+        },
+        "orchardCatch": {
+            "when": {
+                "path": "$.raised.screens.main.children.orchard.children.field.children.scene.children.basket.contact",
+                "if": "$trigger.repeat == 'fruit'"
+            },
+            "do": [
+                {
+                    "command": "increment",
+                    "target": "$.data.orchard.score"
+                },
+                {
+                    "command": "delete-data",
+                    "target": "$.data.orchard.fruit.{{ $trigger.with }}"
+                }
+            ]
+        },
+        "orchardMiss": {
+            "when": {
+                "path": "$.raised.screens.main.children.orchard.children.field.children.scene.children.ground.contact",
+                "if": "$trigger.repeat == 'fruit'"
+            },
+            "do": [
+                {
+                    "command": "increment",
+                    "target": "$.data.orchard.missed"
+                },
+                {
+                    "command": "delete-data",
+                    "target": "$.data.orchard.fruit.{{ $trigger.with }}"
+                }
+            ]
+        },
+        "orchardOver": {
+            "when": {
+                "path": "$.data.orchard.missed",
+                "if": "$trigger >= 5"
+            },
+            "do": [
+                {
+                    "command": "set",
+                    "target": "$.data.orchard.play.running",
+                    "value": false
+                },
+                {
+                    "command": "set",
+                    "target": "$.data.orchard.hideOver",
+                    "value": false
+                }
+            ]
+        },
+        "orchardReset": {
+            "when": {
+                "path": "$.data.orchard.reset",
+                "is": true
+            },
+            "do": [
+                {
+                    "command": "set",
+                    "target": "$.data.orchard.play.running",
+                    "value": false
+                },
+                {
+                    "command": "set",
+                    "target": "$.data.orchard.fruit",
+                    "value": {}
+                },
+                {
+                    "command": "set",
+                    "target": "$.data.orchard.score",
+                    "value": 0
+                },
+                {
+                    "command": "set",
+                    "target": "$.data.orchard.missed",
+                    "value": 0
+                },
+                {
+                    "command": "set",
+                    "target": "$.data.orchard.hideOver",
+                    "value": true
+                },
+                {
+                    "command": "set",
+                    "target": "$.data.orchard.reset",
+                    "value": false
+                }
+            ]
+        }
+    },
+    "machines": {
+        "orchardDrop": {
+            "state": "$.data.orchard.phase",
+            "initial": "idle",
+            "transitions": [
+                {
+                    "from": "idle",
+                    "when": {
+                        "path": "$.data.orchard.play.running",
+                        "is": true
+                    },
+                    "to": "dropping"
+                },
+                {
+                    "from": "dropping",
+                    "when": {
+                        "path": "$.data.orchard.play.running",
+                        "is": false
+                    },
+                    "to": "idle"
+                },
+                {
+                    "from": "dropping",
+                    "when": {
+                        "after": 1500
+                    },
+                    "do": [
+                        {
+                            "command": "set",
+                            "target": "$.data.orchard.fruit.f{{ $.data.orchard.next }}",
+                            "value": {
+                                "at": [
+                                    "{{ ($.data.orchard.next * 7) % 9 - 4 }}",
+                                    6,
+                                    0
+                                ],
+                                "speed": [
+                                    0,
+                                    0,
+                                    0
+                                ]
+                            }
+                        },
+                        {
+                            "command": "increment",
+                            "target": "$.data.orchard.next"
+                        }
+                    ],
+                    "to": "dropping"
+                }
+            ]
         }
     }
 }

@@ -75,6 +75,9 @@
                 "ridgeline": {
                     "_label": "Ridgeline"
                 },
+                "orchard": {
+                    "_label": "Obstgarten"
+                },
                 "desk": {
                     "_label": "Neue Bestellung"
                 },
@@ -1141,6 +1144,49 @@
                         },
                         "rules": {
                             "_text": "**Ziel.** Bring deinen Wächter auf das gegnerische Leuchtfeuer, das leuchtende Feld in der Mitte der hinteren Reihe.\n\n- **Ein Zug** setzt eine deiner Figuren einen Schritt weit auf ein freies Feld. Erst die Figur antippen, dann ein grünes Feld.\n- **Späher** ziehen gerade: vor, zurück oder seitwärts. Sie dürfen kein Leuchtfeuer betreten.\n- **Wächter** ziehen in alle acht Richtungen.\n- **Einkesseln.** Steht nach deinem Zug ein gegnerischer Späher neben der gezogenen Figur und direkt dahinter auf derselben Linie eine deiner Figuren, ist er geschlagen. Wer zwischen zwei Gegner zieht, bleibt stehen. Wächter werden nie geschlagen.\n- **Du gewinnst auch**, wenn der Gegner keine Späher mehr oder keinen Zug mehr hat. Nach 60 Zügen gewinnt, wer mehr Späher hat; bei gleich vielen ist es unentschieden."
+                        }
+                    }
+                }
+            }
+        },
+        "orchard": {
+            "_title": "Obstgarten",
+            "_description": "Ein kurzes Echtzeitspiel: die fallenden Äpfel mit den Pfeiltasten im Korb fangen",
+            "children": {
+                "field": {
+                    "_title": "Der Obstgarten",
+                    "_subtitle": "Auf Start drücken, dann bei fokussierter Szene die linke und rechte Pfeiltaste halten.",
+                    "children": {
+                        "scene": {
+                            "_title": "Der Obstgarten",
+                            "_fallback": "Dieses 3D-Spiel kann in diesem Browser nicht gezeigt werden. Ein Korb auf einem Grasstreifen fängt Äpfel, die von oben fallen."
+                        }
+                    }
+                },
+                "side": {
+                    "_title": "Die Runde",
+                    "children": {
+                        "counts": {
+                            "children": {
+                                "caught": {
+                                    "_label": "Gefangen"
+                                },
+                                "missed": {
+                                    "_label": "Verfehlt"
+                                }
+                            }
+                        },
+                        "over": {
+                            "_text": "Fünf Äpfel sind gefallen: die Runde ist vorbei."
+                        },
+                        "start": {
+                            "_title": "Start oder Pause"
+                        },
+                        "newRound": {
+                            "_title": "Neue Runde"
+                        },
+                        "rules": {
+                            "_text": "Alle anderthalb Sekunden fällt ein Apfel. Ein Apfel im Korb bringt einen Punkt; fünf im Gras beenden die Runde.\n\nDie Szene bewegt Korb und Äpfel selbst und schreibt den Zustand nur, wenn sie sich treffen oder anhalten; Punkte und neue Äpfel kommen aus Regeln und einer Maschine der Logik."
                         }
                     }
                 }

@@ -15,7 +15,7 @@ const NAV = '$.screens.main.children.nav.children';
 const SETTINGS = '$.screens.main.children.settings.children.sections.children';
 
 /** The sections of the nav, in order; every one has a smoke test */
-const SECTIONS = ['dashboard', 'orders', 'archive', 'fulfilment', 'deliveries', 'customers', 'products', 'catalog', 'warehouse', 'ridgeline', 'desk', 'support', 'help', 'settings'] as const;
+const SECTIONS = ['dashboard', 'orders', 'archive', 'fulfilment', 'deliveries', 'customers', 'products', 'catalog', 'warehouse', 'ridgeline', 'orchard', 'desk', 'support', 'help', 'settings'] as const;
 
 /** Components that exist only as test fixtures of the component library */
 const FIXTURES = new Set(['orderEditor', 'probe']);
@@ -908,5 +908,79 @@ describe('Northwind Ops Ridgeline', () => {
         expect(app.store.get(`${BOARD}.pieces.a1.at`)).toEqual([-2, 0.06, 2]);
         expect(app.store.get('$.data.game.input.reset')).toBe(false);
         expect(statusShown()).toEqual(['amberTurn']);
+    });
+});
+
+describe('Northwind Ops Orchard', () => {
+    const SCENE = '$.screens.main.children.orchard.children.field.children.scene';
+    const ORCHARD = '$.data.orchard';
+
+    /** Shows the Orchard and waits for its scene to draw */
+    async function showOrchard(): Promise<void> {
+        await showSection('orchard');
+        await until(() => elementAt(SCENE).getAttribute('data-render') === 'ready', 15000);
+    }
+
+    const fruitKeys = (): string[] => Object.keys(app.store.get<Record<string, unknown>>(`${ORCHARD}.fruit`) ?? {});
+
+    it('should score an apple that falls into the basket, count one that falls on the grass, and remove both', async () => {
+        // Arrange
+        await showOrchard();
+        app.store.set(`${ORCHARD}.play.running`, true);
+
+        // Act
+        app.store.set(`${ORCHARD}.fruit.caught`, { at: [0, 2, 0], speed: [0, 0, 0] });
+        app.store.set(`${ORCHARD}.fruit.dropped`, { at: [4, 2, 0], speed: [0, 0, 0] });
+        await until(() => app.store.get(`${ORCHARD}.score`) === 1 && app.store.get(`${ORCHARD}.missed`) === 1, 5000);
+
+        // Assert
+        expect(fruitKeys()).not.toContain('caught');
+        expect(fruitKeys()).not.toContain('dropped');
+        expect(runErrors()).toEqual([]);
+    });
+
+    it('should drop a new apple while the round runs and move the basket while an arrow key is held', async () => {
+        // Arrange
+        await showOrchard();
+        const box = elementAt(SCENE).shadowRoot?.querySelector<HTMLElement>('.scene');
+        if (!box) throw new Error('no scene box');
+
+        // Act
+        press('$.screens.main.children.orchard.children.side.children.start');
+        await until(() => app.store.get(`${ORCHARD}.next`) === 1, 4000);
+        box.focus();
+        box.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true, composed: true }));
+        for (let at = 0; at < 15; at += 1) await frame();
+        box.dispatchEvent(new KeyboardEvent('keyup', { key: 'ArrowRight', bubbles: true, cancelable: true, composed: true }));
+        await until(() => (app.store.get<number[]>(`${SCENE}.children.basket.position`)?.[0] ?? 0) > 0.5);
+
+        // Assert
+        expect(app.store.get(`${ORCHARD}.play.running`)).toBe(true);
+        expect(app.store.get(`${ORCHARD}.phase`)).toBe('dropping');
+        expect(fruitKeys()).toContain('f0');
+        expect(app.store.get<number[]>(`${SCENE}.children.basket.position`)?.slice(1)).toEqual([0.25, 0]);
+        expect(runErrors()).toEqual([]);
+    });
+
+    it('should end the round at the fifth apple on the grass, and clear it with New round', async () => {
+        // Arrange
+        await showOrchard();
+        app.store.set(`${ORCHARD}.missed`, 4);
+        app.store.set(`${ORCHARD}.play.running`, true);
+
+        // Act
+        app.store.set(`${ORCHARD}.fruit.last`, { at: [-4, 2, 0], speed: [0, 0, 0] });
+        await until(() => app.store.get(`${ORCHARD}.play.running`) === false, 5000);
+        const over = isShown(elementAt('$.screens.main.children.orchard.children.side.children.over'));
+        press('$.screens.main.children.orchard.children.side.children.newRound');
+        await until(() => app.store.get(`${ORCHARD}.missed`) === 0);
+
+        // Assert
+        expect(over).toBe(true);
+        expect(app.store.get(`${ORCHARD}.phase`)).toBe('idle');
+        expect(app.store.get(`${ORCHARD}.score`)).toBe(0);
+        expect(fruitKeys()).toEqual([]);
+        expect(app.store.get(`${ORCHARD}.hideOver`)).toBe(true);
+        expect(app.store.get(`${ORCHARD}.reset`)).toBe(false);
     });
 });

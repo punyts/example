@@ -12,6 +12,7 @@
             "catalog": true,
             "warehouse": true,
             "ridgeline": true,
+            "orchard": true,
             "desk": true,
             "support": true,
             "help": true,
@@ -372,5 +373,22 @@
             "statusTone": "neutral",
             "loading": false
         }
+    },
+    "orchard": {
+        "play": {
+            "running": false,
+            "gravity": [
+                0,
+                -5,
+                0
+            ]
+        },
+        "phase": "idle",
+        "next": 0,
+        "fruit": {},
+        "score": 0,
+        "missed": 0,
+        "hideOver": true,
+        "reset": false
     }
 }

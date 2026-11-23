@@ -205,6 +205,11 @@
                     "icon": "chess",
                     "_label": "Ridgeline"
                 },
+                "orchard": {
+                    "component": "menuItem",
+                    "icon": "apple",
+                    "_label": "Orchard"
+                },
                 "desk": {
                     "component": "menuItem",
                     "icon": "clipboard-plus",
@@ -5219,6 +5224,229 @@
                             "component": "markdown",
                             "headingOffset": 3,
                             "_text": "**Goal.** Bring your Warden onto the enemy Beacon, the glowing tile in the middle of the far row.\n\n- **A turn** moves one of your pieces one step to an empty tile. Press a piece, then a green tile.\n- **Scouts** step straight: forward, back or sideways. They may not enter either Beacon.\n- **Wardens** step in any of the eight directions.\n- **Flanking.** After your move, an enemy Scout next to the piece you moved, with one of your pieces right behind it on the same line, is captured. Stepping between two enemies is safe. Wardens are never captured.\n- **You also win** when the enemy has no Scouts left or no move on its turn. After 60 moves the side with more Scouts wins; equal Scouts is a draw."
+                        }
+                    }
+                }
+            }
+        },
+        "orchard": {
+            "component": "panel",
+            "placement": {
+                "region": "center"
+            },
+            "_title": "Orchard",
+            "_description": "A short real-time game: catch the falling fruit in the basket with the arrow keys",
+            "<-hidden": "$.data.view.hidden.orchard",
+            "layout": {
+                "type": "row",
+                "gap": "md",
+                "align": "start",
+                "collapseBelow": "md"
+            },
+            "children": {
+                "field": {
+                    "component": "card",
+                    "placement": {
+                        "grow": 2
+                    },
+                    "_title": "The orchard",
+                    "_subtitle": "Press Start, then hold the left and right arrow keys with the scene focused.",
+                    "layout": {
+                        "type": "column",
+                        "gap": "sm"
+                    },
+                    "children": {
+                        "scene": {
+                            "component": "scene3d",
+                            "_title": "The orchard",
+                            "_fallback": "This 3D game cannot be shown in this browser. A basket on a strip of grass catches apples that fall from above.",
+                            "environment": "daylight",
+                            "<-play": "$.data.orchard.play",
+                            "children": {
+                                "camera": {
+                                    "component": "camera",
+                                    "position": [
+                                        0,
+                                        3.5,
+                                        10
+                                    ],
+                                    "target": [
+                                        0,
+                                        2.5,
+                                        0
+                                    ],
+                                    "fov": 45,
+                                    "active": true
+                                },
+                                "ambient": {
+                                    "component": "light",
+                                    "kind": "ambient",
+                                    "intensity": 0.5
+                                },
+                                "sun": {
+                                    "component": "light",
+                                    "kind": "directional",
+                                    "position": [
+                                        3,
+                                        8,
+                                        5
+                                    ],
+                                    "intensity": 1.2,
+                                    "shadows": true
+                                },
+                                "ground": {
+                                    "component": "mesh",
+                                    "geometry": {
+                                        "kind": "box",
+                                        "width": 11,
+                                        "height": 0.5,
+                                        "depth": 3
+                                    },
+                                    "position": [
+                                        0,
+                                        -0.25,
+                                        0
+                                    ],
+                                    "material": {
+                                        "color": "#5f8a3a",
+                                        "roughness": 0.9
+                                    },
+                                    "receiveShadow": true,
+                                    "body": {
+                                        "solid": true
+                                    }
+                                },
+                                "basket": {
+                                    "component": "mesh",
+                                    "geometry": {
+                                        "kind": "box",
+                                        "width": 1.6,
+                                        "height": 0.5,
+                                        "depth": 1.2
+                                    },
+                                    "position": [
+                                        0,
+                                        0.25,
+                                        0
+                                    ],
+                                    "material": {
+                                        "color": "#9a6a36",
+                                        "roughness": 0.8
+                                    },
+                                    "castShadow": true,
+                                    "bounds": {
+                                        "x": -4.5,
+                                        "z": -0.5,
+                                        "width": 9,
+                                        "depth": 1
+                                    },
+                                    "body": {
+                                        "solid": true,
+                                        "control": {
+                                            "ArrowLeft": [
+                                                -6,
+                                                0,
+                                                0
+                                            ],
+                                            "ArrowRight": [
+                                                6,
+                                                0,
+                                                0
+                                            ]
+                                        }
+                                    }
+                                },
+                                "fruit": {
+                                    "component": "repeat3d",
+                                    "<-records": "$.data.orchard.fruit",
+                                    "row": {
+                                        "component": "mesh",
+                                        "geometry": {
+                                            "kind": "sphere",
+                                            "radius": 0.3
+                                        },
+                                        "material": {
+                                            "color": "#d23c2a",
+                                            "roughness": 0.5
+                                        },
+                                        "castShadow": true,
+                                        "<-position": "$row.at",
+                                        "<-velocity": "$row.speed",
+                                        "body": {
+                                            "solid": true,
+                                            "falls": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "side": {
+                    "component": "card",
+                    "placement": {
+                        "grow": 1
+                    },
+                    "_title": "The round",
+                    "layout": {
+                        "type": "column",
+                        "gap": "md"
+                    },
+                    "children": {
+                        "counts": {
+                            "component": "panel",
+                            "padding": "none",
+                            "layout": {
+                                "type": "grid",
+                                "cols": 2,
+                                "gap": "sm"
+                            },
+                            "children": {
+                                "caught": {
+                                    "component": "stat",
+                                    "_label": "Caught",
+                                    "<-value": "$.data.orchard.score"
+                                },
+                                "missed": {
+                                    "component": "stat",
+                                    "_label": "Missed",
+                                    "<-value": "$.data.orchard.missed"
+                                }
+                            }
+                        },
+                        "over": {
+                            "component": "text",
+                            "_text": "Five apples fell: the round is over.",
+                            "textRole": "title",
+                            "<-hidden": "$.data.orchard.hideOver"
+                        },
+                        "start": {
+                            "component": "button",
+                            "icon": "apple",
+                            "_title": "Start or pause",
+                            "on": {
+                                "press": {
+                                    "command": "toggle",
+                                    "target": "$.data.orchard.play.running"
+                                }
+                            }
+                        },
+                        "newRound": {
+                            "component": "button",
+                            "icon": "refresh",
+                            "_title": "New round",
+                            "on": {
+                                "press": {
+                                    "command": "set",
+                                    "target": "$.data.orchard.reset",
+                                    "value": true
+                                }
+                            }
+                        },
+                        "rules": {
+                            "component": "markdown",
+                            "headingOffset": 3,
+                            "_text": "An apple falls every second and a half. Catch it in the basket for a point; five on the grass end the round.\n\nThe scene moves the basket and the apples itself and writes the state only when they meet or stop; the score and the new apples are rules and a machine in the logic."
                         }
                     }
                 }
