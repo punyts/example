@@ -210,6 +210,11 @@
                     "icon": "apple",
                     "_label": "Orchard"
                 },
+                "workshop": {
+                    "component": "menuItem",
+                    "icon": "hammer",
+                    "_label": "Workshop"
+                },
                 "desk": {
                     "component": "menuItem",
                     "icon": "clipboard-plus",
@@ -5447,6 +5452,254 @@
                             "component": "markdown",
                             "headingOffset": 3,
                             "_text": "An apple falls every second and a half. Catch it in the basket for a point; five on the grass end the round.\n\nThe scene moves the basket and the apples itself and writes the state only when they meet or stop; the score and the new apples are rules and a machine in the logic."
+                        }
+                    }
+                }
+            }
+        },
+        "workshop": {
+            "component": "panel",
+            "placement": {
+                "region": "center"
+            },
+            "_title": "Workshop",
+            "_description": "Model a stool in 3D: pick its faces, edges or vertices, shape them, and save it as a GLB file",
+            "<-hidden": "$.data.view.hidden.workshop",
+            "layout": {
+                "type": "row",
+                "gap": "md",
+                "align": "start",
+                "collapseBelow": "md"
+            },
+            "children": {
+                "bench": {
+                    "component": "card",
+                    "placement": {
+                        "grow": 2
+                    },
+                    "_title": "The stool",
+                    "_subtitle": "Choose what to pick, press the stool to pick it (Shift adds), then drag an arrow to move the pick or press an operation.",
+                    "layout": {
+                        "type": "column",
+                        "gap": "sm"
+                    },
+                    "children": {
+                        "scene": {
+                            "component": "scene3d",
+                            "_title": "Stool",
+                            "_fallback": "This 3D model cannot be shown in this browser. It is a square stool with four legs.",
+                            "environment": "studio",
+                            "controls": "orbit",
+                            "<-exportRequest": "$.data.workshop.exportRequest",
+                            "<-exported": "$.data.workshop.exported",
+                            "children": {
+                                "camera": {
+                                    "component": "camera",
+                                    "position": [
+                                        1.8,
+                                        1.4,
+                                        2.2
+                                    ],
+                                    "target": [
+                                        0,
+                                        0.3,
+                                        0
+                                    ],
+                                    "fov": 45,
+                                    "active": true
+                                },
+                                "stool": {
+                                    "component": "mesh",
+                                    "interactive": true,
+                                    "_label": "The stool",
+                                    "gizmo": "move",
+                                    "snap": true,
+                                    "step": 0.05,
+                                    "material": {
+                                        "color": "#b07a4a",
+                                        "roughness": 0.7
+                                    },
+                                    "castShadow": true,
+                                    "<-geometry": "$.data.workshop.stool",
+                                    "<-edit": "$.data.workshop.edit",
+                                    "<-editRequest": "$.data.workshop.request"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tools": {
+                    "component": "card",
+                    "placement": {
+                        "grow": 1
+                    },
+                    "_title": "Tools",
+                    "layout": {
+                        "type": "column",
+                        "gap": "md"
+                    },
+                    "children": {
+                        "mode": {
+                            "component": "segmented",
+                            "_label": "Pick",
+                            "<-value": "$.data.workshop.edit.mode",
+                            "options": {
+                                "none": {
+                                    "_label": "Off"
+                                },
+                                "vertex": {
+                                    "_label": "Vertices"
+                                },
+                                "edge": {
+                                    "_label": "Edges"
+                                },
+                                "face": {
+                                    "_label": "Faces"
+                                }
+                            },
+                            "on": {
+                                "change": {
+                                    "command": "set",
+                                    "target": "$.data.workshop.edit.picked",
+                                    "value": []
+                                }
+                            }
+                        },
+                        "operations": {
+                            "component": "panel",
+                            "padding": "none",
+                            "layout": {
+                                "type": "grid",
+                                "cols": 2,
+                                "gap": "sm"
+                            },
+                            "children": {
+                                "extrude": {
+                                    "component": "button",
+                                    "icon": "arrow-bar-up",
+                                    "_title": "Extrude",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.data.workshop.input.op",
+                                            "value": "extrude"
+                                        }
+                                    }
+                                },
+                                "inset": {
+                                    "component": "button",
+                                    "icon": "square-plus",
+                                    "_title": "Inset",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.data.workshop.input.op",
+                                            "value": "inset"
+                                        }
+                                    }
+                                },
+                                "merge": {
+                                    "component": "button",
+                                    "icon": "point",
+                                    "_title": "Merge",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.data.workshop.input.op",
+                                            "value": "merge"
+                                        }
+                                    }
+                                },
+                                "fill": {
+                                    "component": "button",
+                                    "icon": "vector-triangle",
+                                    "_title": "Fill",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.data.workshop.input.op",
+                                            "value": "fill"
+                                        }
+                                    }
+                                },
+                                "flip": {
+                                    "component": "button",
+                                    "icon": "flip-vertical",
+                                    "_title": "Flip",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.data.workshop.input.op",
+                                            "value": "flip"
+                                        }
+                                    }
+                                },
+                                "subdivide": {
+                                    "component": "button",
+                                    "icon": "grid-dots",
+                                    "_title": "Subdivide",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.data.workshop.input.op",
+                                            "value": "subdivide"
+                                        }
+                                    }
+                                },
+                                "remove": {
+                                    "component": "button",
+                                    "icon": "trash",
+                                    "_title": "Delete",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.data.workshop.input.op",
+                                            "value": "delete"
+                                        }
+                                    }
+                                },
+                                "undo": {
+                                    "component": "button",
+                                    "icon": "arrow-back-up",
+                                    "_title": "Undo",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.data.workshop.input.op",
+                                            "value": "undo"
+                                        }
+                                    }
+                                },
+                                "redo": {
+                                    "component": "button",
+                                    "icon": "arrow-forward-up",
+                                    "_title": "Redo",
+                                    "on": {
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.data.workshop.input.op",
+                                            "value": "redo"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "save": {
+                            "component": "button",
+                            "icon": "download",
+                            "_title": "Save as GLB",
+                            "on": {
+                                "press": {
+                                    "command": "set",
+                                    "target": "$.data.workshop.input.save",
+                                    "value": true
+                                }
+                            }
+                        },
+                        "notes": {
+                            "component": "markdown",
+                            "headingOffset": 3,
+                            "_text": "Extrude and inset work on faces, merge and fill on vertices (fill makes a face of them in the order you picked them), and delete on any pick. Subdivide smooths the whole stool. Ctrl+Z and Ctrl+Shift+Z undo and redo while the stool is focused.\n\nThe stool is kept in the app's state as its vertices and faces; every change writes it once."
                         }
                     }
                 }

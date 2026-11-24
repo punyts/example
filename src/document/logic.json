@@ -419,6 +419,53 @@
                     "value": false
                 }
             ]
+        },
+        "workshopOperation": {
+            "when": {
+                "path": "$.data.workshop.input.op",
+                "if": "$trigger != ''"
+            },
+            "do": [
+                {
+                    "command": "increment",
+                    "target": "$.data.workshop.count"
+                },
+                {
+                    "command": "set",
+                    "target": "$.data.workshop.request",
+                    "value": {
+                        "op": "$trigger",
+                        "n": "$.data.workshop.count"
+                    }
+                },
+                {
+                    "command": "set",
+                    "target": "$.data.workshop.input.op",
+                    "value": ""
+                }
+            ]
+        },
+        "workshopSave": {
+            "when": {
+                "path": "$.data.workshop.input.save",
+                "is": true
+            },
+            "do": [
+                {
+                    "command": "increment",
+                    "target": "$.data.workshop.count"
+                },
+                {
+                    "command": "set",
+                    "target": "$.data.workshop.exportRequest",
+                    "value": "$.data.workshop.count"
+                },
+                {
+                    "command": "set",
+                    "target": "$.data.workshop.input.save",
+                    "value": false
+                }
+            ]
         }
     },
     "machines": {

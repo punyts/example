@@ -35,7 +35,7 @@ npm run icons      # regenerate src/icons.json after adding an icon to the docum
 | `src/document/app.json` | The app node (`$.app`): the document title and the toasts |
 | `src/document/main.json` | The root of the one screen, `main` (`$.screens.main`): header, menu, sections, lists, dialogs, `on` entries |
 | `src/document/data.json` | The initial `$.data`: view flags, draft, stats, request slots, the archive's request, records and page |
-| `src/document/logic.json` | The document's logic: the archive effect, its compute unit, its status table and the pager rule; the Ridgeline rules and its status table; the Orchard machine and rules |
+| `src/document/logic.json` | The document's logic: the archive effect, its compute unit, its status table and the pager rule; the Ridgeline rules and its status table; the Orchard machine and rules; the Workshop rules |
 | `src/document/locale.de.json` | German text of the app node (the toasts) |
 | `src/document/main.locale.de.json` | German text for everything the screen `main` writes itself |
 | `src/document/index.ts` | Assembles the app document (locale, theme, data, the app node, the screen `main`, logic, locales) |
@@ -103,6 +103,7 @@ The app document places every component of the catalog (the test fixtures `order
 | Warehouse (`warehouse`) | A `drawing` floor plan with every 2D shape (`rect`, `circle`, `ellipse`, `line`, `polyline`, `polygon`, `path`, `drawText`, `drawGroup`, a `drawImage` of a stored file and a `drawRepeat` of the bins), a `scene3d` of the racks (`camera`, `light`, `mesh`, `group3d`, a `repeat3d` of the racks, a `label3d` and a `model` from a GLB file) and a `paintField` sketch pad |
 | Ridgeline (`ridgeline`) | A two-player board game (below): a `scene3d` with a `repeat3d` of 25 tiles, ten `group3d` pieces built from `mesh` primitives that glide with `transition`, pulsing Beacon and selection rings (`animate`), `label3d` side names and coordinates; `stat` counters, a `button` and the rules in `markdown` |
 | Orchard (`orchard`) | A short real-time game (below): a `scene3d` that `play`s, a basket `mesh` the arrow keys move, a `repeat3d` of falling apples, `stat` counters, `button`s and the rules in `markdown` |
+| Workshop (`workshop`) | A stool to model (below): a `scene3d` with a `mesh` of custom geometry in edit mode, a `segmented` pick mode, `button`s for the operations, undo, redo and Save as GLB, and `markdown` notes |
 | New order (`desk`) | `wizard` (with `stepper`, `tabs` and `form` steps): `comboboxField`, `radioField`, `dateField`, `selectField`, `numberField`, `sliderField`, `multiSelectField`, `switchField`, `fileField`, `descriptionList`, `checkField` |
 | Support (`support`) | `chatView` (live, the customer's reply streams in), `messageList` (an earlier thread), `markdown` (a canned reply), `select`, `textarea`, `form` with `selectField` and `textareaField` (escalation), `divider`, `chipList` (the conversation's topics; `remove` deletes one), `toggleButton` (follow up) and `rating` (the conversation) |
 | Help (`help`) | `accordion` of `disclosure` entries, stand-alone `disclosure` entries with `markdown` and a `codeBlock` (the export format), `modal` (contact support), `carousel` of tips, `commandPalette` (go to a section; `run` emits `nav.goto`) |
@@ -183,6 +184,19 @@ the machine `orchardDrop` adds an apple every 1.5 s while the round runs (`after
 state), the rules `orchardCatch` and `orchardMiss` hear the basket's and the grass's `contact` at its `$.raised` path,
 count it and delete the apple's record, `orchardOver` stops the round at the fifth miss, and `orchardReset` clears it.
 Tests: `test/app.browser.test.ts` ("Northwind Ops Orchard").
+
+### Workshop, the stool
+
+A four-legged stool kept in `$.data.workshop.stool` as vertices and faces. Choose what to pick (vertices, edges or
+faces), press the stool to pick (Shift adds), drag an arrow of the gizmo to move the pick, or press an operation:
+extrude, inset, merge, fill, flip, subdivide or delete; undo and redo, or Ctrl+Z and Ctrl+Shift+Z with the stool
+focused. Save as GLB downloads `Stool.glb`.
+
+How it is built (docs/design/stateui-mesh-editor.md in the workspace): the mesh links `<-geometry`, `<-edit` and
+`<-editRequest` to `$.data.workshop`. An operation button sets `$.data.workshop.input.op` to its operation, and the rule
+`workshopOperation` increments `count` and writes `request` as `{ op, n: count }`, so pressing the same button twice is
+two requests; `workshopSave` does the same for the scene's `exportRequest`. A button cannot count by itself: `on`
+writes literal values. Tests: `test/app.browser.test.ts` ("Northwind Ops Workshop").
 
 ## The agent console
 

@@ -78,6 +78,9 @@
                 "orchard": {
                     "_label": "Obstgarten"
                 },
+                "workshop": {
+                    "_label": "Werkstatt"
+                },
                 "desk": {
                     "_label": "Neue Bestellung"
                 },
@@ -1187,6 +1190,81 @@
                         },
                         "rules": {
                             "_text": "Alle anderthalb Sekunden fällt ein Apfel. Ein Apfel im Korb bringt einen Punkt; fünf im Gras beenden die Runde.\n\nDie Szene bewegt Korb und Äpfel selbst und schreibt den Zustand nur, wenn sie sich treffen oder anhalten; Punkte und neue Äpfel kommen aus Regeln und einer Maschine der Logik."
+                        }
+                    }
+                }
+            }
+        },
+        "workshop": {
+            "_title": "Werkstatt",
+            "_description": "Einen Hocker in 3D formen: Flächen, Kanten oder Ecken wählen, formen und als GLB-Datei speichern",
+            "children": {
+                "bench": {
+                    "_title": "Der Hocker",
+                    "_subtitle": "Wählen, was gewählt wird, auf den Hocker drücken (Umschalt fügt hinzu), dann einen Pfeil ziehen oder eine Operation drücken.",
+                    "children": {
+                        "scene": {
+                            "_title": "Hocker",
+                            "_fallback": "Dieses 3D-Modell kann in diesem Browser nicht gezeigt werden. Es ist ein quadratischer Hocker mit vier Beinen."
+                        }
+                    }
+                },
+                "tools": {
+                    "_title": "Werkzeuge",
+                    "children": {
+                        "mode": {
+                            "_label": "Wählen",
+                            "options": {
+                                "none": {
+                                    "_label": "Aus"
+                                },
+                                "vertex": {
+                                    "_label": "Ecken"
+                                },
+                                "edge": {
+                                    "_label": "Kanten"
+                                },
+                                "face": {
+                                    "_label": "Flächen"
+                                }
+                            }
+                        },
+                        "operations": {
+                            "children": {
+                                "extrude": {
+                                    "_title": "Extrudieren"
+                                },
+                                "inset": {
+                                    "_title": "Einsetzen"
+                                },
+                                "merge": {
+                                    "_title": "Verschmelzen"
+                                },
+                                "fill": {
+                                    "_title": "Füllen"
+                                },
+                                "flip": {
+                                    "_title": "Umdrehen"
+                                },
+                                "subdivide": {
+                                    "_title": "Unterteilen"
+                                },
+                                "remove": {
+                                    "_title": "Löschen"
+                                },
+                                "undo": {
+                                    "_title": "Rückgängig"
+                                },
+                                "redo": {
+                                    "_title": "Wiederholen"
+                                }
+                            }
+                        },
+                        "save": {
+                            "_title": "Als GLB speichern"
+                        },
+                        "notes": {
+                            "_text": "Extrudieren und Einsetzen wirken auf Flächen, Verschmelzen und Füllen auf Ecken (Füllen macht aus ihnen eine Fläche in der gewählten Reihenfolge), Löschen auf jede Auswahl. Unterteilen glättet den ganzen Hocker. Strg+Z und Strg+Umschalt+Z machen rückgängig und wiederholen, solange der Hocker den Fokus hat.\n\nDer Hocker liegt als Ecken und Flächen im Zustand der App; jede Änderung schreibt ihn einmal."
                         }
                     }
                 }

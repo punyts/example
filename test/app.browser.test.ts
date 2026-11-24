@@ -3,7 +3,8 @@
  * into a fresh host, drives it through the rendered controls where it can, and reads the result from the store and
  * the DOM
  */
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { report } from '@punyts/core';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PATHS, startApp } from '../src/bootstrap.ts';
 import type { RunningApp } from '../src/bootstrap.ts';
 import catalog from '@punyts/stateui-components/catalog.json';
@@ -15,7 +16,7 @@ const NAV = '$.screens.main.children.nav.children';
 const SETTINGS = '$.screens.main.children.settings.children.sections.children';
 
 /** The sections of the nav, in order; every one has a smoke test */
-const SECTIONS = ['dashboard', 'orders', 'archive', 'fulfilment', 'deliveries', 'customers', 'products', 'catalog', 'warehouse', 'ridgeline', 'orchard', 'desk', 'support', 'help', 'settings'] as const;
+const SECTIONS = ['dashboard', 'orders', 'archive', 'fulfilment', 'deliveries', 'customers', 'products', 'catalog', 'warehouse', 'ridgeline', 'orchard', 'workshop', 'desk', 'support', 'help', 'settings'] as const;
 
 /** Components that exist only as test fixtures of the component library */
 const FIXTURES = new Set(['orderEditor', 'probe']);
@@ -982,5 +983,59 @@ describe('Northwind Ops Orchard', () => {
         expect(fruitKeys()).toEqual([]);
         expect(app.store.get(`${ORCHARD}.hideOver`)).toBe(true);
         expect(app.store.get(`${ORCHARD}.reset`)).toBe(false);
+    });
+});
+
+describe('Northwind Ops Workshop', () => {
+    const SCENE = '$.screens.main.children.workshop.children.bench.children.scene';
+    const TOOLS = '$.screens.main.children.workshop.children.tools.children';
+    const WORKSHOP = '$.data.workshop';
+    const facesOf = (): number[][] => app.store.get<number[][]>(`${WORKSHOP}.stool.faces`) ?? [];
+
+    /** Shows the Workshop and waits for its scene to draw */
+    async function showWorkshop(): Promise<void> {
+        await showSection('workshop');
+        await until(() => elementAt(SCENE).getAttribute('data-render') === 'ready', 15000);
+    }
+
+    it('should extrude the picked seat with the Extrude button, undo it with Undo, and keep the seat picked', async () => {
+        // Arrange: the seat's top face is picked
+        await showWorkshop();
+        app.store.set(`${WORKSHOP}.edit.picked`, [0]);
+
+        // Act
+        press(`${TOOLS}.operations.children.extrude`);
+        await until(() => facesOf().length === 34);
+        const top = Math.max(...(app.store.get<number[][]>(`${WORKSHOP}.stool.vertices`) ?? []).map((vertex) => vertex[1] as number));
+        press(`${TOOLS}.operations.children.undo`);
+        await until(() => facesOf().length === 30);
+
+        // Assert
+        expect(top).toBe(0.75);
+        expect(app.store.get(`${WORKSHOP}.edit.picked`)).toEqual([0]);
+        expect(app.store.get(`${WORKSHOP}.edit.done`)).toEqual({ op: 'undo', n: 2 });
+        expect(runErrors()).toEqual([]);
+    });
+
+    it('should subdivide the stool, report an operation that does not fit the pick, and save the model as a GLB file', async () => {
+        // Arrange: each side of a face becomes a quad
+        await showWorkshop();
+        const sides = facesOf().reduce((sum, face) => sum + face.length, 0);
+        const reported = vi.spyOn(report, 'error');
+
+        // Act
+        press(`${TOOLS}.operations.children.subdivide`);
+        await until(() => facesOf().length === sides);
+        press(`${TOOLS}.operations.children.merge`);
+        await until(() => app.store.get(`${WORKSHOP}.edit.done.n`) === 2);
+        press(`${TOOLS}.save`);
+        await until(() => app.store.get(`${WORKSHOP}.exported.request`) === 3, 10000);
+
+        // Assert
+        expect(facesOf().every((face) => face.length === 4)).toBe(true);
+        expect(reported.mock.calls.filter(([, context]) => (context as { code?: string } | undefined)?.code === 'SUI-RUN-3D')).toHaveLength(1);
+        expect(app.store.get(`${WORKSHOP}.edit.done`)).toEqual({ op: 'merge', n: 2 });
+        reported.mockRestore();
+        expect(app.store.get(`${WORKSHOP}.exported.file`)).toMatchObject({ name: 'Stool.glb', type: 'model/gltf-binary' });
     });
 });
