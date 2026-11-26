@@ -175,7 +175,7 @@ const FILES = appWindow('files', { type: 'column', gap: 'sm' }, {
             children: {
                 confirm: {
                     _title: 'Delete',
-                    on: { press: [{ command: 'close', target: '^confirmDialog' }, fsInput('delete')] }
+                    on: { press: [{ command: 'close', target: '#confirmDialog' }, fsInput('delete')] }
                 }
             }
         }
