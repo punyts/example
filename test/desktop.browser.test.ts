@@ -97,8 +97,8 @@ const origin = (): DOMRect => elementAt(`${SURFACE}.wallpaper`).getBoundingClien
 const zOf = (app: AppId): number => Number(getComputedStyle(elementAt(`${SURFACE}.${app}`)).zIndex);
 const items = (): FsItem[] => desk.store.get<FsItem[]>('$.data.fs.items');
 const named = (name: string): FsItem | undefined => items().find((item) => item.name === name);
-// The advice to keep a component's own state on its node (SUI-LINK-OWN) is not an error: the desk keeps it in $.data on purpose
-const runErrors = (): string[] => desk.errors.filter((error) => error.code !== 'SUI-LINK-OWN').map((error) => `${error.code} ${error.message}`);
+/** Everything the desk reported at mount (warnings included) and while running */
+const runErrors = (): string[] => desk.errors.map((error) => `${error.code} ${error.message}`);
 
 async function openApp(app: AppId): Promise<void> {
     press(`${SURFACE}.icon_${app}`);
@@ -158,6 +158,26 @@ describe('Lumen desktop', () => {
         expect(Math.round(box.width)).toBe(720);
         expect(elementAt(`${TASKS}.files`).checkVisibility()).toBe(true);
         expect(elementAt(`${TASKS}.notes`).checkVisibility()).toBe(false);
+        expect(desk.store.get(`${SURFACE}.files.hidden`)).toBe(false);
+        expect(desk.store.get(`${TASKS}.files`)).toMatchObject({ hidden: false, variant: 'soft' });
+        expect(desk.store.get(`${TASKS}.notes`)).toMatchObject({ hidden: true, variant: 'ghost' });
+        expect(runErrors()).toEqual([]);
+    });
+
+    it('should keep what is hidden and the look of the task buttons on the nodes, not in the data', async () => {
+        // Arrange
+        await openApp('files');
+
+        // Act
+        await openApp('notes');
+
+        // Assert
+        expect(desk.store.get(`${TASKS}.files.variant`)).toBe('ghost');
+        expect(desk.store.get(`${TASKS}.notes.variant`)).toBe('soft');
+        expect(Object.keys(desk.store.get<object>('$.data.desk.manager'))).toEqual(['windows', 'active', 'focused', 'maximized', 'placement']);
+        expect(Object.keys(desk.store.get<object>('$.data.viewer'))).toEqual(['id', 'name', 'file']);
+        expect(desk.store.get(`${SURFACE}.viewer.children.picture.hidden`)).toBe(true);
+        expect(desk.store.get(`${SURFACE}.viewer.children.none.hidden`)).toBe(false);
     });
 
     it('should bring a window to the front when it is pressed', async () => {
@@ -171,7 +191,7 @@ describe('Lumen desktop', () => {
         await until(() => zOf('files') > zOf('notes'));
 
         // Assert
-        expect(desk.store.get('$.data.desk.state.active')).toBe('files');
+        expect(desk.store.get('$.data.desk.manager.active')).toBe('files');
     });
 
     it('should minimize a window and restore it from the taskbar', async () => {
@@ -181,11 +201,14 @@ describe('Lumen desktop', () => {
         // Act
         pressFrame('settings', 'minimize');
         await until(() => !shown('settings'));
+        const minimized = { window: desk.store.get(`${SURFACE}.settings.hidden`), task: desk.store.get(`${TASKS}.settings.hidden`) };
         press(`${TASKS}.settings`);
         await until(() => shown('settings'));
 
         // Assert
-        expect(desk.store.get('$.data.desk.state.active')).toBe('settings');
+        expect(minimized).toEqual({ window: true, task: false });
+        expect(desk.store.get(`${SURFACE}.settings.hidden`)).toBe(false);
+        expect(desk.store.get('$.data.desk.manager.active')).toBe('settings');
     });
 
     it('should snap a window to a half and maximize it', async () => {
@@ -233,10 +256,10 @@ describe('Lumen desktop', () => {
 
         // Act
         dragWindow('notes', '.title', 100, 50);
-        await until(() => desk.store.get('$.data.desk.state.windows.notes.x') === 310);
+        await until(() => desk.store.get('$.data.desk.manager.windows.notes.x') === 310);
 
         // Assert
-        expect(desk.store.get('$.data.desk.state.windows.notes')).toMatchObject({ x: 310, y: 110, width: 760, height: 520, snap: 'free' });
+        expect(desk.store.get('$.data.desk.manager.windows.notes')).toMatchObject({ x: 310, y: 110, width: 760, height: 520, snap: 'free' });
         expect(Math.round(box().left - surface.left)).toBe(310);
         expect(Math.round(box().top - surface.top)).toBe(110);
         expect(runErrors()).toEqual([]);
@@ -247,22 +270,22 @@ describe('Lumen desktop', () => {
         await openApp('settings');
         const surface = origin();
         pressFrame('settings', 'snapLeft');
-        await until(() => desk.store.get('$.data.desk.state.windows.settings.snap') === 'left');
+        await until(() => desk.store.get('$.data.desk.manager.windows.settings.snap') === 'left');
 
         // Act
         dragWindow('settings', '.title', 200, 40);
-        await until(() => desk.store.get('$.data.desk.state.windows.settings.snap') === 'free');
+        await until(() => desk.store.get('$.data.desk.manager.windows.settings.snap') === 'free');
         dragWindow('settings', '.corner-se', -100, -200);
-        await until(() => desk.store.get('$.data.desk.state.windows.settings.height') !== Math.round(surface.height));
+        await until(() => desk.store.get('$.data.desk.manager.windows.settings.height') !== Math.round(surface.height));
 
         // Assert: it kept the size of the half it left, then shrank by the corner
-        expect(desk.store.get('$.data.desk.state.windows.settings')).toMatchObject({
+        expect(desk.store.get('$.data.desk.manager.windows.settings')).toMatchObject({
             x: 200,
             y: 40,
             width: Math.round(surface.width / 2) - 100,
             height: Math.round(surface.height) - 200
         });
-        expect(desk.store.get('$.data.desk.state.maximized.settings')).toBe(false);
+        expect(desk.store.get('$.data.desk.manager.maximized.settings')).toBe(false);
     });
 
     it('should mark the front window active and show a maximized one as maximized', async () => {
@@ -409,7 +432,9 @@ describe('Lumen desktop', () => {
         // Assert
         expect(named('Sunset.png')).toMatchObject({ parent: 'pictures', file: picture });
         expect(desk.store.get('$.data.viewer.name')).toBe('Sunset.png');
-        expect(desk.store.get('$.data.desk.state.active')).toBe('viewer');
+        expect(desk.store.get(`${SURFACE}.viewer.children.picture.hidden`)).toBe(false);
+        expect(desk.store.get(`${SURFACE}.viewer.children.none.hidden`)).toBe(true);
+        expect(desk.store.get('$.data.desk.manager.active')).toBe('viewer');
         expect(runErrors()).toEqual([]);
     });
 

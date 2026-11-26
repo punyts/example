@@ -38,7 +38,7 @@
             },
             "outputs": {
                 "text": "$.data.archive.view.statusText",
-                "tone": "$.data.archive.view.statusTone",
+                "tone": "#archiveStatus.tone",
                 "loading": "$.data.archive.view.loading"
             },
             "rows": [
@@ -98,15 +98,15 @@
                 }
             },
             "outputs": {
-                "amberTurn": "$.data.game.status.amberTurn",
-                "tealTurn": "$.data.game.status.tealTurn",
-                "amberWon": "$.data.game.status.amberWon",
-                "tealWon": "$.data.game.status.tealWon",
-                "drawn": "$.data.game.status.drawn",
-                "byBeacon": "$.data.game.status.byBeacon",
-                "byScouts": "$.data.game.status.byScouts",
-                "byStuck": "$.data.game.status.byStuck",
-                "byLimit": "$.data.game.status.byLimit"
+                "amberTurn": "#amberTurn.hidden",
+                "tealTurn": "#tealTurn.hidden",
+                "amberWon": "#amberWon.hidden",
+                "tealWon": "#tealWon.hidden",
+                "drawn": "#drawn.hidden",
+                "byBeacon": "#byBeacon.hidden",
+                "byScouts": "#byScouts.hidden",
+                "byStuck": "#byStuck.hidden",
+                "byLimit": "#byLimit.hidden"
             },
             "rows": [
                 {
@@ -377,7 +377,7 @@
                 },
                 {
                     "command": "set",
-                    "target": "$.data.orchard.hideOver",
+                    "target": "#over.hidden",
                     "value": false
                 }
             ]
@@ -410,7 +410,7 @@
                 },
                 {
                     "command": "set",
-                    "target": "$.data.orchard.hideOver",
+                    "target": "#over.hidden",
                     "value": true
                 },
                 {

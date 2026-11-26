@@ -1,5 +1,6 @@
 /**
- * Validates the Lumen desktop document (src/desktop) as scripts/validate.ts validates Northwind Ops
+ * Validates the Lumen desktop document (src/desktop) as scripts/validate.ts validates Northwind Ops: one line per
+ * finding, and it exits 1 on any finding, an error or a warning
  *
  *     npm run validate
  */
@@ -16,4 +17,4 @@ const { valid, errors } = validateDocument(desktopDocument(), libraryFromCatalog
 for (const error of errors) console.log(format(error));
 const errorCount = errors.filter((error) => (error.severity ?? 'error') === 'error').length;
 console.log(`validate desktop: ${valid ? 'valid' : 'INVALID'} (${errorCount} errors, ${errors.length - errorCount} warnings)`);
-process.exit(valid ? 0 : 1);
+process.exit(errors.length === 0 ? 0 : 1);

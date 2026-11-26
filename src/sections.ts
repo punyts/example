@@ -1,19 +1,33 @@
 /**
- * The sections of the app. `$.data.view.section` is the one value that says which section is shown: the nav's `active`
+ * The sections of the app. `$.data.nav.section` is the one value that says which section is shown: the nav's `active`
  * is linked to it, and the links in the document, the agent console, the breadcrumb handler and the tests write it.
- * Each section panel's `hidden` is linked to a flag under `$.data.view.hidden`, which only `bindSections` writes, from
- * the section; the flags are protected, so a write to them anywhere else is refused and the nav and the panels can't
- * disagree
+ * Whether a section's panel is hidden is the panel's own state, so it is kept on the node (`hidden`), not in `$.data`.
+ * Only `bindSections` writes it, from the section: each panel is found by its `@id` (`<section>Section`) and its
+ * `hidden` is protected, so a write to it anywhere else is refused and the nav and the panels cannot disagree
  */
 import type { Store } from '@punyts/state';
 import type { AppState } from '@punyts/stateui-app';
+import { requirePathOfId } from './nodePath.ts';
 
-const SECTION = '$.data.view.section';
-const HIDDEN = '$.data.view.hidden';
+const SECTION = '$.data.nav.section';
 
-/** The section names, read from the hidden flags of the app's data so a new section needs no code here */
-export function sectionNames(store: Store<AppState>): string[] {
-    return Object.keys(store.get<Record<string, boolean>>(HIDDEN));
+/** The state path of the screen the sections are in */
+export const SECTIONS_SCREEN = '$.screens.main';
+
+/** The `@id` of a section's panel */
+export const sectionId = (name: string): string => `${name}Section`;
+
+/**
+ * The state path of each section's panel by section name, in the nav's order. The items of the nav (the node with the
+ * id `nav`) name the sections, so a new section needs no code here. `root` is the root node of the screen at
+ * `rootPath`. Throws when there is no nav or an item of it has no panel
+ */
+export function sectionPaths(root: unknown, rootPath: string = SECTIONS_SCREEN): Record<string, string> {
+    const nav = requirePathOfId(root, rootPath, 'nav');
+    let node: unknown = root;
+    for (const step of nav.slice(rootPath.length + 1).split('.')) node = (node as Record<string, unknown>)[step];
+    const items = (node as { children?: Record<string, unknown> }).children ?? {};
+    return Object.fromEntries(Object.keys(items).map((name) => [name, requirePathOfId(root, rootPath, sectionId(name))]));
 }
 
 /** Shows one section: writes the section, which the nav and the panels follow */
@@ -22,29 +36,32 @@ export function showSection(store: Store<AppState>, name: string): void {
 }
 
 /**
- * Derives the hidden flags from the section now and on every change of it, and protects them. A section that is not
- * one of the names is put back to the one shown. Returns the function that stops it
+ * Writes each panel's `hidden` from the section now and on every change of it, and protects it. `paths` is the result
+ * of `sectionPaths`. A section that is not one of the names is put back to the one shown. Returns the function that
+ * stops it
  */
-export function bindSections(store: Store<AppState>): () => void {
+export function bindSections(store: Store<AppState>, paths: Readonly<Record<string, string>>): () => void {
+    const flags = Object.entries(paths).map(([name, path]) => [name, `${path}.hidden`] as const);
     let shown = '';
     const apply = (): void => {
         const name = store.get<string>(SECTION);
-        const names = sectionNames(store);
-        if (!names.includes(name)) {
+        if (!Object.hasOwn(paths, name)) {
             if (shown !== '') store.set(SECTION, shown);
             return;
         }
         shown = name;
-        store.unprotect(HIDDEN);
-        for (const section of names) {
-            if (store.get<boolean>(`${HIDDEN}.${section}`) !== (section !== name)) store.set(`${HIDDEN}.${section}`, section !== name);
+        for (const [section, flag] of flags) {
+            if (store.get<boolean>(flag) === (section !== name)) continue;
+            store.unprotect(flag);
+            store.set(flag, section !== name);
+            store.protect(flag);
         }
-        store.protect(HIDDEN);
     };
+    for (const [, flag] of flags) store.protect(flag);
     store.on(SECTION, apply);
     apply();
     return () => {
         store.off(SECTION, apply);
-        store.unprotect(HIDDEN);
+        for (const [, flag] of flags) store.unprotect(flag);
     };
 }

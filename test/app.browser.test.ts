@@ -10,6 +10,7 @@ import type { RunningApp } from '../src/bootstrap.ts';
 import catalog from '@punyts/stateui-components/catalog.json';
 import type { Order } from '../src/data.ts';
 import { appDocument } from '../src/document/index.ts';
+import { sectionPaths } from '../src/sections.ts';
 import type { Delivery, Message, Product } from '../src/seed.ts';
 
 const NAV = '$.screens.main.children.nav.children';
@@ -105,11 +106,8 @@ function rowSlot(id: string): string | undefined {
     return undefined;
 }
 
-/**
- * What the app reported at mount and while running, but the advice to keep a component's own state on its node
- * (SUI-LINK-OWN), which the sections take on purpose: they show and hide through $.data the code writes
- */
-const problems = () => app.errors.filter((error) => error.code !== 'SUI-LINK-OWN');
+/** What the app reported at mount (warnings included) and while running */
+const problems = () => app.errors;
 
 /** Every error reported while running, which a failed `on` command reports as `SUI-RUN-*` */
 const runErrors = (): string[] => app.errors.filter((error) => error.code.startsWith('SUI-RUN')).map((error) => `${error.code} ${error.message}`);
@@ -120,7 +118,7 @@ function isShown(element: Element): boolean {
 
 async function showSection(name: (typeof SECTIONS)[number]): Promise<void> {
     press(`${NAV}.${name}`);
-    await until(() => app.store.get(`$.data.view.hidden.${name}`) === false);
+    await until(() => app.store.get(`$.screens.main.children.${name}.hidden`) === false);
     await frame();
 }
 
@@ -171,7 +169,7 @@ describe('Northwind Ops', () => {
         await showSection('orders');
 
         // Assert
-        expect(app.store.get('$.data.view.section')).toBe('orders');
+        expect(app.store.get('$.data.nav.section')).toBe('orders');
         expect(isShown(orders)).toBe(true);
         expect(isShown(dashboard)).toBe(false);
     });
@@ -182,10 +180,10 @@ describe('Northwind Ops', () => {
         const dashboard = elementAt('$.screens.main.children.dashboard');
 
         // Act
-        app.store.set('$.data.view.section', 'catalog');
+        app.store.set('$.data.nav.section', 'catalog');
         await until(() => isShown(catalog));
-        const refused = app.store.set('$.data.view.hidden.dashboard', false);
-        app.store.set('$.data.view.section', 'nowhere');
+        const refused = app.store.set('$.screens.main.children.dashboard.hidden', false);
+        app.store.set('$.data.nav.section', 'nowhere');
         await frame();
 
         // Assert
@@ -193,8 +191,9 @@ describe('Northwind Ops', () => {
         expect(app.store.get(`${NAV}.dashboard.selected`)).toBe(false);
         expect(refused).toBe(false);
         expect(isShown(dashboard)).toBe(false);
-        expect(app.store.get('$.data.view.section')).toBe('catalog');
-        expect(SECTIONS.filter((name) => app.store.get(`$.data.view.hidden.${name}`) === false)).toEqual(['catalog']);
+        expect(app.store.get('$.data.nav.section')).toBe('catalog');
+        expect(SECTIONS.filter((name) => app.store.get(`$.screens.main.children.${name}.hidden`) === false)).toEqual(['catalog']);
+        expect(app.store.get('$.data.nav')).toEqual({ section: 'catalog' });
     });
 
     it('should render only a window of rows and bring order 9000 into view with scrollTo', async () => {
@@ -229,9 +228,9 @@ describe('Northwind Ops', () => {
         typeInto(`${NEW_ORDER_FIELDS}.email`, 'ada@example.com');
         typeInto(`${NEW_ORDER_FIELDS}.product`, 'coffee');
         typeInto(`${NEW_ORDER_FIELDS}.quantity`, '3');
-        app.store.set('$.data.draft.channel', 'web');
-        app.store.set('$.data.draft.delivery', '2026-11-15');
-        app.store.set('$.data.draft.confirmed', true);
+        app.store.set('$.data.ordersView.draft.channel', 'web');
+        app.store.set('$.data.ordersView.draft.delivery', '2026-11-15');
+        app.store.set('$.data.ordersView.draft.confirmed', true);
         await frame();
 
         // Act
@@ -245,7 +244,7 @@ describe('Northwind Ops', () => {
         expect(created.quantity).toBe(3);
         expect(created.status).toBe('pending');
         expect(app.store.get(`${PATHS.newOrder}.open`)).toBe(false);
-        expect(app.store.get('$.data.selectedOrder')).toBe(created.id);
+        expect(app.store.get('$.data.ordersView.selected')).toBe(created.id);
         expect(problems()).toEqual([]);
     });
 
@@ -260,9 +259,9 @@ describe('Northwind Ops', () => {
         await until(() => app.store.get(`${PATHS.detail}.open`) === true);
 
         // Assert
-        expect(app.store.get('$.data.selectedOrder')).toBe('4');
-        expect(app.store.get('$.data.detail.id')).toBe('4');
-        expect(app.store.get('$.data.detail.customer')).toBe(app.store.get('$.data.orders.3.customer'));
+        expect(app.store.get('$.data.ordersView.selected')).toBe('4');
+        expect(app.store.get('$.data.ordersView.detail.id')).toBe('4');
+        expect(app.store.get('$.data.ordersView.detail.customer')).toBe(app.store.get('$.data.orders.3.customer'));
         expect(runErrors()).toEqual([]);
     });
 
@@ -286,7 +285,7 @@ describe('Northwind Ops', () => {
 
         // Assert
         expect(app.store.get(`$.data.orders.${targetIndex}.statusTone`)).toBe('success');
-        expect(app.store.get('$.data.selectedOrder')).toBe(target.id);
+        expect(app.store.get('$.data.ordersView.selected')).toBe(target.id);
         expect(app.store.get(`$.data.orders.${Number(neighbour.id) - 1}.status`)).toBe(neighbourBefore);
         await until(() => deepAll(document).some((element) => element.localName === 'ui-toast' && deepText(element).includes('Order shipped')));
         expect(runErrors()).toEqual([]);
@@ -310,8 +309,8 @@ describe('Northwind Ops', () => {
 
         // Assert
         expect(app.store.get('$.data.orders.5.statusTone')).toBe('danger');
-        expect(app.store.get('$.data.selectedOrder')).toBe('6');
-        expect(app.store.get('$.data.detail.status')).toBe('cancelled');
+        expect(app.store.get('$.data.ordersView.selected')).toBe('6');
+        expect(app.store.get('$.data.ordersView.detail.status')).toBe('cancelled');
         expect(app.store.get('$.data.orders.4.status')).toBe(otherBefore);
         expect(app.store.get(`${PATHS.cancelDialog}.open`)).toBe(false);
         expect(runErrors()).toEqual([]);
@@ -332,7 +331,7 @@ describe('Northwind Ops', () => {
 
         // Assert
         expect(app.store.get('$.data.orders.0.statusTone')).toBe('danger');
-        expect(app.store.get('$.data.detail.status')).toBe('cancelled');
+        expect(app.store.get('$.data.ordersView.detail.status')).toBe('cancelled');
         expect(app.store.get(`${PATHS.cancelDialog}.open`)).toBe(false);
         expect(app.store.get(`${PATHS.detail}.open`)).toBe(false);
         expect(problems()).toEqual([]);
@@ -401,17 +400,17 @@ describe('Northwind Ops component coverage', () => {
         expect(missing).toEqual([]);
     });
 
-    it('should list every section of the nav in the view flags and the German overlay', () => {
+    it('should give every section of the nav a panel with its id and an entry in the German overlay', () => {
         // Arrange and Act
         type Main = { root: { children: { nav: { children: Record<string, unknown> } } }; locales: { de: { children: Record<string, { children?: Record<string, unknown> }> } } };
         const main = (appDocument.screens as unknown as { main: Main }).main;
         const nav = Object.keys(main.root.children.nav.children);
-        const hidden = Object.keys((appDocument.data as unknown as { view: { hidden: Record<string, boolean> } }).view.hidden);
+        const panels = sectionPaths(main.root);
         const german = { nav: main.locales.de.children['nav'] as { children: Record<string, unknown> }, children: main.locales.de.children };
 
         // Assert
         expect(nav).toEqual([...SECTIONS]);
-        expect(hidden).toEqual([...SECTIONS]);
+        expect(panels).toEqual(Object.fromEntries(SECTIONS.map((name) => [name, `$.screens.main.children.${name}`])));
         expect(Object.keys(german.nav.children)).toEqual([...SECTIONS]);
         for (const section of SECTIONS) expect(german.children[section], section).toBeDefined();
     });
@@ -510,8 +509,8 @@ describe('Northwind Ops new sections', () => {
         await until(() => app.store.get('$.data.orders.1.status') === 'packed');
 
         // Assert
-        expect(app.store.get('$.data.detail.step')).toBe('packed');
-        expect(app.store.get('$.data.detail.completed')).toEqual(['pending', 'paid']);
+        expect(app.store.get('$.data.ordersView.detail.step')).toBe('packed');
+        expect(app.store.get('$.data.ordersView.detail.completed')).toEqual(['pending', 'paid']);
         expect(runErrors()).toEqual([]);
     });
 
@@ -716,11 +715,11 @@ describe('Northwind Ops new sections', () => {
 
         // Act
         elementAt(`${PATHS.orders}.children.trail`).dispatchEvent(new CustomEvent('select', { detail: 'home', bubbles: true, composed: true }));
-        await until(() => app.store.get('$.data.view.hidden.dashboard') === false);
+        await until(() => app.store.get('$.screens.main.children.dashboard.hidden') === false);
 
         // Assert
-        expect(app.store.get('$.data.view.section')).toBe('dashboard');
-        expect(app.store.get('$.data.view.hidden.orders')).toBe(true);
+        expect(app.store.get('$.data.nav.section')).toBe('dashboard');
+        expect(app.store.get('$.screens.main.children.orders.hidden')).toBe(true);
     });
 
     it('should draw one bin per record and the dock picture the readFile hook serves on the floor plan', async () => {
@@ -766,6 +765,7 @@ describe('Northwind Ops order archive', () => {
         expect(app.store.get(`${ARCHIVE}.page.total`)).toBe(95);
         expect(rows['0']?.totalText).toMatch(/^€/);
         expect(app.store.get(`${ARCHIVE}.view.statusText`)).toBe('Up to date');
+        expect(app.store.get('$.screens.main.children.archive.children.tools.children.archiveStatus.tone')).toBe('success');
         expect(Object.keys(app.store.get<Record<string, unknown>>(`${ARCHIVE}.records`))).toHaveLength(10);
         expect(problems()).toEqual([]);
     });
@@ -987,7 +987,8 @@ describe('Northwind Ops Orchard', () => {
         expect(app.store.get(`${ORCHARD}.phase`)).toBe('idle');
         expect(app.store.get(`${ORCHARD}.score`)).toBe(0);
         expect(fruitKeys()).toEqual([]);
-        expect(app.store.get(`${ORCHARD}.hideOver`)).toBe(true);
+        expect(app.store.get('$.screens.main.children.orchard.children.side.children.over.hidden')).toBe(true);
+        expect(app.store.get(`${ORCHARD}.hideOver`)).toBeUndefined();
         expect(app.store.get(`${ORCHARD}.reset`)).toBe(false);
     });
 });

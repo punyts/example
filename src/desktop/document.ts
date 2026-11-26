@@ -4,19 +4,32 @@
  * the same, and `scripts/validate.ts` checks it as it checks Northwind Ops.
  *
  * One screen, `desk`: a column of the desktop surface (an `adhoc` layout of the wallpaper, the desktop icons and the
- * windows) and the taskbar. Each window's `hidden`, `placement`, `active` and `maximized` link to the desk state, so
- * a window moves, stacks and hides when the state changes; a window the user drags or resizes writes its placement
- * itself and raises `move` or `resize`, which the desk reads back with `place <app>`. Every press writes an input under
- * `$.data.input`, and the rules (`DESK_LOGIC`) answer it with the functions of `desk.ts`.
+ * windows) and the taskbar. Each window's `placement`, `active` and `maximized` link to the window manager's data
+ * (`$.data.desk.manager`), so a window moves and stacks when the data changes; a window the user drags or resizes
+ * writes its placement itself and raises `move` or `resize`, which the desk reads back with `place <app>`. Every press
+ * writes an input under `$.data.input`, and the rules (`DESK_LOGIC`) answer it with the functions of `desk.ts`.
+ *
+ * A node's own state stays on the node: a window's and a task button's `hidden`, a task button's `variant` and the
+ * Viewer's picture and empty state start as literals, and the rules write them on the node from the data
+ * (`ownState`). The rules find each node by its `@id` (`DESK_IDS`).
  */
 import type { AppDocument } from '@punyts/stateui-app/core';
 import main from '../document/main.json' with { type: 'json' };
 import northwindLogic from '../document/logic.json' with { type: 'json' };
+import { requirePathOfId } from '../nodePath.ts';
 import { emptyGame } from '../seed.ts';
 import { APPS, deskWallpaper, emptyDesk, fsView, seedItems, viewerLoad } from './desk.ts';
 import type { AppId } from './desk.ts';
 
 type Json = Record<string, unknown>;
+
+/** The `@id` of the nodes whose own state the rules write */
+export const DESK_IDS = {
+    window: (app: AppId): string => `${app}Window`,
+    task: (app: AppId): string => `${app}Task`,
+    viewerPicture: 'viewerPicture',
+    viewerNone: 'viewerNone'
+} as const;
 
 /** The state path of the screen's nodes the host talks to */
 export const DESK_PATHS = {
@@ -68,10 +81,11 @@ function appWindow(app: AppId, layout: Json, children: Json): Json {
         controls: ['snapLeft', 'snapRight', 'minimize', 'maximize', 'close'],
         _snapLeftLabel: 'Snap to the left half',
         _snapRightLabel: 'Snap to the right half',
-        '<-hidden': `$.data.desk.state.hidden.${app}`,
-        '<-placement': `$.data.desk.state.placement.${app}`,
-        '<-active': `$.data.desk.state.focused.${app}`,
-        '<-maximized': `$.data.desk.state.maximized.${app}`,
+        '@id': DESK_IDS.window(app),
+        hidden: true,
+        '<-placement': `$.data.desk.manager.placement.${app}`,
+        '<-active': `$.data.desk.manager.focused.${app}`,
+        '<-maximized': `$.data.desk.manager.maximized.${app}`,
         layout,
         children,
         on: {
@@ -236,7 +250,8 @@ const VIEWER = appWindow('viewer', { type: 'column', gap: 'sm' }, {
         component: 'drawing',
         _title: 'Picture',
         viewBox: { x: 0, y: 0, width: 600, height: 400 },
-        '<-hidden': '$.data.viewer.empty',
+        '@id': DESK_IDS.viewerPicture,
+        hidden: true,
         children: {
             image: { component: 'drawImage', x: 0, y: 0, width: 600, height: 400, fit: 'contain', '<-src': '$.data.viewer.file', _label: 'The open picture' }
         }
@@ -246,7 +261,8 @@ const VIEWER = appWindow('viewer', { type: 'column', gap: 'sm' }, {
         icon: 'photo',
         _title: 'No picture open',
         _text: 'Open a picture from Files, or save one in Paint.',
-        '<-hidden': '$.data.viewer.has'
+        '@id': DESK_IDS.viewerNone,
+        hidden: false
     }
 });
 
@@ -342,8 +358,9 @@ function taskButtons(): Json {
         buttons[app] = button(TITLES[app], APP_ICONS[app], desk(`task ${app}`), {
             size: 'sm',
             tone: 'neutral',
-            '<-hidden': `$.data.desk.state.taskbar.${app}.hidden`,
-            '<-variant': `$.data.desk.state.taskbar.${app}.variant`
+            '@id': DESK_IDS.task(app),
+            hidden: true,
+            variant: 'ghost'
         });
     }
     return buttons;
@@ -399,13 +416,40 @@ const answer = (path: string, commands: Json[]): Json => ({
 
 const ridgelineRules = northwindLogic.rules as unknown as Record<string, Json>;
 
+const SCREEN_PATH = '$.screens.desk';
+
+/**
+ * The commands that write the nodes' own state from the data, after a rule changed it. Each node is found by its
+ * `@id` in the screen, so a window or a button can move without these changing. A window is hidden while it is closed
+ * or minimized; its task button shows while it is open and is `soft` for the window in front
+ */
+function ownState(): { windows: Json[]; viewer: Json[] } {
+    const root = screen('100%');
+    const at = (id: string, property: string): string => `${requirePathOfId(root, SCREEN_PATH, id)}.${property}`;
+    const record = (app: AppId): string => `$.data.desk.manager.windows.${app}`;
+    return {
+        windows: APPS.flatMap((app) => [
+            set(at(DESK_IDS.window(app), 'hidden'), `{{ !${record(app)}.open || ${record(app)}.minimized }}`),
+            set(at(DESK_IDS.task(app), 'hidden'), `{{ !${record(app)}.open }}`),
+            set(at(DESK_IDS.task(app), 'variant'), `{{ $.data.desk.manager.active === '${app}' ? 'soft' : 'ghost' }}`)
+        ]),
+        viewer: [
+            set(at(DESK_IDS.viewerPicture, 'hidden'), "{{ $.data.viewer.id === '' }}"),
+            set(at(DESK_IDS.viewerNone, 'hidden'), "{{ $.data.viewer.id !== '' }}")
+        ]
+    };
+}
+
+const OWN_STATE = ownState();
+
 export const DESK_LOGIC = {
     rules: {
-        desk: answer('desk', [set('$.data.desk.state', '{{ $.functions.host.deskAct($.data.desk.state, $trigger) }}')]),
+        desk: answer('desk', [set('$.data.desk.manager', '{{ $.functions.host.deskAct($.data.desk.manager, $trigger) }}'), ...OWN_STATE.windows]),
         fs: answer('fs', [set('$.data.fs', '{{ $.functions.host.fsAct($.data.fs, $trigger, now()) }}')]),
         open: answer('open', [
             set('$.data.notes', '{{ $.functions.host.notesLoad($.data.notes, $.data.fs.items, $trigger) }}'),
             set('$.data.viewer', '{{ $.functions.host.viewerLoad($.data.viewer, $.data.fs.items, $trigger) }}'),
+            ...OWN_STATE.viewer,
             set('$.data.fs', '{{ $.functions.host.fsEnter($.data.fs, $trigger) }}'),
             set(input('desk'), '{{ $.functions.host.fsOpenCommand($.data.fs.items, $trigger) }}')
         ]),
@@ -439,7 +483,7 @@ export function deskData(saved: { items?: unknown; nextId?: unknown; prefs?: { w
     return {
         input: { desk: '', fs: '', open: '', note: '', picture: '' },
         desk: {
-            state: START,
+            manager: START,
             prefs: { wallpaper, dark: saved.prefs?.dark === true },
             paints: deskWallpaper(wallpaper),
             clock: '',

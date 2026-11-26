@@ -454,13 +454,13 @@ export function seedData(orders: readonly Order[], customers: Readonly<Record<st
 
 /**
  * The Ridgeline section: the game state the rules write (`board`), the inputs a press writes (a piece to pick, a tile to
- * move to, a new game) and the hidden flags of the status lines, which the `ridgelineStatus` table writes
+ * move to, a new game). Which status line shows is the lines' own state: the `ridgelineStatus` table writes each
+ * line's `hidden` on its node
  */
 export function emptyGame(): Record<string, unknown> {
     return {
         board: newGame(),
-        input: { pick: '', to: '', reset: false },
-        status: { amberTurn: false, tealTurn: true, amberWon: true, tealWon: true, drawn: true, byBeacon: true, byScouts: true, byStuck: true, byLimit: true }
+        input: { pick: '', to: '', reset: false }
     };
 }
 

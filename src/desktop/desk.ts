@@ -4,9 +4,10 @@
  * the input so the same press works again (the pattern of Ridgeline).
  *
  * - The window manager (`deskAct`) keeps one record per app: open, minimized, snapped and stacked. It also derives what
- *   the document links to: which windows are hidden, focused and maximized, each window's placement on the desktop
- *   surface and the taskbar. A window the user drags or resizes writes its own placement (in pixels) and raises
- *   `place <app>`, which reads that placement back into the free geometry.
+ *   the document links to: which windows are focused and maximized and each window's placement on the desktop
+ *   surface. Whether a window or a task button is hidden, and a task button's look, is the node's own state: the desk
+ *   rule writes it on the node from the records. A window the user drags or resizes writes its own placement (in
+ *   pixels) and raises `place <app>`, which reads that placement back into the free geometry.
  * - The file system (`fsAct` and friends) keeps item records: folders, notes, pictures and uploaded files. The bytes of
  *   a picture or an upload are in the file store (OPFS, `files.ts`); an item holds the file's reference.
  *
@@ -41,22 +42,15 @@ export interface Placement {
     z: number;
 }
 
-export interface TaskButton {
-    hidden: boolean;
-    variant: 'soft' | 'ghost';
-}
-
 export interface Desk {
     windows: Record<AppId, WindowRecord>;
     /** The window in front, or '' when none is open */
     active: AppId | '';
-    hidden: Record<AppId, boolean>;
     /** The window in front, per app, for each window's `active` */
     focused: Record<AppId, boolean>;
     /** The maximized windows, for each window's `maximized` */
     maximized: Record<AppId, boolean>;
     placement: Record<AppId, Placement>;
-    taskbar: Record<AppId, TaskButton>;
 }
 
 /** Where each window opens when it is free, and its size */
@@ -94,20 +88,16 @@ function placementOf(record: WindowRecord): Placement {
 
 /** Fills in what the document links to from the window records */
 function derive(windows: Record<AppId, WindowRecord>, active: AppId | ''): Desk {
-    const hidden = {} as Record<AppId, boolean>;
     const focused = {} as Record<AppId, boolean>;
     const maximized = {} as Record<AppId, boolean>;
     const placement = {} as Record<AppId, Placement>;
-    const taskbar = {} as Record<AppId, TaskButton>;
     for (const app of APPS) {
         const record = windows[app];
-        hidden[app] = !record.open || record.minimized;
         focused[app] = app === active;
         maximized[app] = record.snap === 'max';
         placement[app] = placementOf(record);
-        taskbar[app] = { hidden: !record.open, variant: app === active ? 'soft' : 'ghost' };
     }
-    return { windows, active, hidden, focused, maximized, placement, taskbar };
+    return { windows, active, focused, maximized, placement };
 }
 
 /** A desk with every window closed */
@@ -610,11 +600,8 @@ export function fsUpload(fs: unknown, files: unknown, now: unknown): Fs {
 export interface ViewerState {
     id: string;
     name: string;
-    /** The file reference the drawing shows, or null */
+    /** The file reference the drawing shows, or null: with none the drawing hides and the empty state shows */
     file: FileRef | null;
-    /** No picture to show: the drawing hides and the empty state shows */
-    empty: boolean;
-    has: boolean;
 }
 
 /** The Viewer showing item `id`, or `viewer` unchanged when it is not a picture */
@@ -622,11 +609,10 @@ export function viewerLoad(viewer: unknown, items: unknown, id: unknown): Viewer
     const all = Array.isArray(items) ? (items as FsItem[]) : [];
     const item = all.find((other) => other.id === first(id));
     if (item?.file !== undefined && (item.kind === 'picture' || /^image\//.test(item.file.type))) {
-        return { id: item.id, name: item.name, file: item.file, empty: false, has: true };
+        return { id: item.id, name: item.name, file: item.file };
     }
     const source = (viewer !== null && typeof viewer === 'object' ? viewer : {}) as Partial<ViewerState>;
-    const file = source.file ?? null;
-    return { id: source.id ?? '', name: source.name ?? '', file, empty: file === null, has: file !== null };
+    return { id: source.id ?? '', name: source.name ?? '', file: source.file ?? null };
 }
 
 // ---------------------------------------------------------------------------------------------------------------

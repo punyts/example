@@ -17,7 +17,7 @@ import { RIDGELINE_HOST_FUNCTIONS } from './ridgeline.ts';
 import type { ArchiveApi } from './archive.ts';
 import { appDocument } from './document/index.ts';
 import icons from './icons.json';
-import { bindSections, showSection } from './sections.ts';
+import { bindSections, sectionPaths, showSection } from './sections.ts';
 import { ASSISTANT_STEPS, CATEGORIES, CUSTOMER_REPLY, STEPS, completedSteps, emptyProductDraft, openRatio, orderTimeline, ordersByStatus, ordersByWeekday, recentOrders, revenueByMonth, seedData, topCustomers } from './seed.ts';
 import type { Category, Delivery, Message, Product } from './seed.ts';
 import { categoryTrail, filterDeliveries, pageOf, productsInCategory } from './views.ts';
@@ -116,7 +116,7 @@ export interface RunningApp {
     elementAt(path: string): HTMLElement | undefined;
     /** Runs a component command on the node at `path`, as an `on` entry would */
     command(path: string, name: string, value?: unknown): void;
-    /** Shows one section, as a nav item does: writes `$.data.view.section` */
+    /** Shows one section, as a nav item does: writes `$.data.nav.section` */
     showSection(name: string): void;
     /** The fake archive API behind the archive section's effect: its requests, aborts and answer delay */
     archive: ArchiveApi;
@@ -234,7 +234,7 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
         const index = indexOf(id);
         if (index < 0 || !store) return;
         const order = store.get<Order>(`$.data.orders.${index}`);
-        store.replace('$.data.detail', { ...(JSON.parse(JSON.stringify(order)) as Order), step: order.status, completed: completedSteps(order.status), timeline: orderTimeline(order) });
+        store.replace('$.data.ordersView.detail', { ...(JSON.parse(JSON.stringify(order)) as Order), step: order.status, completed: completedSteps(order.status), timeline: orderTimeline(order) });
     };
 
     const setStatus = (id: string, status: OrderStatus, tone: Order['statusTone'], progress: number): void => {
@@ -242,9 +242,9 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
         if (index < 0 || !store) return;
         const patch = { status, statusTone: tone, progress };
         store.apply(`$.data.orders.${index}`, patch);
-        if (store.get<string>('$.data.detail.id') === id) {
-            store.apply('$.data.detail', { ...patch, step: status, completed: completedSteps(status) });
-            store.replace('$.data.detail.timeline', orderTimeline({ status, created: store.get<string>('$.data.detail.created'), shipped: store.get<string>('$.data.detail.shipped') }));
+        if (store.get<string>('$.data.ordersView.detail.id') === id) {
+            store.apply('$.data.ordersView.detail', { ...patch, step: status, completed: completedSteps(status) });
+            store.replace('$.data.ordersView.detail.timeline', orderTimeline({ status, created: store.get<string>('$.data.ordersView.detail.created'), shipped: store.get<string>('$.data.ordersView.detail.shipped') }));
         }
         refreshStats();
     };
@@ -448,7 +448,7 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
             }
             case 'orders.refresh':
                 later(() => {
-                    store?.set('$.data.ui.ordersLoading', false);
+                    store?.set('$.data.ordersView.loading', false);
                     toast('refreshed');
                 }, fakeDelay);
                 break;
@@ -457,10 +457,10 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
                 break;
             case 'order.ship':
                 // A row menu passes the row's id; the drawer menu acts on the selected order
-                setStatus(typeof payload === 'string' && payload !== '' ? payload : String(store.get('$.data.selectedOrder')), 'shipped', 'success', 85);
+                setStatus(typeof payload === 'string' && payload !== '' ? payload : String(store.get('$.data.ordersView.selected')), 'shipped', 'success', 85);
                 break;
             case 'order.cancel':
-                setStatus(String(store.get('$.data.selectedOrder')), 'cancelled', 'danger', 0);
+                setStatus(String(store.get('$.data.ordersView.selected')), 'cancelled', 'danger', 0);
                 break;
             case 'order.create': {
                 const values = ((payload as { values?: Record<string, unknown> } | undefined)?.values ?? {}) as Record<string, unknown>;
@@ -477,7 +477,7 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
                     created: String(values['delivery'] ?? '')
                 });
                 orderList().push(order);
-                store.set('$.data.selectedOrder', order.id);
+                store.set('$.data.ordersView.selected', order.id);
                 store.set('$.data.requests.jumpTo', order.id);
                 refreshStats();
                 break;
@@ -486,9 +486,9 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
                 showSection(store, payload === 'home' ? 'dashboard' : String(payload));
                 break;
             case 'order.step': {
-                const id = store.get<string>('$.data.detail.id');
+                const id = store.get<string>('$.data.ordersView.detail.id');
                 const step = String(payload) as OrderStatus;
-                if (id !== '' && STEPS.includes(step) && store.get<string>('$.data.detail.status') !== 'cancelled') moveTo(id, step);
+                if (id !== '' && STEPS.includes(step) && store.get<string>('$.data.ordersView.detail.status') !== 'cancelled') moveTo(id, step);
                 break;
             }
             case 'board.move': {
@@ -586,7 +586,7 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
                     order.totalText = formatPrice(order.total);
                 }
                 orderList().push(order);
-                store.set('$.data.selectedOrder', order.id);
+                store.set('$.data.ordersView.selected', order.id);
                 refreshStats();
                 resetWizard();
                 toast('orderCreated');
@@ -645,7 +645,7 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
         if (typeof value !== 'string' || value === '') return;
         try {
             command(PATHS.orderList, 'scrollTo', value);
-            live.set('$.data.selectedOrder', value);
+            live.set('$.data.ordersView.selected', value);
         } catch (error) {
             console.error(`[northwind] jump to ${value}:`, error);
         }
@@ -710,10 +710,10 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
         ['$.data.wizard.attachment', onWizardFile]
     ];
     for (const [paths, listener] of bridges) live.on(paths, listener);
-    const unbindSections = bindSections(live);
+    const unbindSections = bindSections(live, sectionPaths(document.screens?.['main']?.root));
 
     refreshStats();
-    later(() => live.set('$.data.ui.forecastLoading', false), fakeDelay * 2);
+    later(() => live.set('$.data.dashboard.forecastLoading', false), fakeDelay * 2);
 
     let disposed = false;
     return {

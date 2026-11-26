@@ -1,6 +1,6 @@
 /**
  * Validates the app document without a DOM: `validateDocument` with the component catalog, and the icon names
- * against the library's icons.json. Prints one line per finding and exits 1 on any error (warnings do not fail).
+ * against the library's icons.json. Prints one line per finding and exits 1 on any finding: an error or a warning.
  *
  *     npm run validate
  */
@@ -25,4 +25,4 @@ for (const error of errors) console.log(format(error));
 const errorCount = errors.filter((error) => (error.severity ?? 'error') === 'error').length;
 const warningCount = errors.length - errorCount;
 console.log(`validate: ${valid ? 'valid' : 'INVALID'} (${errorCount} errors, ${warningCount} warnings)`);
-process.exit(valid ? 0 : 1);
+process.exit(errors.length === 0 ? 0 : 1);

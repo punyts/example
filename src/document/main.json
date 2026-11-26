@@ -153,7 +153,7 @@
                 "region": "w"
             },
             "_label": "Sections",
-            "<-active": "$.data.view.section",
+            "<-active": "$.data.nav.section",
             "children": {
                 "dashboard": {
                     "component": "menuItem",
@@ -244,7 +244,8 @@
             },
             "_title": "Dashboard",
             "_description": "Key figures, computed from the generated orders",
-            "<-hidden": "$.data.view.hidden.dashboard",
+            "@id": "dashboardSection",
+            "hidden": false,
             "layout": {
                 "type": "column",
                 "gap": "md"
@@ -265,7 +266,7 @@
                             "press": [
                                 {
                                     "command": "set",
-                                    "target": "$.data.view.section",
+                                    "target": "$.data.nav.section",
                                     "value": "orders"
                                 }
                             ]
@@ -447,7 +448,7 @@
                             "component": "card",
                             "_title": "Forecast",
                             "_subtitle": "Next 30 days",
-                            "<-loading": "$.data.ui.forecastLoading",
+                            "<-loading": "$.data.dashboard.forecastLoading",
                             "children": {
                                 "stat": {
                                     "component": "stat",
@@ -455,7 +456,7 @@
                                     "currency": "EUR",
                                     "_label": "Expected revenue",
                                     "<-value": "$.data.stats.forecast",
-                                    "<-loading": "$.data.ui.forecastLoading"
+                                    "<-loading": "$.data.dashboard.forecastLoading"
                                 }
                             }
                         },
@@ -659,7 +660,7 @@
                             "children": {
                                 "bulk": {
                                     "component": "actionBar",
-                                    "<-selected": "$.data.pickedCustomers",
+                                    "<-selected": "$.data.dashboard.pickedCustomers",
                                     "actions": {
                                         "message": {
                                             "_label": "Message",
@@ -678,7 +679,7 @@
                                     "striped": true,
                                     "resizable": true,
                                     "selectable": "multi",
-                                    "<-selected": "$.data.pickedCustomers",
+                                    "<-selected": "$.data.dashboard.pickedCustomers",
                                     "<-items": "$.data.topCustomers",
                                     "_empty": "No customers yet",
                                     "columns": {
@@ -740,7 +741,8 @@
             },
             "_title": "Orders",
             "_description": "10,000 generated orders, drawn through a small pool of recycled rows",
-            "<-hidden": "$.data.view.hidden.orders",
+            "@id": "ordersSection",
+            "hidden": true,
             "layout": {
                 "type": "column",
                 "gap": "sm"
@@ -797,7 +799,7 @@
                                     "on": {
                                         "press": {
                                             "command": "set",
-                                            "target": "$.data.ui.ordersLoading",
+                                            "target": "$.data.ordersView.loading",
                                             "value": true
                                         }
                                     }
@@ -823,8 +825,8 @@
                     "rowHeight": "lg",
                     "overscan": 6,
                     "<-records": "$.data.orders",
-                    "<-selected": "$.data.selectedOrder",
-                    "<-loading": "$.data.ui.ordersLoading",
+                    "<-selected": "$.data.ordersView.selected",
+                    "<-loading": "$.data.ordersView.loading",
                     "empty": {
                         "component": "emptyState",
                         "icon": "receipt",
@@ -888,7 +890,7 @@
                                     "press": [
                                         {
                                             "command": "set",
-                                            "target": "$.data.selectedOrder",
+                                            "target": "$.data.ordersView.selected",
                                             "value": "$row.id"
                                         },
                                         {
@@ -920,7 +922,7 @@
                                             "press": [
                                                 {
                                                     "command": "set",
-                                                    "target": "$.data.selectedOrder",
+                                                    "target": "$.data.ordersView.selected",
                                                     "value": "$row.id"
                                                 },
                                                 {
@@ -940,7 +942,7 @@
                                             "press": [
                                                 {
                                                     "command": "set",
-                                                    "target": "$.data.selectedOrder",
+                                                    "target": "$.data.ordersView.selected",
                                                     "value": "$row.id"
                                                 },
                                                 {
@@ -982,29 +984,29 @@
                                         "children": {
                                             "avatar": {
                                                 "component": "avatar",
-                                                "<-_name": "$.data.detail.customer"
+                                                "<-_name": "$.data.ordersView.detail.customer"
                                             },
                                             "name": {
                                                 "component": "text",
                                                 "textRole": "heading",
-                                                "<-_text": "$.data.detail.customer"
+                                                "<-_text": "$.data.ordersView.detail.customer"
                                             },
                                             "number": {
                                                 "component": "badge",
                                                 "tone": "neutral",
-                                                "<-_text": "$.data.detail.label"
+                                                "<-_text": "$.data.ordersView.detail.label"
                                             },
                                             "priority": {
                                                 "component": "chip",
                                                 "size": "sm",
                                                 "icon": "truck",
-                                                "<-_text": "$.data.detail.priority"
+                                                "<-_text": "$.data.ordersView.detail.priority"
                                             }
                                         }
                                     },
                                     "facts": {
                                         "component": "descriptionList",
-                                        "<-record": "$.data.detail",
+                                        "<-record": "$.data.ordersView.detail",
                                         "items": {
                                             "status": {
                                                 "_term": "Status",
@@ -1042,7 +1044,7 @@
                                     "_tab": "Items",
                                     "icon": "package"
                                 },
-                                "<-record": "$.data.detail",
+                                "<-record": "$.data.ordersView.detail",
                                 "items": {
                                     "product": {
                                         "_term": "Product",
@@ -1093,8 +1095,8 @@
                                     "steps": {
                                         "component": "stepper",
                                         "linear": false,
-                                        "<-active": "$.data.detail.step",
-                                        "<-completed": "$.data.detail.completed",
+                                        "<-active": "$.data.ordersView.detail.step",
+                                        "<-completed": "$.data.ordersView.detail.completed",
                                         "_label": "Fulfilment steps",
                                         "@id": "orderSteps",
                                         "steps": {
@@ -1118,18 +1120,18 @@
                                     "progress": {
                                         "component": "progress",
                                         "_label": "Fulfilment",
-                                        "<-value": "$.data.detail.progress"
+                                        "<-value": "$.data.ordersView.detail.progress"
                                     },
                                     "events": {
                                         "component": "timeline",
                                         "appearance": "compact",
                                         "_label": "Order events",
                                         "_empty": "No events yet",
-                                        "<-entries": "$.data.detail.timeline"
+                                        "<-entries": "$.data.ordersView.detail.timeline"
                                     },
                                     "dates": {
                                         "component": "descriptionList",
-                                        "<-record": "$.data.detail",
+                                        "<-record": "$.data.ordersView.detail",
                                         "items": {
                                             "created": {
                                                 "_term": "Created",
@@ -1252,7 +1254,7 @@
                                 "required": true,
                                 "minLength": 2,
                                 "maxLength": 60,
-                                "<-value": "$.data.draft.customer"
+                                "<-value": "$.data.ordersView.draft.customer"
                             },
                             "email": {
                                 "component": "textField",
@@ -1265,7 +1267,7 @@
                                 "_errors": {
                                     "pattern": "Enter an email address such as name@example.com"
                                 },
-                                "<-value": "$.data.draft.email"
+                                "<-value": "$.data.ordersView.draft.email"
                             },
                             "product": {
                                 "component": "selectField",
@@ -1298,7 +1300,7 @@
                                         "_label": "Ipoh coffee"
                                     }
                                 },
-                                "<-value": "$.data.draft.product"
+                                "<-value": "$.data.ordersView.draft.product"
                             },
                             "quantity": {
                                 "component": "textField",
@@ -1308,7 +1310,7 @@
                                 "pattern": "integer",
                                 "min": 1,
                                 "max": 99,
-                                "<-value": "$.data.draft.quantity"
+                                "<-value": "$.data.ordersView.draft.quantity"
                             },
                             "channel": {
                                 "component": "radioField",
@@ -1326,7 +1328,7 @@
                                         "_label": "Marketplace"
                                     }
                                 },
-                                "<-value": "$.data.draft.channel"
+                                "<-value": "$.data.ordersView.draft.channel"
                             },
                             "delivery": {
                                 "component": "dateField",
@@ -1334,19 +1336,19 @@
                                 "required": true,
                                 "min": "2026-01-01",
                                 "max": "2027-12-31",
-                                "<-value": "$.data.draft.delivery"
+                                "<-value": "$.data.ordersView.draft.delivery"
                             },
                             "express": {
                                 "component": "switchField",
                                 "_label": "Express shipping",
                                 "_help": "Leaves the warehouse the same day",
-                                "<-checked": "$.data.draft.express"
+                                "<-checked": "$.data.ordersView.draft.express"
                             },
                             "confirmed": {
                                 "component": "checkField",
                                 "_label": "The customer confirmed the order",
                                 "required": true,
-                                "<-checked": "$.data.draft.confirmed"
+                                "<-checked": "$.data.ordersView.draft.confirmed"
                             },
                             "notes": {
                                 "component": "textareaField",
@@ -1358,7 +1360,7 @@
                                 "placement": {
                                     "span": 2
                                 },
-                                "<-value": "$.data.draft.notes"
+                                "<-value": "$.data.ordersView.draft.notes"
                             }
                         },
                         "@id": "newOrderForm",
@@ -1445,7 +1447,8 @@
             },
             "_title": "Order archive",
             "_description": "Pages of a fake archive API: an effect asks for the page in $.data.archive.request, keeps the records by id and fills the page window",
-            "<-hidden": "$.data.view.hidden.archive",
+            "@id": "archiveSection",
+            "hidden": true,
             "layout": {
                 "type": "column",
                 "gap": "md"
@@ -1455,10 +1458,10 @@
                     "component": "toolbar",
                     "density": "compact",
                     "children": {
-                        "status": {
+                        "archiveStatus": {
                             "component": "badge",
                             "<-_text": "$.data.archive.view.statusText",
-                            "<-tone": "$.data.archive.view.statusTone"
+                            "tone": "neutral"
                         }
                     }
                 },
@@ -1529,7 +1532,8 @@
             },
             "_title": "Fulfilment",
             "_description": "Every order sits in the column of its status; drag a card to change it",
-            "<-hidden": "$.data.view.hidden.fulfilment",
+            "@id": "fulfilmentSection",
+            "hidden": true,
             "layout": {
                 "type": "column",
                 "gap": "sm"
@@ -1549,7 +1553,7 @@
                             "component": "segmented",
                             "size": "sm",
                             "_label": "Card size",
-                            "<-value": "$.data.ui.cardHeight",
+                            "<-value": "$.data.fulfilment.cardHeight",
                             "options": {
                                 "sm": {
                                     "_label": "Small"
@@ -1569,7 +1573,7 @@
                     "key": "id",
                     "columnField": "status",
                     "labelField": "label",
-                    "<-cardHeight": "$.data.ui.cardHeight",
+                    "<-cardHeight": "$.data.fulfilment.cardHeight",
                     "<-records": "$.data.orders",
                     "theme": {
                         "board": {
@@ -1642,7 +1646,8 @@
             },
             "_title": "Deliveries",
             "_description": "Planned deliveries by day; the date range filters the calendar and the list",
-            "<-hidden": "$.data.view.hidden.deliveries",
+            "@id": "deliveriesSection",
+            "hidden": true,
             "layout": {
                 "type": "grid",
                 "cols": 3,
@@ -1823,7 +1828,8 @@
             },
             "_title": "Customers",
             "_description": "A keyed map of customers, written into the document's data before mount",
-            "<-hidden": "$.data.view.hidden.customers",
+            "@id": "customersSection",
+            "hidden": true,
             "layout": {
                 "type": "grid",
                 "cols": 3,
@@ -1932,7 +1938,7 @@
                                 "press": [
                                     {
                                         "command": "set",
-                                        "target": "$.data.view.section",
+                                        "target": "$.data.nav.section",
                                         "value": "orders"
                                     }
                                 ]
@@ -1949,7 +1955,8 @@
             },
             "_title": "Products",
             "_description": "Maintain the catalogue, check the stock and browse the gallery",
-            "<-hidden": "$.data.view.hidden.products",
+            "@id": "productsSection",
+            "hidden": true,
             "layout": {
                 "type": "column",
                 "gap": "md"
@@ -2249,7 +2256,8 @@
             },
             "_title": "Catalog",
             "_description": "Pick a category on the left to list its products; edit a product on the right",
-            "<-hidden": "$.data.view.hidden.catalog",
+            "@id": "catalogSection",
+            "hidden": true,
             "layout": {
                 "type": "column",
                 "gap": "md"
@@ -2351,7 +2359,8 @@
             },
             "_title": "Warehouse",
             "_description": "The floor plan, the racks in 3D and a pad to sketch a new layout",
-            "<-hidden": "$.data.view.hidden.warehouse",
+            "@id": "warehouseSection",
+            "hidden": true,
             "layout": {
                 "type": "column",
                 "gap": "md"
@@ -2880,7 +2889,8 @@
             },
             "_title": "Ridgeline",
             "_description": "A two-player board game on a 3D board: press a piece, then a green tile",
-            "<-hidden": "$.data.view.hidden.ridgeline",
+            "@id": "ridgelineSection",
+            "hidden": true,
             "layout": {
                 "type": "row",
                 "gap": "md",
@@ -5052,57 +5062,57 @@
                                     "component": "text",
                                     "_text": "Amber to move",
                                     "textRole": "title",
-                                    "<-hidden": "$.data.game.status.amberTurn"
+                                    "hidden": false
                                 },
                                 "tealTurn": {
                                     "component": "text",
                                     "_text": "Teal to move",
                                     "textRole": "title",
-                                    "<-hidden": "$.data.game.status.tealTurn"
+                                    "hidden": true
                                 },
                                 "amberWon": {
                                     "component": "text",
                                     "_text": "Amber wins!",
                                     "textRole": "title",
                                     "tone": "success",
-                                    "<-hidden": "$.data.game.status.amberWon"
+                                    "hidden": true
                                 },
                                 "tealWon": {
                                     "component": "text",
                                     "_text": "Teal wins!",
                                     "textRole": "title",
                                     "tone": "success",
-                                    "<-hidden": "$.data.game.status.tealWon"
+                                    "hidden": true
                                 },
                                 "drawn": {
                                     "component": "text",
                                     "_text": "A draw",
                                     "textRole": "title",
-                                    "<-hidden": "$.data.game.status.drawn"
+                                    "hidden": true
                                 },
                                 "byBeacon": {
                                     "component": "text",
                                     "_text": "The Warden reached the enemy Beacon.",
                                     "textRole": "caption",
-                                    "<-hidden": "$.data.game.status.byBeacon"
+                                    "hidden": true
                                 },
                                 "byScouts": {
                                     "component": "text",
                                     "_text": "The enemy has no Scouts left.",
                                     "textRole": "caption",
-                                    "<-hidden": "$.data.game.status.byScouts"
+                                    "hidden": true
                                 },
                                 "byStuck": {
                                     "component": "text",
                                     "_text": "The enemy has no move left.",
                                     "textRole": "caption",
-                                    "<-hidden": "$.data.game.status.byStuck"
+                                    "hidden": true
                                 },
                                 "byLimit": {
                                     "component": "text",
                                     "_text": "60 moves played: the Scouts were counted.",
                                     "textRole": "caption",
-                                    "<-hidden": "$.data.game.status.byLimit"
+                                    "hidden": true
                                 }
                             }
                         },
@@ -5171,7 +5181,8 @@
             },
             "_title": "Orchard",
             "_description": "A short real-time game: catch the falling fruit in the basket with the arrow keys",
-            "<-hidden": "$.data.view.hidden.orchard",
+            "@id": "orchardSection",
+            "hidden": true,
             "layout": {
                 "type": "row",
                 "gap": "md",
@@ -5353,7 +5364,7 @@
                             "component": "text",
                             "_text": "Five apples fell: the round is over.",
                             "textRole": "title",
-                            "<-hidden": "$.data.orchard.hideOver"
+                            "hidden": true
                         },
                         "start": {
                             "component": "button",
@@ -5394,7 +5405,8 @@
             },
             "_title": "Workshop",
             "_description": "Model a stool in 3D: pick its faces, edges or vertices, shape them, and save it as a GLB file",
-            "<-hidden": "$.data.view.hidden.workshop",
+            "@id": "workshopSection",
+            "hidden": true,
             "layout": {
                 "type": "row",
                 "gap": "md",
@@ -5642,7 +5654,8 @@
             },
             "_title": "New order",
             "_description": "Take an order in three steps: customer, items and options, review",
-            "<-hidden": "$.data.view.hidden.desk",
+            "@id": "deskSection",
+            "hidden": true,
             "layout": {
                 "type": "column",
                 "gap": "md"
@@ -5858,7 +5871,8 @@
             },
             "_title": "Support",
             "_description": "Talk to a customer, read earlier threads and reuse canned replies",
-            "<-hidden": "$.data.view.hidden.support",
+            "@id": "supportSection",
+            "hidden": true,
             "layout": {
                 "type": "grid",
                 "cols": 2,
@@ -6240,7 +6254,8 @@
             },
             "_title": "Help",
             "_description": "Answers to common questions and a way to reach support",
-            "<-hidden": "$.data.view.hidden.help",
+            "@id": "helpSection",
+            "hidden": true,
             "layout": {
                 "type": "grid",
                 "cols": 2,
@@ -6538,7 +6553,8 @@
                 "region": "center"
             },
             "_title": "Settings",
-            "<-hidden": "$.data.view.hidden.settings",
+            "@id": "settingsSection",
+            "hidden": true,
             "children": {
                 "menu": {
                     "children": {
@@ -7229,7 +7245,7 @@
                         "press": [
                             {
                                 "command": "set",
-                                "target": "$.data.view.section",
+                                "target": "$.data.nav.section",
                                 "value": "customers"
                             }
                         ]

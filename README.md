@@ -21,7 +21,7 @@ node bin/workspace.mjs run build core expression state state-sync stateui stateu
 cd example
 npm run dev        # Vite dev server: / is Northwind Ops, /desktop.html is the Lumen desktop
 npm run typecheck  # tsc --noEmit
-npm run validate   # validateDocument over the app document and the Lumen document; exits 1 on errors
+npm run validate   # validateDocument over the app document and the Lumen document; exits 1 on any error or warning
 npm run build      # typecheck + vite build into dist/
 npm test           # Vitest browser mode (Chromium through Playwright)
 npm run icons      # regenerate src/icons.json after adding an icon to the document
@@ -43,7 +43,8 @@ npm run icons      # regenerate src/icons.json after adding an icon to the docum
 | `src/data.ts` | Seeded generators for 240 customers and 10,000 orders, plus stats |
 | `src/seed.ts` | Seeded smaller data sets (products, categories, deliveries, support threads, chart figures) and `seedData`, which puts them into the document's data |
 | `src/views.ts` | Pure helpers: deliveries in a date range, one page of a list, products of a category, the breadcrumb trail |
-| `src/sections.ts` | `showSection`: shows one section and hides the others (the console, the breadcrumb handler and the tests use it) |
+| `src/sections.ts` | `showSection`: shows one section (the console, the breadcrumb handler and the tests use it); `bindSections` writes each section panel's own `hidden` from `$.data.nav.section` |
+| `src/nodePath.ts` | `pathOfId`: the state path of a node by its id (`@id`, else its key), for code that writes a node's own state |
 | `src/archive.ts` | The fake archive API behind the archive effect (`$.functions.host.archiveFetch`, paged, aborts on a newer request) and the `$.functions.host.moneyFormat` compute function, given to `mountApp` in a `hostCatalog` beside `COMPONENT_FUNCTIONS` |
 | `src/ridgeline.ts` | The rules of Ridgeline as pure functions over a JSON game state, and `RIDGELINE_HOST_FUNCTIONS` (`ridgelineNew`, `ridgelinePick`, `ridgelineMove`), expression functions of the host catalog that the rules call by path |
 | `src/warehouse.ts` | The Warehouse files and the `readFile` and `load3d` hooks that serve them |
@@ -55,6 +56,7 @@ npm run icons      # regenerate src/icons.json after adding an icon to the docum
 | `scripts/extract-icons.ts` | `npm run icons` |
 | `test/app.browser.test.ts` | Browser tests of the running app, the catalog coverage test and a smoke test per section in English and German |
 | `test/views.browser.test.ts` | Tests of the seed data and the view helpers |
+| `test/nodePath.browser.test.ts` | Tests of `pathOfId` and `sectionPaths` |
 | `test/ridgeline.browser.test.ts` | Tests of the Ridgeline rules: start, steps, picking, flanking, the ways to win, the move limit |
 | `desktop.html` | The page of the Lumen desktop: the `#desktop` host, the full height of the window |
 | `src/desktop/desk.ts` | Lumen's pure functions: the window manager (`deskAct`), the file system (`fsAct`, `fsListing`, saving notes and pictures, uploads), the viewer and the wallpaper paints; `DESK_FUNCTIONS` goes to `mountApp` as expression functions |
@@ -71,9 +73,9 @@ npm run icons      # regenerate src/icons.json after adding an icon to the docum
 | Feature | Where |
 | --- | --- |
 | The app node with the document title and a `toastRegion`; one screen whose root `panel` has a `region` layout (`collapseBelow: md`) placing the header (`n`), the `nav` (`w`, a menu button below 768 px with `collapseBelow: md`), the sections (`center`) and the footer (`s`) | `app.json`, `main.json` root |
-| Nav switching sections through `$.data.view.hidden.*` and `<-hidden` links | `nav` and the section panels |
+| Nav switching sections: `active` is linked to `$.data.nav.section`, and each section panel keeps its own `hidden` on the node, found by its `@id` (`ordersSection`) and written by `bindSections` | `nav`, the section panels, `src/sections.ts` |
 | `dashboardGrid` with `stat`, `card`, `alert`, `progress`, `badge`, `descriptionList`, `emptyState`, `avatar`, `skeleton`, `spinner`, card `loading` | Dashboard |
-| `recordList` over 10,000 orders: windowed rows, `$row` links, `selected` bound to `$.data.selectedOrder`, `loading` during a fake refresh, empty state | Orders |
+| `recordList` over 10,000 orders: windowed rows, `$row` links, `selected` bound to `$.data.ordersView.selected`, `loading` during a fake refresh, empty state | Orders |
 | Row template: a `card` with `text` and `badge`, an "Open" `button` and an overflow `menu` (Mark shipped / Cancel order) whose `on` entries use `$row.id`; the cancel goes through the confirm dialog | Orders list `row` |
 | `searchBox` that scrolls the list with `scrollTo` (try 9000), toolbar with "back to top", refresh and new order | Orders toolbar |
 | `drawer` with `tabs` (Summary / Items / History) and a footer `menu` (mark shipped, cancel) | Orders `detail` |
@@ -93,7 +95,7 @@ The app document places every component of the catalog (the test fixtures `order
 | Section (nav key) | Components |
 | --- | --- |
 | Dashboard (`dashboard`) | the ones listed in the feature table, plus `chart` (a bar chart of revenue by month and a donut of orders by status), `popover` (how the chart is computed), `list` (latest orders), `table` (top customers) and `tableRow` (the footnote under the table) |
-| Orders (`orders`) | `breadcrumb` (Dashboard / Orders; the Dashboard crumb goes back), `stepper` and a `timeline` of the order's events (`$.data.detail.timeline`, built by `orderTimeline`) in the drawer's History tab (a step sets the order's status), a `chip` with the priority in the Summary tab, the components in the feature table |
+| Orders (`orders`) | `breadcrumb` (Dashboard / Orders; the Dashboard crumb goes back), `stepper` and a `timeline` of the order's events (`$.data.ordersView.detail.timeline`, built by `orderTimeline`) in the drawer's History tab (a step sets the order's status), a `chip` with the priority in the Summary tab, the components in the feature table |
 | Archive (`archive`) | A `recordList` filled by logic, no code in the section: the effect `fetchArchive` asks the fake API for the page in `$.data.archive.request` (token, abort, cache of 10 pages), merges the records into `$.data.archive.records` by `id` and fills the page window `$.data.archive.page`; the compute unit `archiveTotal` formats each record's total with `money.format`, the table `archiveStatus` turns the effect's status into the `badge`, and a rule copies the `pagination`'s page into the request. Editing a record (`$.data.archive.records.<id>.total`) rewrites its row |
 | Fulfilment (`fulfilment`) | `board` over the 10,000 orders (one column per status; a move writes the status), `segmented` for the card size |
 | Deliveries (`deliveries`) | `calendar` of planned deliveries, `dateRangeField` filter, `list` of the deliveries in the range, `pagination`, `badge` |
@@ -166,7 +168,7 @@ is one JSON value at `$.data.game.board`. A press on a piece writes its id to `$
 tile writes the tile id to `$.data.game.input.to`, and the New game button writes `true` to `$.data.game.input.reset`.
 Three rules in `logic.json` (`ridgelinePick`, `ridgelineMove`, `ridgelineNew`) each set the board to the result of an
 expression function from `src/ridgeline.ts` and clear their input, so the same press works again. The table
-`ridgelineStatus` turns the winner, the turn and the reason into the hidden flags of the localized status lines. The
+`ridgelineStatus` turns the winner, the turn and the reason into the `hidden` of each localized status line, written on the line's node (`"amberTurn": "#amberTurn.hidden"`), not into `$.data`. The
 scene links each piece's `position` and each tile's `material` to the state; the pieces glide with `transition`.
 
 ### Orchard, the real-time game
@@ -242,9 +244,12 @@ kept in `desk.json`, so files, notes and settings are still there after a reload
 
 The document (`src/desktop/document.ts`) is built in TypeScript because the six windows share one shape: a library
 `window` with all five frame buttons. Each of its events writes a command, such as `"open files"`, `"focus files"`
-(`activate`) or `"snap notes left"`, to one input. A rule then sets the desk state to `deskAct(state, command)`. Each
-window links its `hidden`, `active` and `maximized` flags and its whole `placement` (`"<-placement"`, with `z` for
-the stacking order) to that state, and each task button takes its look from it. A window dragged by its title bar or
+(`activate`) or `"snap notes left"`, to one input. A rule then sets the window manager's data (`$.data.desk.manager`) to `deskAct(manager, command)`. Each
+window links its `active` and `maximized` flags and its whole `placement` (`"<-placement"`, with `z` for
+the stacking order) to that data. What is a node's own state stays on the node: the same rule then writes each
+window's `hidden` and each task button's `hidden` and `variant` on the node from the window records, and the rule that
+opens a file writes the `hidden` of the Viewer's picture and empty state. Those nodes carry an `@id` (`filesWindow`,
+`filesTask`, `viewerPicture`, `viewerNone`) and the rules' targets are found by it when the document is built. A window dragged by its title bar or
 resized by its edge writes its own placement in pixels through that link and raises `move` or `resize`; the command
 `"place notes"` reads the placement back into the window's free geometry, so a snapped window that is dragged is free. The file system works the same way with `fsAct`. Each rule's function is a pure function in `desk.ts`, and `desk.browser.test.ts` tests them without a browser
 page.

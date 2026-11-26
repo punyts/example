@@ -20,16 +20,18 @@ export interface ConsoleElements {
 /** The small part of the store the JSON view shows; never the 10,000 orders */
 export function storeExcerpt(store: Store<AppState>): Record<string, unknown> {
     const orders = store.get<Order[]>('$.data.orders');
-    const detail = store.get<Order>('$.data.detail');
+    const detail = store.get<Order>('$.data.ordersView.detail');
     return {
         locale: store.get('$.locale'),
         theme: { active: store.get('$.theme.active'), accent: store.get('$.theme.tokens.color.accent.base') },
         data: {
-            view: store.get('$.data.view'),
-            ui: store.get('$.data.ui'),
+            nav: store.get('$.data.nav'),
             requests: store.get('$.data.requests'),
-            selectedOrder: store.get('$.data.selectedOrder'),
-            detail: detail.id === '' ? '(none)' : { id: detail.id, customer: detail.customer, status: detail.status },
+            ordersView: {
+                loading: store.get('$.data.ordersView.loading'),
+                selected: store.get('$.data.ordersView.selected'),
+                detail: detail.id === '' ? '(none)' : { id: detail.id, customer: detail.customer, status: detail.status }
+            },
             stats: store.get('$.data.stats'),
             orders: `[${orders.length} records]`
         }
@@ -63,12 +65,12 @@ export function consoleActions(store: Store<AppState>): Record<string, { label: 
             label: 'store.apply("$.data.orders.<i>", { status: "shipped", ... })',
             run() {
                 const orders = store.get<Order[]>('$.data.orders');
-                const selected = store.get<string>('$.data.selectedOrder');
+                const selected = store.get<string>('$.data.ordersView.selected');
                 let index = orders.findIndex((order) => order.id === selected && order.status !== 'shipped');
                 if (index < 0) index = orders.findIndex((order) => order.status === 'pending' || order.status === 'paid');
                 if (index < 0) return;
                 store.apply(`$.data.orders.${index}`, { status: 'shipped', statusTone: 'success', progress: 85 });
-                store.set('$.data.selectedOrder', String(orders[index]?.id ?? ''));
+                store.set('$.data.ordersView.selected', String(orders[index]?.id ?? ''));
             }
         },
         german: { label: 'store.set("$.locale", "de")', run: () => void store.set('$.locale', 'de') },

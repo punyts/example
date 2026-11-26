@@ -35,31 +35,28 @@ const item = (fs: Fs, id: string): FsItem | undefined => fs.items.find((other) =
 const png = { id: 'f1', name: 'Picture.png', size: 2048, type: 'image/png' };
 
 describe('deskAct', () => {
-    it('should start with every window closed and no taskbar button', () => {
+    it('should start with every window closed', () => {
         // Arrange and Act
         const desk = emptyDesk();
 
         // Assert
         expect(desk.active).toBe('');
         for (const app of APPS) {
-            expect(desk.hidden[app]).toBe(true);
-            expect(desk.taskbar[app].hidden).toBe(true);
+            expect(desk.windows[app].open).toBe(false);
             expect(desk.windows[app].z).toBe(0);
         }
     });
 
-    it('should open a window in front, with its free placement and a taskbar button', () => {
+    it('should open a window in front, with its free placement', () => {
         // Arrange and Act
         const desk = run('open files', 'open notes');
 
         // Assert
         expect(desk.active).toBe('notes');
-        expect(desk.hidden.files).toBe(false);
+        expect(desk.windows.files).toMatchObject({ open: true, minimized: false });
         expect(desk.windows.files.z).toBe(1);
         expect(desk.windows.notes.z).toBe(2);
         expect(desk.placement.files).toEqual({ x: '150px', y: '28px', width: '720px', height: '500px', z: 1 });
-        expect(desk.taskbar.notes).toEqual({ hidden: false, variant: 'soft' });
-        expect(desk.taskbar.files).toEqual({ hidden: false, variant: 'ghost' });
     });
 
     it('should bring a focused window to the front and keep z small', () => {
@@ -91,10 +88,9 @@ describe('deskAct', () => {
         const restored = deskAct(minimized, 'task notes');
 
         // Assert
-        expect(minimized.hidden.notes).toBe(true);
-        expect(minimized.taskbar.notes.hidden).toBe(false);
+        expect(minimized.windows.notes).toMatchObject({ open: true, minimized: true });
         expect(minimized.active).toBe('files');
-        expect(restored.hidden.notes).toBe(false);
+        expect(restored.windows.notes.minimized).toBe(false);
         expect(restored.active).toBe('notes');
     });
 
@@ -107,9 +103,9 @@ describe('deskAct', () => {
         const behind = deskAct(open, 'task files');
 
         // Assert
-        expect(front.hidden.notes).toBe(true);
+        expect(front.windows.notes.minimized).toBe(true);
         expect(behind.active).toBe('files');
-        expect(behind.hidden.files).toBe(false);
+        expect(behind.windows.files.minimized).toBe(false);
     });
 
     it.each([
@@ -176,7 +172,6 @@ describe('deskAct', () => {
 
         // Assert
         expect(desk.windows.files).toMatchObject({ open: false, snap: 'free', z: 0 });
-        expect(desk.taskbar.files.hidden).toBe(true);
         expect([desk.windows.notes.z, desk.windows.paint.z]).toEqual([1, 2]);
     });
 
@@ -318,8 +313,8 @@ describe('the file system', () => {
         expect(fsOpenCommand(items, 'z')).toBe('');
         expect(fsOpenCommand(items, 'documents')).toBe('');
         expect(notesLoad(undefined, items, 'welcome')).toMatchObject({ id: 'welcome', name: 'Welcome.md' });
-        expect(viewerLoad(undefined, items, 'p')).toEqual({ id: 'p', name: 'p.png', file: png, empty: false, has: true });
-        expect(viewerLoad(undefined, items, 'welcome')).toMatchObject({ file: null, empty: true, has: false });
+        expect(viewerLoad(undefined, items, 'p')).toEqual({ id: 'p', name: 'p.png', file: png });
+        expect(viewerLoad(undefined, items, 'welcome')).toEqual({ id: '', name: '', file: null });
     });
 
     it('should save a new note into Documents and then edit that note', () => {

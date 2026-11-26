@@ -1,69 +1,55 @@
 {
-    "view": {
-        "section": "dashboard",
-        "hidden": {
-            "dashboard": false,
-            "orders": true,
-            "archive": true,
-            "fulfilment": true,
-            "deliveries": true,
-            "customers": true,
-            "products": true,
-            "catalog": true,
-            "warehouse": true,
-            "ridgeline": true,
-            "orchard": true,
-            "workshop": true,
-            "desk": true,
-            "support": true,
-            "help": true,
-            "settings": true
+    "nav": {
+        "section": "dashboard"
+    },
+    "dashboard": {
+        "forecastLoading": true,
+        "pickedCustomers": []
+    },
+    "ordersView": {
+        "loading": false,
+        "selected": "",
+        "detail": {
+            "id": "",
+            "label": "",
+            "customer": "",
+            "email": "",
+            "product": "",
+            "sku": "",
+            "quantity": 0,
+            "unitPrice": 0,
+            "total": 0,
+            "status": "",
+            "statusTone": "neutral",
+            "channel": "",
+            "priority": "",
+            "created": "",
+            "shipped": "",
+            "progress": 0,
+            "step": "",
+            "completed": [],
+            "extras": "",
+            "attachment": "",
+            "timeline": {}
+        },
+        "draft": {
+            "customer": "",
+            "email": "",
+            "product": "",
+            "quantity": "",
+            "channel": "",
+            "delivery": "",
+            "express": false,
+            "confirmed": false,
+            "notes": ""
         }
     },
-    "ui": {
-        "ordersLoading": false,
-        "forecastLoading": true,
+    "fulfilment": {
         "cardHeight": "md"
     },
     "requests": {
         "toast": "",
         "jumpTo": ""
-    },
-    "selectedOrder": "",
-    "pickedCustomers": [],
-    "detail": {
-        "id": "",
-        "label": "",
-        "customer": "",
-        "email": "",
-        "product": "",
-        "sku": "",
-        "quantity": 0,
-        "unitPrice": 0,
-        "total": 0,
-        "status": "",
-        "statusTone": "neutral",
-        "channel": "",
-        "priority": "",
-        "created": "",
-        "shipped": "",
-        "progress": 0,
-        "step": "",
-        "completed": [],
-        "extras": "",
-        "attachment": "",
-        "timeline": {}
-    },
-    "draft": {
-        "customer": "",
-        "email": "",
-        "product": "",
-        "quantity": "",
-        "channel": "",
-        "delivery": "",
-        "express": false,
-        "confirmed": false,
-        "notes": ""
     },
     "device": {
         "code": ""
@@ -371,7 +357,6 @@
         },
         "view": {
             "statusText": "",
-            "statusTone": "neutral",
             "loading": false
         }
     },
@@ -389,7 +374,6 @@
         "fruit": {},
         "score": 0,
         "missed": 0,
-        "hideOver": true,
         "reset": false
     },
     "workshop": {
