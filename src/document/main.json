@@ -758,14 +758,7 @@
                             "_label": "Orders"
                         }
                     },
-                    "on": {
-                        "select": [
-                            {
-                                "command": "emit",
-                                "target": "nav.goto"
-                            }
-                        ]
-                    }
+                    "@id": "ordersTrail"
                 },
                 "tools": {
                     "component": "toolbar",
@@ -776,12 +769,7 @@
                             "component": "searchBox",
                             "_label": "Jump to order",
                             "_placeholder": "Order number, then Enter (try 9000)",
-                            "on": {
-                                "search": {
-                                    "command": "emit",
-                                    "target": "orders.jump"
-                                }
-                            }
+                            "@id": "ordersJump"
                         },
                         "actions": {
                             "component": "toolbar",
@@ -805,18 +793,13 @@
                                     "variant": "soft",
                                     "icon": "refresh",
                                     "_title": "Refresh",
+                                    "@id": "ordersRefresh",
                                     "on": {
-                                        "press": [
-                                            {
-                                                "command": "set",
-                                                "target": "$.data.ui.ordersLoading",
-                                                "value": true
-                                            },
-                                            {
-                                                "command": "emit",
-                                                "target": "orders.refresh"
-                                            }
-                                        ]
+                                        "press": {
+                                            "command": "set",
+                                            "target": "$.data.ui.ordersLoading",
+                                            "value": true
+                                        }
                                     }
                                 },
                                 "create": {
@@ -900,16 +883,12 @@
                                 "icon": "chevron-right",
                                 "iconPosition": "end",
                                 "_title": "Open",
+                                "@id": "orderOpen",
                                 "on": {
                                     "press": [
                                         {
                                             "command": "set",
                                             "target": "$.data.selectedOrder",
-                                            "value": "$row.id"
-                                        },
-                                        {
-                                            "command": "emit",
-                                            "target": "order.open",
                                             "value": "$row.id"
                                         },
                                         {
@@ -936,16 +915,12 @@
                                         "component": "menuItem",
                                         "icon": "truck",
                                         "_label": "Mark shipped",
+                                        "@id": "rowShip",
                                         "on": {
                                             "press": [
                                                 {
                                                     "command": "set",
                                                     "target": "$.data.selectedOrder",
-                                                    "value": "$row.id"
-                                                },
-                                                {
-                                                    "command": "emit",
-                                                    "target": "order.ship",
                                                     "value": "$row.id"
                                                 },
                                                 {
@@ -960,16 +935,12 @@
                                         "component": "menuItem",
                                         "icon": "ban",
                                         "_label": "Cancel order",
+                                        "@id": "rowCancel",
                                         "on": {
                                             "press": [
                                                 {
                                                     "command": "set",
                                                     "target": "$.data.selectedOrder",
-                                                    "value": "$row.id"
-                                                },
-                                                {
-                                                    "command": "emit",
-                                                    "target": "order.open",
                                                     "value": "$row.id"
                                                 },
                                                 {
@@ -1125,14 +1096,7 @@
                                         "<-active": "$.data.detail.step",
                                         "<-completed": "$.data.detail.completed",
                                         "_label": "Fulfilment steps",
-                                        "on": {
-                                            "select": [
-                                                {
-                                                    "command": "emit",
-                                                    "target": "order.step"
-                                                }
-                                            ]
-                                        },
+                                        "@id": "orderSteps",
                                         "steps": {
                                             "pending": {
                                                 "_label": "Pending"
@@ -1211,18 +1175,13 @@
                                         "icon": "truck",
                                         "_label": "Mark shipped",
                                         "_description": "Sets the status and the fulfilment progress",
+                                        "@id": "orderShip",
                                         "on": {
-                                            "press": [
-                                                {
-                                                    "command": "emit",
-                                                    "target": "order.ship"
-                                                },
-                                                {
-                                                    "command": "show",
-                                                    "target": "$.app.toasts",
-                                                    "value": "orderShipped"
-                                                }
-                                            ]
+                                            "press": {
+                                                "command": "show",
+                                                "target": "$.app.toasts",
+                                                "value": "orderShipped"
+                                            }
                                         }
                                     },
                                     "copy": {
@@ -1402,15 +1361,12 @@
                                 "<-value": "$.data.draft.notes"
                             }
                         },
+                        "@id": "newOrderForm",
                         "on": {
                             "submitted": [
                                 {
                                     "command": "close",
                                     "target": "#formDialog"
-                                },
-                                {
-                                    "command": "emit",
-                                    "target": "order.create"
                                 },
                                 {
                                     "command": "reset",
@@ -1458,15 +1414,12 @@
                             "confirm": {
                                 "_title": "Cancel order",
                                 "tone": "danger",
+                                "@id": "orderCancel",
                                 "on": {
                                     "press": [
                                         {
                                             "command": "close",
                                             "target": "#confirmDialog"
-                                        },
-                                        {
-                                            "command": "emit",
-                                            "target": "order.cancel"
                                         },
                                         {
                                             "command": "close",
@@ -1643,14 +1596,7 @@
                             "_title": "Cancelled"
                         }
                     },
-                    "on": {
-                        "move": [
-                            {
-                                "command": "emit",
-                                "target": "board.move"
-                            }
-                        ]
-                    },
+                    "@id": "fulfilmentBoard",
                     "card": {
                         "component": "card",
                         "elevation": "flat",
@@ -1761,20 +1707,7 @@
                     "endField": "end",
                     "titleField": "title",
                     "<-records": "$.data.deliveries.shown",
-                    "on": {
-                        "select": [
-                            {
-                                "command": "emit",
-                                "target": "delivery.day"
-                            }
-                        ],
-                        "open": [
-                            {
-                                "command": "emit",
-                                "target": "delivery.open"
-                            }
-                        ]
-                    }
+                    "@id": "deliveriesCalendar"
                 },
                 "side": {
                     "component": "card",
@@ -2038,17 +1971,12 @@
                                     "add": {
                                         "_title": "New product",
                                         "icon": "plus",
+                                        "@id": "productNew",
                                         "on": {
-                                            "press": [
-                                                {
-                                                    "command": "emit",
-                                                    "target": "product.new"
-                                                },
-                                                {
-                                                    "command": "open",
-                                                    "target": "#crudTable.children.form"
-                                                }
-                                            ]
+                                            "press": {
+                                                "command": "open",
+                                                "target": "#crudTable.children.form"
+                                            }
                                         }
                                     }
                                 }
@@ -2106,7 +2034,8 @@
                                                 }
                                             }
                                         }
-                                    }
+                                    },
+                                    "@id": "productsTable"
                                 },
                                 "form": {
                                     "_title": "Product",
@@ -2175,11 +2104,19 @@
                                                 "required": true,
                                                 "<-value": "$.data.products.draft.stock"
                                             }
-                                        }
+                                        },
+                                        "@id": "productForm"
                                     }
                                 },
                                 "confirm": {
-                                    "_title": "Delete this product?"
+                                    "_title": "Delete this product?",
+                                    "footer": {
+                                        "children": {
+                                            "confirm": {
+                                                "@id": "productDelete"
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         },
@@ -2323,14 +2260,7 @@
                     "_label": "Category path",
                     "_more": "More levels",
                     "<-items": "$.data.catalog.trail",
-                    "on": {
-                        "select": [
-                            {
-                                "command": "emit",
-                                "target": "catalog.crumb"
-                            }
-                        ]
-                    }
+                    "@id": "catalogTrail"
                 },
                 "split": {
                     "component": "splitPane",
@@ -5912,7 +5842,8 @@
                                         "confirm": {
                                             "_label": "The order details are correct"
                                         }
-                                    }
+                                    },
+                                    "@id": "wizardReview"
                                 }
                             }
                         }
@@ -5962,7 +5893,8 @@
                                             "_label": "Offer a refund",
                                             "_prompt": "I can refund the damaged items today."
                                         }
-                                    }
+                                    },
+                                    "@id": "chatComposer"
                                 }
                             },
                             "placement": {
@@ -6006,12 +5938,7 @@
                                     "_value": "$24.00"
                                 }
                             },
-                            "on": {
-                                "approve": {
-                                    "command": "emit",
-                                    "target": "assistant.refund"
-                                }
-                            }
+                            "@id": "assistantRefund"
                         },
                         "ask": {
                             "component": "composer",
@@ -6019,16 +5946,7 @@
                             "_placeholder": "Ask the assistant",
                             "attach": false,
                             "<-streaming": "$.data.assistant.busy",
-                            "on": {
-                                "send": {
-                                    "command": "emit",
-                                    "target": "assistant.ask"
-                                },
-                                "stop": {
-                                    "command": "emit",
-                                    "target": "assistant.stop"
-                                }
-                            }
+                            "@id": "assistantAsk"
                         }
                     }
                 },
@@ -6151,14 +6069,7 @@
                             "size": "sm",
                             "_label": "What this conversation is about",
                             "<-items": "$.data.support.topics",
-                            "on": {
-                                "remove": [
-                                    {
-                                        "command": "emit",
-                                        "target": "support.topic"
-                                    }
-                                ]
-                            }
+                            "@id": "supportTopics"
                         },
                         "followUp": {
                             "component": "toggleButton",
@@ -6187,18 +6098,13 @@
                             "variant": "soft",
                             "icon": "check",
                             "_title": "Save note",
+                            "@id": "supportNote",
                             "on": {
-                                "press": [
-                                    {
-                                        "command": "emit",
-                                        "target": "support.note"
-                                    },
-                                    {
-                                        "command": "show",
-                                        "target": "$.app.toasts",
-                                        "value": "noteSaved"
-                                    }
-                                ]
+                                "press": {
+                                    "command": "show",
+                                    "target": "$.app.toasts",
+                                    "value": "noteSaved"
+                                }
                             }
                         },
                         "handover": {
@@ -6209,10 +6115,16 @@
                             "maxLength": 600,
                             "_placeholder": "Steps for the next shift",
                             "_help": "Type - or [] and a space to start a list",
-                            "commentAuthor": { "id": "lead", "label": "Shift lead" },
+                            "commentAuthor": {
+                                "id": "lead",
+                                "label": "Shift lead"
+                            },
                             "comments": {
                                 "cPartial": {
-                                    "author": { "id": "agent2", "label": "Sam" },
+                                    "author": {
+                                        "id": "agent2",
+                                        "label": "Sam"
+                                    },
                                     "text": "Partial means up to 30 percent; more needs a manager.",
                                     "at": "2026-11-20T16:40:00.000Z"
                                 }
@@ -6244,7 +6156,9 @@
                                                 "marks": [
                                                     "bold"
                                                 ],
-                                                "comments": ["cPartial"]
+                                                "comments": [
+                                                    "cPartial"
+                                                ]
                                             },
                                             {
                                                 "text": " refund"
@@ -6306,18 +6220,13 @@
                                     }
                                 }
                             },
+                            "@id": "supportEscalate",
                             "on": {
-                                "submitted": [
-                                    {
-                                        "command": "emit",
-                                        "target": "support.escalate"
-                                    },
-                                    {
-                                        "command": "show",
-                                        "target": "$.app.toasts",
-                                        "value": "supportSent"
-                                    }
-                                ]
+                                "submitted": {
+                                    "command": "show",
+                                    "target": "$.app.toasts",
+                                    "value": "supportSent"
+                                }
                             }
                         }
                     }
@@ -6619,14 +6528,7 @@
                             ]
                         }
                     },
-                    "on": {
-                        "run": [
-                            {
-                                "command": "emit",
-                                "target": "nav.goto"
-                            }
-                        ]
-                    }
+                    "@id": "palette"
                 }
             }
         },
@@ -7074,24 +6976,54 @@
                                             "split": true,
                                             "_label": "Send a test",
                                             "actions": {
-                                                "email": { "_label": "Send a test email" },
-                                                "sms": { "_label": "Send a test text" },
-                                                "both": { "_label": "Send both" }
+                                                "email": {
+                                                    "_label": "Send a test email"
+                                                },
+                                                "sms": {
+                                                    "_label": "Send a test text"
+                                                },
+                                                "both": {
+                                                    "_label": "Send both"
+                                                }
                                             },
-                                            "on": { "action": { "command": "show", "target": "$.app.toasts", "value": "testSent" } }
+                                            "on": {
+                                                "action": {
+                                                    "command": "show",
+                                                    "target": "$.app.toasts",
+                                                    "value": "testSent"
+                                                }
+                                            }
                                         },
                                         "tourStart": {
                                             "component": "button",
                                             "variant": "ghost",
                                             "_title": "Show me around",
-                                            "on": { "press": { "command": "start", "target": "$.screens.main.children.settings.children.sections.children.notifications.children.preview.children.tour" } }
+                                            "on": {
+                                                "press": {
+                                                    "command": "start",
+                                                    "target": "$.screens.main.children.settings.children.sections.children.notifications.children.preview.children.tour"
+                                                }
+                                            }
                                         },
                                         "tour": {
                                             "component": "tour",
                                             "steps": {
-                                                "pause": { "target": "$.screens.main.children.settings.children.sections.children.notifications.children.digest.children.pause", "_title": "Pause for a while", "_text": "Pick a time and notifications stop until then." },
-                                                "sender": { "target": "$.screens.main.children.settings.children.sections.children.notifications.children.preview.children.sender", "_title": "Name the sender", "_text": "Press the name to change it." },
-                                                "send": { "target": "$.screens.main.children.settings.children.sections.children.notifications.children.preview.children.send", "side": "top", "_title": "Try it", "_text": "Send yourself a test notification." }
+                                                "pause": {
+                                                    "target": "$.screens.main.children.settings.children.sections.children.notifications.children.digest.children.pause",
+                                                    "_title": "Pause for a while",
+                                                    "_text": "Pick a time and notifications stop until then."
+                                                },
+                                                "sender": {
+                                                    "target": "$.screens.main.children.settings.children.sections.children.notifications.children.preview.children.sender",
+                                                    "_title": "Name the sender",
+                                                    "_text": "Press the name to change it."
+                                                },
+                                                "send": {
+                                                    "target": "$.screens.main.children.settings.children.sections.children.notifications.children.preview.children.send",
+                                                    "side": "top",
+                                                    "_title": "Try it",
+                                                    "_text": "Send yourself a test notification."
+                                                }
                                             }
                                         }
                                     }

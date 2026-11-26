@@ -97,7 +97,8 @@ const origin = (): DOMRect => elementAt(`${SURFACE}.wallpaper`).getBoundingClien
 const zOf = (app: AppId): number => Number(getComputedStyle(elementAt(`${SURFACE}.${app}`)).zIndex);
 const items = (): FsItem[] => desk.store.get<FsItem[]>('$.data.fs.items');
 const named = (name: string): FsItem | undefined => items().find((item) => item.name === name);
-const runErrors = (): string[] => desk.errors.map((error) => `${error.code} ${error.message}`);
+// The advice to keep a component's own state on its node (SUI-LINK-OWN) is not an error: the desk keeps it in $.data on purpose
+const runErrors = (): string[] => desk.errors.filter((error) => error.code !== 'SUI-LINK-OWN').map((error) => `${error.code} ${error.message}`);
 
 async function openApp(app: AppId): Promise<void> {
     press(`${SURFACE}.icon_${app}`);

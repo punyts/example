@@ -1,12 +1,12 @@
 /**
  * Starts Northwind Ops: registers the component modules, builds the library from the catalog, mounts the app document
- * with `mountApp` and the locale step, and connects the few things that need code (`onEmit` handlers, generated data
+ * with `mountApp` and the locale step, and connects the few things that need code (what it hears of nodes with an `@id`, generated data
  * and the store "bridges" that turn a store write into a component command). `main.ts` calls it for the page and the
  * browser test calls it for each test
  */
 import type { Store } from '@punyts/state';
 import { FileTransferError, hostCatalog, libraryFromCatalog, mountApp, registerLocaleStep, registerMountStep } from '@punyts/stateui-app';
-import type { AppDocument, AppState, BuildError, ComponentLibrary, ComponentOverlays, JsonObject, LocaleStepHandle, TransferFile } from '@punyts/stateui-app';
+import type { AppDocument, AppState, BuildError, ComponentLibrary, ComponentOverlays, JsonObject, LocaleStepHandle, RaisedReport, TransferFile } from '@punyts/stateui-app';
 import catalog from '@punyts/stateui-components/catalog.json';
 import { registerAll } from '@punyts/stateui-components/components';
 import { COMPONENT_FUNCTIONS } from '@punyts/stateui-components/functions';
@@ -22,6 +22,41 @@ import { ASSISTANT_STEPS, CATEGORIES, CUSTOMER_REPLY, STEPS, completedSteps, emp
 import type { Category, Delivery, Message, Product } from './seed.ts';
 import { categoryTrail, filterDeliveries, pageOf, productsInCategory } from './views.ts';
 import { load3d, readFile } from './warehouse.ts';
+
+/**
+ * What the page hears of the document's nodes with an `@id`: `<id>.<event>` to the name it acts on, with the event's
+ * value as the payload, the id of the node's row (`row`), or none
+ */
+const HEARING: Readonly<Record<string, { name: string; from?: 'row' | 'none' }>> = {
+    'ordersTrail.select': { name: 'nav.goto' },
+    'ordersJump.search': { name: 'orders.jump' },
+    'ordersRefresh.press': { name: 'orders.refresh' },
+    'orderOpen.press': { name: 'order.open', from: 'row' },
+    'rowShip.press': { name: 'order.ship', from: 'row' },
+    'rowCancel.press': { name: 'order.open', from: 'row' },
+    'orderSteps.select': { name: 'order.step' },
+    'orderShip.press': { name: 'order.ship', from: 'none' },
+    'newOrderForm.submitted': { name: 'order.create' },
+    'orderCancel.press': { name: 'order.cancel' },
+    'fulfilmentBoard.move': { name: 'board.move' },
+    'deliveriesCalendar.select': { name: 'delivery.day' },
+    'deliveriesCalendar.open': { name: 'delivery.open' },
+    'productNew.press': { name: 'product.new' },
+    'productsTable.activate': { name: 'crudTable.edit' },
+    'productForm.submitted': { name: 'crudTable.save' },
+    'productDelete.press': { name: 'crudTable.delete' },
+    'catalogTrail.select': { name: 'catalog.crumb' },
+    'chatComposer.send': { name: 'chat.send' },
+    'chatComposer.stop': { name: 'chat.stop' },
+    'assistantRefund.approve': { name: 'assistant.refund' },
+    'assistantAsk.send': { name: 'assistant.ask' },
+    'assistantAsk.stop': { name: 'assistant.stop' },
+    'supportTopics.remove': { name: 'support.topic' },
+    'supportNote.press': { name: 'support.note' },
+    'supportEscalate.submitted': { name: 'support.escalate' },
+    'wizardReview.submitted': { name: 'wizard.done' },
+    'palette.run': { name: 'nav.goto' }
+};
 
 /** The component overlays the library ships, `<name>.locale.<code>.json`, grouped as `registerLocaleStep` wants them */
 const localeFiles = import.meta.glob<JsonObject>('@stateui-components-dist/*.locale.*.json', { eager: true, import: 'default' });
@@ -403,7 +438,7 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
         }
     };
 
-    const onEmit = (name: string, payload: unknown): void => {
+    const onHeard = (name: string, payload: unknown): void => {
         if (!store) return;
         switch (name) {
             case 'orders.jump': {
@@ -558,11 +593,18 @@ export function startApp(host: HTMLElement, options: StartOptions = {}): Running
                 break;
             }
             default:
-                console.warn(`[northwind] unhandled emit ${name}`);
+                console.warn(`[northwind] unhandled event ${name}`);
         }
     };
+    // The nodes the page acts on carry an @id; each <id>.<event> is heard as the name the handlers above act on
+    const onRaised = (report: RaisedReport): void => {
+        const heard = HEARING[`${report.id}.${report.event}`];
+        if (heard === undefined) return;
+        const payload = heard.from === 'row' ? (report.row as { id?: unknown } | undefined)?.id : heard.from === 'none' ? undefined : report.value;
+        onHeard(heard.name, payload);
+    };
 
-    const mounted = mountApp(host, document, library, { onEmit, onError, transferFile, readFile, load3d }, { functions: [COMPONENT_FUNCTIONS, hostCatalog({ ...archive.functions, ...RIDGELINE_HOST_FUNCTIONS })] });
+    const mounted = mountApp(host, document, library, { onRaised, onError, transferFile, readFile, load3d }, { functions: [COMPONENT_FUNCTIONS, hostCatalog({ ...archive.functions, ...RIDGELINE_HOST_FUNCTIONS })] });
     if (!mounted.store) {
         locale.unregister();
         unregisterData();

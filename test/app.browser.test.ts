@@ -105,6 +105,12 @@ function rowSlot(id: string): string | undefined {
     return undefined;
 }
 
+/**
+ * What the app reported at mount and while running, but the advice to keep a component's own state on its node
+ * (SUI-LINK-OWN), which the sections take on purpose: they show and hide through $.data the code writes
+ */
+const problems = () => app.errors.filter((error) => error.code !== 'SUI-LINK-OWN');
+
 /** Every error reported while running, which a failed `on` command reports as `SUI-RUN-*` */
 const runErrors = (): string[] => app.errors.filter((error) => error.code.startsWith('SUI-RUN')).map((error) => `${error.code} ${error.message}`);
 
@@ -138,7 +144,7 @@ describe('Northwind Ops', () => {
         await frame();
 
         // Assert
-        expect(app.errors).toEqual([]);
+        expect(problems()).toEqual([]);
         expect(app.store.get<Order[]>('$.data.orders')).toHaveLength(10000);
         expect(elementAt(PATHS.orderList)).toBeDefined();
     });
@@ -240,7 +246,7 @@ describe('Northwind Ops', () => {
         expect(created.status).toBe('pending');
         expect(app.store.get(`${PATHS.newOrder}.open`)).toBe(false);
         expect(app.store.get('$.data.selectedOrder')).toBe(created.id);
-        expect(app.errors).toEqual([]);
+        expect(problems()).toEqual([]);
     });
 
     it('should open the order of the row whose nested Open button is pressed', async () => {
@@ -329,7 +335,7 @@ describe('Northwind Ops', () => {
         expect(app.store.get('$.data.detail.status')).toBe('cancelled');
         expect(app.store.get(`${PATHS.cancelDialog}.open`)).toBe(false);
         expect(app.store.get(`${PATHS.detail}.open`)).toBe(false);
-        expect(app.errors).toEqual([]);
+        expect(problems()).toEqual([]);
     });
 
     it('should show German text after switching the locale to de', async () => {
@@ -346,7 +352,7 @@ describe('Northwind Ops', () => {
         expect(app.store.get('$.locale')).toBe('de');
         expect(deepText(nav)).not.toContain('Orders');
         expect(deepText(elementAt('$.screens.main.children.settings'))).toContain('Sprache');
-        expect(app.errors).toEqual([]);
+        expect(problems()).toEqual([]);
     });
 
     it('should change $.theme.active.mode when a theme mode is chosen', async () => {
@@ -365,7 +371,7 @@ describe('Northwind Ops', () => {
         // Assert
         await until(() => app.store.get('$.theme.active.mode') === 'contrast');
         expect(app.store.get('$.data.prefs.mode')).toBe('contrast');
-        expect(app.errors).toEqual([]);
+        expect(problems()).toEqual([]);
     });
 });
 
@@ -427,7 +433,7 @@ describe('Northwind Ops sections', () => {
         // Assert
         expect(shownInEnglish).toBe(true);
         expect(isShown(elementAt(`$.screens.main.children.${section}`))).toBe(true);
-        expect(app.errors).toEqual([]);
+        expect(problems()).toEqual([]);
         expect(runErrors()).toEqual([]);
     });
 
@@ -441,7 +447,7 @@ describe('Northwind Ops sections', () => {
         await wait(100);
 
         // Assert
-        expect(app.errors).toEqual([]);
+        expect(problems()).toEqual([]);
         expect(deepText(elementAt('$.screens.main.children.settings'))).toContain('Allgemein');
     });
 
@@ -456,7 +462,7 @@ describe('Northwind Ops sections', () => {
 
         // Assert
         expect(app.store.get('$.data.prefs.language')).toBe('en');
-        expect(app.errors).toEqual([]);
+        expect(problems()).toEqual([]);
     });
 });
 
@@ -686,7 +692,7 @@ describe('Northwind Ops new sections', () => {
         expect(app.store.get('$.screens.main.children.help.density')).toBe('compact');
         expect(app.store.get('$.data.prefs.motion')).toBe('reduced');
         expect(app.store.get('$.theme.tokens.color.accent.base')).toBe('{palette.teal.700}');
-        expect(app.errors).toEqual([]);
+        expect(problems()).toEqual([]);
     });
 
     it('should open the contact modal from the help section', async () => {
@@ -727,7 +733,7 @@ describe('Northwind Ops new sections', () => {
         const bins = app.store.get<unknown[]>('$.data.warehouse.bins');
         expect(bins).toHaveLength(21);
         expect(deepAll(floor).filter((element) => element.localName === 'rect' && element.getAttribute('width') === '26')).toHaveLength(21);
-        expect(app.errors).toEqual([]);
+        expect(problems()).toEqual([]);
     });
 
     it('should load the 3D renderer through the load3d hook and draw the racks', async () => {
@@ -738,7 +744,7 @@ describe('Northwind Ops new sections', () => {
 
         // Assert
         expect(scene.hasAttribute('data-fallback')).toBe(false);
-        expect(app.errors).toEqual([]);
+        expect(problems()).toEqual([]);
     });
 });
 
@@ -761,7 +767,7 @@ describe('Northwind Ops order archive', () => {
         expect(rows['0']?.totalText).toMatch(/^€/);
         expect(app.store.get(`${ARCHIVE}.view.statusText`)).toBe('Up to date');
         expect(Object.keys(app.store.get<Record<string, unknown>>(`${ARCHIVE}.records`))).toHaveLength(10);
-        expect(app.errors).toEqual([]);
+        expect(problems()).toEqual([]);
     });
 
     it('should page through the pager and answer a page it has seen from the cache, with no request', async () => {
@@ -822,7 +828,7 @@ describe('Northwind Ops order archive', () => {
 
         // Assert
         expect(page()['2']?.totalText).toBe('€1,234.50');
-        expect(app.errors).toEqual([]);
+        expect(problems()).toEqual([]);
     });
 });
 

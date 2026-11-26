@@ -10,7 +10,7 @@
  */
 import type { Store } from '@punyts/state';
 import { hostCatalog, libraryFromCatalog, mountApp, registerMountStep } from '@punyts/stateui-app';
-import type { AppState, BuildError } from '@punyts/stateui-app';
+import type { AppState, BuildError, RaisedReport } from '@punyts/stateui-app';
 import catalog from '@punyts/stateui-components/catalog.json';
 import { registerAll } from '@punyts/stateui-components/components';
 import { COMPONENT_FUNCTIONS } from '@punyts/stateui-components/functions';
@@ -79,15 +79,16 @@ export async function startDesktop(host: HTMLElement, options: DesktopOptions = 
     });
 
     let store: Store<AppState> | undefined;
-    const onEmit = (name: string, payload: unknown): void => {
-        if (name === 'fs.open' && typeof payload === 'string' && store !== undefined) store.set('$.data.input.open', payload);
+    // The listing carries the @id listing: activating a file opens it
+    const onRaised = (report: RaisedReport): void => {
+        if (report.id === 'listing' && report.event === 'activate' && typeof report.value === 'string' && store !== undefined) store.set('$.data.input.open', report.value);
     };
 
     const mounted = mountApp(
         host,
         document,
         library,
-        { onEmit, onError, transferFile: files.transferFile, readFile: files.readFile, load3d },
+        { onRaised, onError, transferFile: files.transferFile, readFile: files.readFile, load3d },
         { functions: [COMPONENT_FUNCTIONS, hostCatalog({ ...DESK_HOST_FUNCTIONS, ...RIDGELINE_HOST_FUNCTIONS })] }
     );
     if (!mounted.store) {

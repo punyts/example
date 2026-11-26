@@ -3,7 +3,7 @@
 A small back-office app that shows what the StateUI builder libraries do. The whole UI is one JSON app document
 (`src/document/`), mounted with `mountApp` from `@punyts/stateui-app` and rendered by the components of
 `@punyts/stateui-components`. There is no React, no DI container and no extra framework: behaviour is written as `on`
-entries in the document, and the few things that need code go through `onEmit` hooks and store listeners in
+entries in the document, and the few things that need code go through the `onRaised` hook (nodes with an `@id`, heard through `HEARING`) and store listeners in
 `src/bootstrap.ts`.
 
 Next to the app runs an **agent console**: plain HTML outside the StateUI host whose buttons only write to the store.
@@ -39,7 +39,7 @@ npm run icons      # regenerate src/icons.json after adding an icon to the docum
 | `src/document/locale.de.json` | German text of the app node (the toasts) |
 | `src/document/main.locale.de.json` | German text for everything the screen `main` writes itself |
 | `src/document/index.ts` | Assembles the app document (locale, theme, data, the app node, the screen `main`, logic, locales) |
-| `src/bootstrap.ts` | `startApp`: registration, mount, `onEmit` handlers, store bridges |
+| `src/bootstrap.ts` | `startApp`: registration, mount, `onRaised` and `HEARING` (what each `<id>.<event>` means), store bridges |
 | `src/data.ts` | Seeded generators for 240 customers and 10,000 orders, plus stats |
 | `src/seed.ts` | Seeded smaller data sets (products, categories, deliveries, support threads, chart figures) and `seedData`, which puts them into the document's data |
 | `src/views.ts` | Pure helpers: deliveries in a date range, one page of a list, products of a category, the breadcrumb trail |
@@ -106,7 +106,7 @@ The app document places every component of the catalog (the test fixtures `order
 | Workshop (`workshop`) | A stool to model (below): a `scene3d` with a `mesh` of custom geometry in edit mode, a `segmented` pick mode, `button`s for the operations, undo, redo and Save as GLB, and `markdown` notes |
 | New order (`desk`) | `wizard` (with `stepper`, `tabs` and `form` steps): `comboboxField`, `radioField`, `dateField`, `selectField`, `numberField`, `sliderField`, `multiSelectField`, `switchField`, `fileField`, `descriptionList`, `checkField` |
 | Support (`support`) | `chatView` (live, the customer's reply streams in), `messageList` (an earlier thread), `markdown` (a canned reply), `select`, `textarea`, `form` with `selectField` and `textareaField` (escalation), `divider`, `chipList` (the conversation's topics; `remove` deletes one), `toggleButton` (follow up) and `rating` (the conversation) |
-| Help (`help`) | `accordion` of `disclosure` entries, stand-alone `disclosure` entries with `markdown` and a `codeBlock` (the export format), `modal` (contact support), `carousel` of tips, `commandPalette` (go to a section; `run` emits `nav.goto`) |
+| Help (`help`) | `accordion` of `disclosure` entries, stand-alone `disclosure` entries with `markdown` and a `codeBlock` (the export format), `modal` (contact support), `carousel` of tips, `commandPalette` (go to a section; its `run` is heard as `nav.goto`) |
 | Settings (`settings`) | `settingsPanel` with General, Notifications, Appearance and Theme overrides; `segmented` (language, theme mode, motion, density), `switch`, `checkbox`, `timeField` (the digest time) and `select` (accent colour), `colorField` (a custom accent that overrides the choice while set), `pinField` (confirm a device; `complete` shows a toast), `toast` (a preview), `textField`, `card` with a node `theme` |
 
 Every section has German text in `main.locale.de.json`; the data in the lists (customer names, product names, thread
@@ -219,7 +219,7 @@ listens to them ("bridges") and turns them into calls:
 - `$.data.requests.toast` runs the `show` command of the `toastRegion`, then clears the request;
 - `$.data.requests.jumpTo` runs `scrollTo` on the orders `recordList`, selects the order, then clears the request.
 
-The same request slots serve the app itself: the search box emits `orders.jump`, and the handler writes
+The same request slots serve the app itself: the search box (`@id` `ordersJump`) is heard as `orders.jump`, and the handler writes
 `$.data.requests.jumpTo`.
 
 ## Lumen, the desktop
@@ -251,7 +251,7 @@ page.
 
 ### Where Lumen needs code
 
-- **Opening a file.** The listing's `activate` event emits `fs.open`, and the handler writes the item id to
+- **Opening a file.** The listing (`@id` `listing`) raises `activate` with the item id, and the handler writes the item id to
   `$.data.input.open`. The Open button writes the same input with `from: "$.data.fs.selected"`, which reads the
   selection when it is pressed (an `on` value is taken as written, so a `{{ }}` there would not be evaluated).
 - **Dark windows and the clock.** The switch sets `$.theme.active.mode` and a timer writes the clock. The surface

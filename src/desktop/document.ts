@@ -136,7 +136,7 @@ const FILES = appWindow('files', { type: 'column', gap: 'sm' }, {
                 '<-items': '$.data.fs.listing',
                 '<-selected': '$.data.fs.selected',
                 _empty: 'This folder is empty',
-                on: { activate: { command: 'emit', target: 'fs.open' } },
+                '@id': 'listing',
                 row: {
                     component: 'panel',
                     padding: 'none',
