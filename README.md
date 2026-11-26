@@ -44,7 +44,7 @@ npm run icons      # regenerate src/icons.json after adding an icon to the docum
 | `src/seed.ts` | Seeded smaller data sets (products, categories, deliveries, support threads, chart figures) and `seedData`, which puts them into the document's data |
 | `src/views.ts` | Pure helpers: deliveries in a date range, one page of a list, products of a category, the breadcrumb trail |
 | `src/sections.ts` | `showSection`: shows one section (the console, the breadcrumb handler and the tests use it); `bindSections` writes each section panel's own `hidden` from `$.data.nav.section` |
-| `src/nodePath.ts` | `pathOfId`: the state path of a node by its id (`@id`, else its key), for code that writes a node's own state |
+| `src/nodePath.ts` | `pathOfId`: the state path of a node by its id (`@id`, else its key), for host code that writes a node's own state on the store (`bindSections`); logic names a node as `#id` and needs no path |
 | `src/archive.ts` | The fake archive API behind the archive effect (`$.functions.host.archiveFetch`, paged, aborts on a newer request) and the `$.functions.host.moneyFormat` compute function, given to `mountApp` in a `hostCatalog` beside `COMPONENT_FUNCTIONS` |
 | `src/ridgeline.ts` | The rules of Ridgeline as pure functions over a JSON game state, and `RIDGELINE_HOST_FUNCTIONS` (`ridgelineNew`, `ridgelinePick`, `ridgelineMove`), expression functions of the host catalog that the rules call by path |
 | `src/warehouse.ts` | The Warehouse files and the `readFile` and `load3d` hooks that serve them |
@@ -249,7 +249,7 @@ window links its `active` and `maximized` flags and its whole `placement` (`"<-p
 the stacking order) to that data. What is a node's own state stays on the node: the same rule then writes each
 window's `hidden` and each task button's `hidden` and `variant` on the node from the window records, and the rule that
 opens a file writes the `hidden` of the Viewer's picture and empty state. Those nodes carry an `@id` (`filesWindow`,
-`filesTask`, `viewerPicture`, `viewerNone`) and the rules' targets are found by it when the document is built. A window dragged by its title bar or
+`filesTask`, `viewerPicture`, `viewerNone`) and the rules' targets name them by it (`#filesWindow.hidden`, `#filesTask.variant`), as the Delete button names the dialog it opens (`#deleteDialog`), so a node can move without the logic changing. A window dragged by its title bar or
 resized by its edge writes its own placement in pixels through that link and raises `move` or `resize`; the command
 `"place notes"` reads the placement back into the window's free geometry, so a snapped window that is dragged is free. The file system works the same way with `fsAct`. Each rule's function is a pure function in `desk.ts`, and `desk.browser.test.ts` tests them without a browser
 page.

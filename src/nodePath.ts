@@ -1,7 +1,8 @@
 /**
- * Finds a node of a document by its id, as `#name` does: a node's id is its `@id`, otherwise its key. Code that
- * writes a node's own state (`hidden`, a look) asks for the node's path by id instead of spelling out where the node
- * sits, so the node can move without the code changing
+ * Finds a node of a document by its id, as `#name` does: a node's id is its `@id`, otherwise its key. Host code that
+ * writes a node's own state (`hidden`, a look) on the store asks for the node's path by id instead of spelling out
+ * where the node sits, so the node can move without the code changing (`sections.ts`). Logic and `on` entries need
+ * none of this: they name the node as `#id`
  */
 
 type Json = Record<string, unknown>;

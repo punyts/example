@@ -11,32 +11,30 @@
  *
  * A node's own state stays on the node: a window's and a task button's `hidden`, a task button's `variant` and the
  * Viewer's picture and empty state start as literals, and the rules write them on the node from the data
- * (`ownState`). The rules find each node by its `@id` (`DESK_IDS`).
+ * (`ownState`). The rules name each node by its `@id` (`DESK_IDS`), as `#filesWindow.hidden`, never by where it sits.
  */
 import type { AppDocument } from '@punyts/stateui-app/core';
 import main from '../document/main.json' with { type: 'json' };
 import northwindLogic from '../document/logic.json' with { type: 'json' };
-import { requirePathOfId } from '../nodePath.ts';
 import { emptyGame } from '../seed.ts';
 import { APPS, deskWallpaper, emptyDesk, fsView, seedItems, viewerLoad } from './desk.ts';
 import type { AppId } from './desk.ts';
 
 type Json = Record<string, unknown>;
 
-/** The `@id` of the nodes whose own state the rules write */
+/** The `@id` of the nodes the rules and the `on` entries name: those whose own state the rules write, and the delete dialog */
 export const DESK_IDS = {
     window: (app: AppId): string => `${app}Window`,
     task: (app: AppId): string => `${app}Task`,
     viewerPicture: 'viewerPicture',
-    viewerNone: 'viewerNone'
+    viewerNone: 'viewerNone',
+    deleteDialog: 'deleteDialog'
 } as const;
 
-/** The state path of the screen's nodes the host talks to */
+/** The state path of the surface and the taskbar, for code that reads what the screen shows (the tests) */
 export const DESK_PATHS = {
     surface: '$.screens.desk.children.surface',
-    taskbar: '$.screens.desk.children.taskbar',
-    window: (app: AppId): string => `$.screens.desk.children.surface.children.${app}`,
-    deleteDialog: '$.screens.desk.children.surface.children.files.children.confirm'
+    taskbar: '$.screens.desk.children.taskbar'
 } as const;
 
 export const TITLES: Readonly<Record<AppId, string>> = {
@@ -172,7 +170,7 @@ const FILES = appWindow('files', { type: 'column', gap: 'sm' }, {
             newFolder: button('New folder', 'folder-plus', fsInput('newFolder'), { variant: 'soft', size: 'sm' }),
             newNote: button('New note', 'file-plus', fsInput('newNote'), { variant: 'soft', size: 'sm' }),
             rename: button('Rename', 'pencil', fsInput('rename'), { variant: 'soft', size: 'sm' }),
-            remove: button('Delete', 'trash', { command: 'open', target: DESK_PATHS.deleteDialog }, { variant: 'soft', size: 'sm', tone: 'danger' })
+            remove: button('Delete', 'trash', { command: 'open', target: `#${DESK_IDS.deleteDialog}` }, { variant: 'soft', size: 'sm', tone: 'danger' })
         }
     },
     upload: {
@@ -183,6 +181,7 @@ const FILES = appWindow('files', { type: 'column', gap: 'sm' }, {
     },
     confirm: {
         component: 'confirmDialog',
+        '@id': DESK_IDS.deleteDialog,
         _title: 'Delete this item?',
         body: { _text: 'The selected item, and everything in it if it is a folder, is deleted for good.' },
         footer: {
@@ -416,16 +415,14 @@ const answer = (path: string, commands: Json[]): Json => ({
 
 const ridgelineRules = northwindLogic.rules as unknown as Record<string, Json>;
 
-const SCREEN_PATH = '$.screens.desk';
-
 /**
- * The commands that write the nodes' own state from the data, after a rule changed it. Each node is found by its
- * `@id` in the screen, so a window or a button can move without these changing. A window is hidden while it is closed
- * or minimized; its task button shows while it is open and is `soft` for the window in front
+ * The commands that write the nodes' own state from the data, after a rule changed it. Each target names its node by
+ * its `@id` (`#filesWindow.hidden`), which the logic resolves to where the node is now, so a window or a button can
+ * move without these changing. A window is hidden while it is closed or minimized; its task button shows while it is
+ * open and is `soft` for the window in front
  */
 function ownState(): { windows: Json[]; viewer: Json[] } {
-    const root = screen('100%');
-    const at = (id: string, property: string): string => `${requirePathOfId(root, SCREEN_PATH, id)}.${property}`;
+    const at = (id: string, property: string): string => `#${id}.${property}`;
     const record = (app: AppId): string => `$.data.desk.manager.windows.${app}`;
     return {
         windows: APPS.flatMap((app) => [
